@@ -1,4 +1,11 @@
-import { Controller, Get } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('resize')
 export class ResizeController {
@@ -9,5 +16,11 @@ export class ResizeController {
       timestamp: Date.now(),
       message: 'Service is healthy',
     };
+  }
+
+  @Post()
+  @UseInterceptors(FileInterceptor('image'))
+  resizeImage(@UploadedFile() file: Express.Multer.File) {
+    return file;
   }
 }
