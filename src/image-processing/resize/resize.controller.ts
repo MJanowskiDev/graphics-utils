@@ -3,16 +3,17 @@ import {
   Get,
   HttpStatus,
   ParseFilePipeBuilder,
-  ParseIntPipe,
   Post,
   Query,
   Res,
   UploadedFile,
   UseInterceptors,
+  ValidationPipe,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ResizeService } from './resize.service';
 import { Response } from 'express';
+import { ResizeImageDto } from './dto/resize.dto';
 
 @Controller('resize')
 export class ResizeController {
@@ -44,7 +45,8 @@ export class ResizeController {
     )
     file: Express.Multer.File,
     @Res() res: Response,
-    @Query('width', ParseIntPipe) width: number,
+    @Query(new ValidationPipe({ transform: true }))
+    { width }: ResizeImageDto,
   ) {
     const resizedBuffer = await this.resizeService.resize(file.buffer, width);
     res.setHeader('Content-Type', 'image/png');
