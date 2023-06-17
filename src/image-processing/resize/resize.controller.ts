@@ -5,7 +5,6 @@ import {
   ParseFilePipeBuilder,
   Post,
   Query,
-  Res,
   UploadedFile,
   UseInterceptors,
   ValidationPipe,
@@ -14,6 +13,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ResizeService } from './resize.service';
 import { Response } from 'express';
 import { ResizeImageDto } from './dto/resize.dto';
+import { SendImage } from '../decorator/SendImage';
 
 @Controller('resize')
 export class ResizeController {
@@ -44,13 +44,10 @@ export class ResizeController {
         }),
     )
     file: Express.Multer.File,
-    @Res() res: Response,
     @Query(new ValidationPipe({ transform: true }))
     { width }: ResizeImageDto,
+    @SendImage() res: Response,
   ) {
-    const resizedBuffer = await this.resizeService.resize(file.buffer, width);
-    res.setHeader('Content-Type', 'image/png');
-    res.setHeader('Content-Disposition', 'attachment; filename="resized.png"');
-    res.send(resizedBuffer);
+    res.send(await this.resizeService.resize(file.buffer, width));
   }
 }
