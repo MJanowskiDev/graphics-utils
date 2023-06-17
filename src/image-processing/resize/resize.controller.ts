@@ -1,6 +1,8 @@
 import {
   Controller,
   Get,
+  HttpStatus,
+  ParseFilePipeBuilder,
   Post,
   UploadedFile,
   UseInterceptors,
@@ -20,7 +22,21 @@ export class ResizeController {
 
   @Post()
   @UseInterceptors(FileInterceptor('image'))
-  resizeImage(@UploadedFile() file: Express.Multer.File) {
+  resizeImage(
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({
+          fileType: 'jpeg',
+        })
+        .addMaxSizeValidator({
+          maxSize: 12,
+        })
+        .build({
+          errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+        }),
+    )
+    file: Express.Multer.File,
+  ) {
     return file;
   }
 }
