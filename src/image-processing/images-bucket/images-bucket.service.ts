@@ -43,7 +43,6 @@ export class ImagesBucketService {
     fileName: string,
     bucketName: string,
   ) {
-    console.log(fileName);
     const s3Client = new S3({
       accessKeyId: this.awsConfig.accessKeyId,
       secretAccessKey: this.awsConfig.secretAccessKey,
