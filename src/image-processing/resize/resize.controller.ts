@@ -34,7 +34,7 @@ export class ResizeController {
     @UploadedFile(
       new ParseFilePipeBuilder()
         .addFileTypeValidator({
-          fileType: 'png',
+          fileType: /png|jpeg|gif|webp|avif|tiff/,
         })
         .addMaxSizeValidator({
           maxSize: 100000,
