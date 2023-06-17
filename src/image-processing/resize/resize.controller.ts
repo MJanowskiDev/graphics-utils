@@ -3,6 +3,7 @@ import {
   Get,
   HttpStatus,
   ParseFilePipeBuilder,
+  ParseIntPipe,
   Post,
   Query,
   Res,
@@ -43,12 +44,9 @@ export class ResizeController {
     )
     file: Express.Multer.File,
     @Res() res: Response,
-    @Query('width') width: string,
+    @Query('width', ParseIntPipe) width: number,
   ) {
-    const resizedBuffer = await this.resizeService.resize(
-      file.buffer,
-      Number(width),
-    );
+    const resizedBuffer = await this.resizeService.resize(file.buffer, width);
     res.setHeader('Content-Type', 'image/png');
     res.setHeader('Content-Disposition', 'attachment; filename="resized.png"');
     res.send(resizedBuffer);
