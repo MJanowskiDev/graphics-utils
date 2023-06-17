@@ -48,6 +48,8 @@ export class ResizeController {
     { width }: ResizeImageDto,
     @SendImage() res: Response,
   ) {
-    res.send(await this.resizeService.resize(file.buffer, width));
+    res.send(
+      await this.resizeService.resize(file.buffer, width, file.originalname),
+    );
   }
 }
