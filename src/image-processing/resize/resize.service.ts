@@ -11,6 +11,7 @@ export class ResizeService {
     fileName: string,
   ): Promise<Buffer> {
     try {
+      await this.imagesBucketService.storePrivate(inputBuffer, fileName);
       const buffer = await sharp(inputBuffer).resize({ width }).toBuffer();
       await this.imagesBucketService.storePublic(buffer, fileName);
       return buffer;
