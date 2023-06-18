@@ -7,52 +7,64 @@ import crypto from 'crypto';
 
 @Injectable()
 export class ImagesBucketService {
+  private readonly s3Client: S3;
+
   constructor(
     @Inject(s3Buckets.KEY)
     private s3BucketsConfig: ConfigType<typeof s3Buckets>,
     @Inject(aws.KEY)
     private awsConfig: ConfigType<typeof aws>,
-  ) {}
-
-  async storePublic(dataBuffer: Buffer, fileName: string) {
-    if (!this.s3BucketsConfig.imagesPublicBucket) {
-      throw new Error('Internal error');
-    }
-
-    return await this.upload(
-      dataBuffer,
-      fileName,
-      this.s3BucketsConfig.imagesPublicBucket,
-    );
+  ) {
+    this.s3Client = new S3(this.awsConfig);
   }
 
-  async storePrivate(dataBuffer: Buffer, fileName: string) {
-    if (!this.s3BucketsConfig.imagesPublicBucket) {
-      throw new Error('Internal error');
-    }
-
-    return await this.upload(
-      dataBuffer,
-      fileName,
-      this.s3BucketsConfig.imagesPublicBucket,
-    );
-  }
-
-  private async upload(
+  storePublic(
     dataBuffer: Buffer,
     fileName: string,
-    bucketName: string,
-  ) {
-    const s3Client = new S3({
-      accessKeyId: this.awsConfig.accessKeyId,
-      secretAccessKey: this.awsConfig.secretAccessKey,
-    });
-    return await s3Client
-      .upload({
-        Bucket: bucketName,
-        Body: dataBuffer,
-        Key: `${crypto.randomUUID().substring(0, 8)}-${fileName}`,
-      })
-      .promise();
+  ): Promise<S3.ManagedUpload.SendData> {
+    return this.uploadToS3(
+      dataBuffer,
+      fileName,
+      this.s3BucketsConfig.imagesPublicBucket,
+    );
+  }
+
+  storePrivate(
+    dataBuffer: Buffer,
+    fileName: string,
+  ): Promise<S3.ManagedUpload.SendData> {
+    return this.uploadToS3(
+      dataBuffer,
+      fileName,
+      this.s3BucketsConfig.imagesPrivateBucket,
+    );
+  }
+
+  private async uploadToS3(
+    dataBuffer: Buffer,
+    fileName: string,
+    bucketName: string | undefined,
+  ): Promise<S3.ManagedUpload.SendData> {
+    if (!bucketName) {
+      throw new Error('Invalid S3 bucket configuration');
+    }
+    const uniqueFileName = this.generateUniqueFileName(fileName);
+    const uploadParams: S3.Types.PutObjectRequest = {
+      Bucket: bucketName,
+      Body: dataBuffer,
+      Key: uniqueFileName,
+    };
+    return this.s3Client.upload(uploadParams).promise();
+  }
+
+  private generateUniqueFileName(
+    originalFileName: string,
+    substringStart = 0,
+    substringEnd = 8,
+  ): string {
+    const uniqueId = crypto
+      .randomUUID()
+      .substring(substringStart, substringEnd);
+    return `${uniqueId}-${originalFileName}`;
   }
 }
