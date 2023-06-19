@@ -24,6 +24,7 @@
     "@nestjs/config": "^3.0.0",
     "@nestjs/core": "^9.0.0",
     "@nestjs/platform-express": "^9.0.0",
+    "@nestjs/throttler": "^4.1.0",
     "aws-sdk": "^2.1399.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",

@@ -5,10 +5,15 @@ import { ImageProcessingModule } from './image-processing/image-processing.modul
 import { ConfigModule } from '@nestjs/config';
 import AwsConfig from './config/aws';
 import S3Config from './config/s3-buckets';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
     ImageProcessingModule,
+    ThrottlerModule.forRoot({
+      ttl: 60,
+      limit: 10,
+    }),
     ConfigModule.forRoot({
       load: [AwsConfig, S3Config],
       isGlobal: true,
