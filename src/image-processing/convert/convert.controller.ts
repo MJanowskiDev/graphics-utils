@@ -10,7 +10,6 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ConvertDto } from './dto/format.dto';
-import { SendImage } from '../decorator/SendImage';
 import { Response } from 'express';
 import { ConvertService } from './convert.service';
 
@@ -35,7 +34,7 @@ export class ConvertController {
     file: Express.Multer.File,
     @Query(new ValidationPipe({ transform: true }))
     { format }: ConvertDto,
-    @SendImage() res: Response,
+    res: Response,
   ) {
     const { buffer, fileName, mime } =
       await this.convertService.convertToFormat(
