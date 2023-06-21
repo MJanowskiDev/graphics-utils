@@ -6,10 +6,16 @@ import { ConvertController } from './convert/convert.controller';
 import { ConvertService } from './convert/convert.service';
 import { Asset } from './asset.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AssetRepository } from './repository/asset.repository';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Asset])],
   controllers: [ResizeController, ConvertController],
-  providers: [ResizeService, ImagesBucketService, ConvertService],
+  providers: [
+    ResizeService,
+    ImagesBucketService,
+    ConvertService,
+    AssetRepository,
+  ],
 })
 export class ImageProcessingModule {}

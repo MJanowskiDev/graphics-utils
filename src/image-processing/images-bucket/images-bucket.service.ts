@@ -4,6 +4,8 @@ import s3Buckets from 'src/config/s3-buckets';
 import { ConfigType } from '@nestjs/config';
 import { S3 } from 'aws-sdk';
 import crypto from 'crypto';
+import { Asset } from '../asset.entity';
+import { AssetRepository } from '../repository/asset.repository';
 
 @Injectable()
 export class ImagesBucketService {
@@ -14,30 +16,39 @@ export class ImagesBucketService {
     private s3BucketsConfig: ConfigType<typeof s3Buckets>,
     @Inject(aws.KEY)
     private awsConfig: ConfigType<typeof aws>,
+    private assetRepository: AssetRepository,
   ) {
     this.s3Client = new S3(this.awsConfig);
   }
 
-  storePublic(
+  async storePublic(
     dataBuffer: Buffer,
     fileName: string,
-  ): Promise<S3.ManagedUpload.SendData> {
-    return this.uploadToS3(
+    assetId: number,
+  ): Promise<void> {
+    const uploadResult = await this.uploadToS3(
       dataBuffer,
       fileName,
       this.s3BucketsConfig.imagesPublicBucket,
     );
+    await this.assetRepository.setOutputLink(assetId, uploadResult.Location);
   }
 
-  storePrivate(
+  async storePrivate(
     dataBuffer: Buffer,
     fileName: string,
-  ): Promise<S3.ManagedUpload.SendData> {
-    return this.uploadToS3(
+  ): Promise<{ assetId: number }> {
+    const uploadResult = await this.uploadToS3(
       dataBuffer,
       fileName,
       this.s3BucketsConfig.imagesPrivateBucket,
     );
+
+    const asset = new Asset();
+    asset.sourceLink = uploadResult.Location;
+    const { id } = await this.assetRepository.create(asset);
+
+    return { assetId: id };
   }
 
   private async uploadToS3(

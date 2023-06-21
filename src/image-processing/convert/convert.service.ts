@@ -14,9 +14,12 @@ export class ConvertService {
     const outputFilename = `converted_${fileName.split('.')[0]}.${format}`;
     const mime = `image/${format}`;
 
-    await this.imagesBucketService.storePrivate(inputBuffer, outputFilename);
+    const { assetId } = await this.imagesBucketService.storePrivate(
+      inputBuffer,
+      outputFilename,
+    );
     const buffer = await sharp(inputBuffer).toFormat(format).toBuffer();
-    await this.imagesBucketService.storePublic(buffer, outputFilename);
+    await this.imagesBucketService.storePublic(buffer, outputFilename, assetId);
 
     return { buffer, fileName: outputFilename, mime };
   }
