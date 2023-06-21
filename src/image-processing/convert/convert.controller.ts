@@ -1,10 +1,10 @@
 import {
   Controller,
-  HttpStatus,
-  ParseFilePipeBuilder,
   Post,
   Query,
+  Res,
   UploadedFile,
+  UseFilters,
   UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
@@ -12,29 +12,22 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ConvertDto } from './dto/format.dto';
 import { Response } from 'express';
 import { ConvertService } from './convert.service';
+import { UploadedFileValidation } from '../validation/uploaded-file.validation';
+import { FileProcessingExceptionFilter } from '../exceptions/file-processing.exception.filter';
 
 @Controller('convert')
+@UseFilters(FileProcessingExceptionFilter)
 export class ConvertController {
   constructor(private convertService: ConvertService) {}
+
   @Post()
   @UseInterceptors(FileInterceptor('image'))
   async convertToFormat(
-    @UploadedFile(
-      new ParseFilePipeBuilder()
-        .addFileTypeValidator({
-          fileType: /png|jpeg|gif|webp|avif|tiff/,
-        })
-        .addMaxSizeValidator({
-          maxSize: 100000,
-        })
-        .build({
-          errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-        }),
-    )
+    @UploadedFile(UploadedFileValidation)
     file: Express.Multer.File,
     @Query(new ValidationPipe({ transform: true }))
     { format }: ConvertDto,
-    res: Response,
+    @Res() res: Response,
   ) {
     const { buffer, fileName, mime } =
       await this.convertService.convertToFormat(
@@ -43,8 +36,11 @@ export class ConvertController {
         file.originalname,
       );
 
-    res.setHeader('Content-Type', mime);
-    res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
-    res.send(buffer);
+    res
+      .set({
+        'Content-Type': mime,
+        'Content-Disposition': `attachment; filename="${fileName}"`,
+      })
+      .send(buffer);
   }
 }

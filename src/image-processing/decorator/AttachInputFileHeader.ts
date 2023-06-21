@@ -1,14 +1,15 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
-export const SendImage = createParamDecorator(
+export const AttachInputFileHeader = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {
     const { mimetype, originalName } = ctx.switchToHttp().getRequest().file;
     const response = ctx.switchToHttp().getResponse();
-    response.setHeader('Content-Type', mimetype);
-    response.setHeader(
-      'Content-Disposition',
-      `attachment; filename="resized_${originalName}"`,
-    );
+
+    response.set({
+      'Content-Type': mimetype,
+      'Content-Disposition': `attachment; filename="${originalName}"`,
+    });
+
     return response;
   },
 );
