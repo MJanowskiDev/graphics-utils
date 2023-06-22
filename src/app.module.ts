@@ -9,7 +9,7 @@ import DatabaseConfig from './config/database';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSourceOptions } from 'typeorm';
-import { Asset } from './image-processing/entity/asset.entity';
+import { Asset } from './image-processing/entity';
 
 @Module({
   imports: [

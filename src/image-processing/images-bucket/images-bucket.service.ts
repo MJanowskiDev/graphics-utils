@@ -4,7 +4,7 @@ import s3Buckets from 'src/config/s3-buckets';
 import { ConfigType } from '@nestjs/config';
 import { S3 } from 'aws-sdk';
 import crypto from 'crypto';
-import { Asset } from '../entity/asset.entity';
+import { Asset } from '../entity';
 import { AssetRepository } from '../repository/asset.repository';
 
 @Injectable()

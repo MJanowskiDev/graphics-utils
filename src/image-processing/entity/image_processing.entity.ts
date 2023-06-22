@@ -8,8 +8,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { OperationType } from '../types';
-import { Asset } from './asset.entity';
-import { OperationData } from './operation_data.entity';
+import { Asset, OperationData } from './';
 
 @Entity()
 export class ImageProcessing {
