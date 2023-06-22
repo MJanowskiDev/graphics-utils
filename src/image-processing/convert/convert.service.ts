@@ -1,10 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import sharp from 'sharp';
 import { ImagesBucketService } from '../images-bucket/images-bucket.service';
+import { OperationData } from '../entity';
+import { OperationType } from '../types';
+import { OperationDataRepository } from '../repository';
 
 @Injectable()
 export class ConvertService {
-  constructor(private imagesBucketService: ImagesBucketService) {}
+  constructor(
+    private imagesBucketService: ImagesBucketService,
+    private operationDataRepository: OperationDataRepository,
+  ) {}
 
   async convertToFormat(
     inputBuffer: Buffer,
@@ -20,6 +26,11 @@ export class ConvertService {
     );
     const buffer = await sharp(inputBuffer).toFormat(format).toBuffer();
     await this.imagesBucketService.storePublic(buffer, outputFilename, assetId);
+
+    const operationData = new OperationData();
+    operationData.type = OperationType.formatConversion;
+    operationData.userParams = JSON.stringify({ format, fileName });
+    await this.operationDataRepository.create(operationData);
 
     return { buffer, fileName: outputFilename, mime };
   }

@@ -9,7 +9,11 @@ import DatabaseConfig from './config/database';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSourceOptions } from 'typeorm';
-import { Asset } from './image-processing/entity';
+import {
+  Asset,
+  OperationData,
+  ImageProcessing,
+} from './image-processing/entity';
 
 @Module({
   imports: [
@@ -28,7 +32,7 @@ import { Asset } from './image-processing/entity';
           username: dbUsername,
           password: dbPassword,
           database: dbName,
-          entities: [Asset],
+          entities: [Asset, OperationData, ImageProcessing],
           synchronize: true,
         };
       },
