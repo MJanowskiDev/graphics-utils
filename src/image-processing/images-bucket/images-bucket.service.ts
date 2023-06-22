@@ -5,7 +5,7 @@ import { ConfigType } from '@nestjs/config';
 import { S3 } from 'aws-sdk';
 import crypto from 'crypto';
 import { Asset } from '../entity';
-import { AssetRepository } from '../repository/asset.repository';
+import { AssetRepository } from '../repository';
 
 @Injectable()
 export class ImagesBucketService {

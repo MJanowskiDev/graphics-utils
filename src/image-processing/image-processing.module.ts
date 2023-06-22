@@ -6,7 +6,7 @@ import { ConvertController } from './convert/convert.controller';
 import { ConvertService } from './convert/convert.service';
 import { Asset } from './entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AssetRepository } from './repository/asset.repository';
+import { AssetRepository } from './repository';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Asset])],
