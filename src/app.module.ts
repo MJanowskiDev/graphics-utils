@@ -6,6 +6,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import AwsConfig from './config/aws';
 import S3Config from './config/s3-buckets';
 import DatabaseConfig from './config/database';
+import AuthConfig from './config/auth';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSourceOptions } from 'typeorm';
@@ -14,6 +15,8 @@ import {
   OperationData,
   ImageProcessing,
 } from './image-processing/entity';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -43,9 +46,11 @@ import {
       limit: 10,
     }),
     ConfigModule.forRoot({
-      load: [AwsConfig, S3Config, DatabaseConfig],
+      load: [AwsConfig, S3Config, DatabaseConfig, AuthConfig],
       isGlobal: true,
     }),
+    AuthModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
