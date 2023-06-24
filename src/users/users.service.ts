@@ -1,24 +1,48 @@
-import { Injectable } from '@nestjs/common';
-
-// This should be a real class/interface representing a user entity
-export type User = any;
+import { ConflictException, Injectable } from '@nestjs/common';
+import { User } from './entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { QueryFailedError, Repository } from 'typeorm';
+import { PostgresError } from 'pg-error-enum';
 
 @Injectable()
 export class UsersService {
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepositry: Repository<User>,
+  ) {}
+
   private readonly users = [
     {
-      userId: 1,
-      username: 'john',
+      id: 1,
+      email: 'john',
       password: 'changeme',
     },
     {
-      userId: 2,
-      username: 'maria',
+      id: 2,
+      email: 'maria',
       password: 'guess',
     },
   ];
 
-  async findOne(username: string): Promise<User | undefined> {
-    return this.users.find((user) => user.username === username);
+  async findOneBy(email: string): Promise<User | null> {
+    return this.userRepositry.findOneBy({ email });
+  }
+
+  async create(email: string, hashedPassword: string): Promise<User | null> {
+    const user = new User();
+    user.email = email;
+    user.hashedPassword = hashedPassword;
+    try {
+      const createdUser = await this.userRepositry.save(user);
+      console.log(createdUser);
+      return createdUser;
+    } catch (error) {
+      if (error.code === PostgresError.UNIQUE_VIOLATION) {
+        throw new ConflictException('This email already exists.');
+      } else {
+        console.error(error);
+        throw error;
+      }
+    }
   }
 }

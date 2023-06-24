@@ -17,6 +17,7 @@ import {
 } from './image-processing/entity';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { User } from './users/entity';
 
 @Module({
   imports: [
@@ -35,7 +36,7 @@ import { UsersModule } from './users/users.module';
           username: dbUsername,
           password: dbPassword,
           database: dbName,
-          entities: [Asset, OperationData, ImageProcessing],
+          entities: [Asset, OperationData, ImageProcessing, User],
           synchronize: true,
         };
       },
