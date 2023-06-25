@@ -8,6 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 import { Reflector } from '@nestjs/core';
+import { Role } from 'src/enums/role.enum';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -18,7 +19,8 @@ export class AuthGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const { authJwtSecret, isPublicKey } = this.configService.get('auth');
+    const { authJwtSecret, isPublicKey, rolesKey } =
+      this.configService.get('auth');
     const isPublic = this.reflector.getAllAndOverride<boolean>(isPublicKey, [
       context.getHandler(),
       context.getClass(),
@@ -27,6 +29,10 @@ export class AuthGuard implements CanActivate {
     if (isPublic) {
       return true;
     }
+    const requiredRole = this.reflector.getAllAndOverride<Role>(rolesKey, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
 
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
@@ -38,10 +44,12 @@ export class AuthGuard implements CanActivate {
         secret: authJwtSecret,
       });
       request['email'] = payload;
+      request['role'] = payload;
+
+      return payload?.role ? payload.role === requiredRole : true;
     } catch {
       throw new UnauthorizedException();
     }
-    return true;
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {

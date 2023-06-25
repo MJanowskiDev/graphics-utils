@@ -9,6 +9,8 @@ import {
 import { AuthService } from './auth.service';
 import { Public } from './decorator/public.decorator';
 import { SignInDto, SignUpDto } from './dto';
+import { Role } from 'src/enums/role.enum';
+import { Roles } from './decorator/roles.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -30,5 +32,11 @@ export class AuthController {
   @Get('test')
   test() {
     return 'OK';
+  }
+
+  @Roles(Role.admin)
+  @Get('admin-only')
+  adminOnly() {
+    return 'You are admin OK';
   }
 }

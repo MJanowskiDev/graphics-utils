@@ -7,7 +7,7 @@ import {
   Index,
 } from 'typeorm';
 
-import { Role } from '../types';
+import { Role } from '../../enums/role.enum';
 
 @Entity()
 @Index(['email'])
