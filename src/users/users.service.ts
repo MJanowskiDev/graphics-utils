@@ -11,19 +11,6 @@ export class UsersService {
     private readonly userRepositry: Repository<User>,
   ) {}
 
-  private readonly users = [
-    {
-      id: 1,
-      email: 'john',
-      password: 'changeme',
-    },
-    {
-      id: 2,
-      email: 'maria',
-      password: 'guess',
-    },
-  ];
-
   async findOneBy(email: string): Promise<User | null> {
     return this.userRepositry.findOneBy({ email });
   }
