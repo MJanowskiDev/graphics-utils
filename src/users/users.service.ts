@@ -21,7 +21,6 @@ export class UsersService {
     user.hashedPassword = hashedPassword;
     try {
       const createdUser = await this.userRepositry.save(user);
-      console.log(createdUser);
       return createdUser;
     } catch (error) {
       if (error.code === PostgresError.UNIQUE_VIOLATION) {
