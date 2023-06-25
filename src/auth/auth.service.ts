@@ -3,6 +3,8 @@ import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { UtilsService } from './utils/utils.service';
 import { SignInDto, SignUpDto } from './dto';
+import { ActivateService } from 'src/email/activate/activate.service';
+import { omit } from 'lodash';
 
 @Injectable()
 export class AuthService {
@@ -10,11 +12,18 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private utilsService: UtilsService,
+    private readonly activateService: ActivateService,
   ) {}
 
   async signUp({ email, password }: SignUpDto) {
     const hashedPassword = await this.utilsService.hashPassword(password);
-    return this.usersService.create(email, hashedPassword);
+    const user = await this.usersService.create(email, hashedPassword);
+    if (!user) {
+      throw new Error();
+    }
+    const token = this.jwtService.sign({ id: user.id });
+    this.activateService.sendActivationEmail(user, token);
+    return omit(user, 'hashedPassword');
   }
 
   async signIn({
@@ -29,7 +38,7 @@ export class AuthService {
 
     const passwordMatches = this.utilsService.comparePasswords(
       password,
-      user?.hashedPassword,
+      user.hashedPassword,
     );
     if (!passwordMatches) {
       throw new UnauthorizedException();
