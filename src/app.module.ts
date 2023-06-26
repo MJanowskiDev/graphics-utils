@@ -7,6 +7,7 @@ import AwsConfig from './config/aws';
 import S3Config from './config/s3-buckets';
 import DatabaseConfig from './config/database';
 import AuthConfig from './config/auth';
+import EmailConfig from './config/email';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSourceOptions } from 'typeorm';
@@ -49,7 +50,7 @@ import { AuthGuard } from './auth/auth.guard';
       limit: 10,
     }),
     ConfigModule.forRoot({
-      load: [AwsConfig, S3Config, DatabaseConfig, AuthConfig],
+      load: [AwsConfig, S3Config, DatabaseConfig, AuthConfig, EmailConfig],
       isGlobal: true,
     }),
     AuthModule,

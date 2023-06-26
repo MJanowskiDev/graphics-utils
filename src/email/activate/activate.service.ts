@@ -4,41 +4,45 @@ import * as nodemailer from 'nodemailer';
 import * as fs from 'fs';
 import path from 'path';
 import { User } from 'src/users/entity';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ActivateService {
   private transporter;
-
-  constructor() {
+  private config;
+  constructor(private emailConfigService: ConfigService) {
+    this.config = this.emailConfigService.get('email');
     this.transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: parseInt(process.env.SMTP_PORT || '587', 10),
-      secure: false,
+      service: this.config.service,
+      port: this.config.smtp.port,
       auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
+        user: this.config.smtp.user,
+        pass: this.config.smtp.pass,
       },
     });
   }
 
   async sendActivationEmail(user: User, token: string) {
-    const activationLink = `${process.env.FRONTEND_URL}/activate?token=${token}`;
+    try {
+      const activationLink = `${process.env.FRONTEND_URL}/activate?token=${token}`;
 
-    const mailOptions = {
-      from: process.env.EMAIL_FROM,
-      to: user.email,
-      subject: 'GraphicsUtils - Account Activation',
-      text: `Click the following link to activate your account: ${activationLink}`,
-      html: this.generateActivationEmailHtml(activationLink),
-    };
-
-    return this.transporter.sendMail(mailOptions);
+      const mailOptions = {
+        from: this.config.smtp.user,
+        to: user.email,
+        subject: 'GraphicsUtils - Account Activation',
+        text: `Click the following link to activate your account: ${activationLink}`,
+        html: this.generateActivationEmailHtml(activationLink),
+      };
+      return await this.transporter.sendMail(mailOptions);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   private getMjmlTemplate() {
     const templatePath = path.join(
       process.cwd(),
-      './emailTemplates/activationEmail.mjml',
+      this.config.templatePaths.activate,
     );
     return fs.readFileSync(templatePath, 'utf8');
   }
@@ -49,10 +53,6 @@ export class ActivateService {
       activationLink,
     );
 
-    const { html } = mjml2html(replacedTemplate, {
-      minify: true,
-    });
-
-    return html;
+    return mjml2html(replacedTemplate).html;
   }
 }
