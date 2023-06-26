@@ -6,7 +6,7 @@
           GraphicsUtils App - Account Activation
         </mj-text>
         <mj-text>
-          Please click the link below to activate your account:
+          Please click the link below to activate your account: 
         </mj-text>
         <mj-text>
           <a href="${activationLink}">${activationLink}</a>

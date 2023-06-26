@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import mjml2html from 'mjml-core';
+import mjml2html from 'mjml';
 import * as nodemailer from 'nodemailer';
 import * as fs from 'fs';
 import path from 'path';
@@ -29,26 +29,30 @@ export class ActivateService {
       to: user.email,
       subject: 'GraphicsUtils - Account Activation',
       text: `Click the following link to activate your account: ${activationLink}`,
-      html: 'this.generateActivationEmailHtml(activationLink)',
+      html: this.generateActivationEmailHtml(activationLink),
     };
-    console.log(mailOptions);
-    return mailOptions; //this.transporter.sendMail(mailOptions);
+
+    return this.transporter.sendMail(mailOptions);
   }
 
   private getMjmlTemplate() {
     const templatePath = path.join(
-      __dirname,
-      '../../templates/activationEmail.mjml',
+      process.cwd(),
+      './emailTemplates/activationEmail.mjml',
     );
     return fs.readFileSync(templatePath, 'utf8');
   }
-
   private generateActivationEmailHtml(activationLink: string) {
-    const mjmlTemplate = this.getMjmlTemplate().replace(
-      '{{activationLink}}',
+    const mjmlTemplate = this.getMjmlTemplate();
+    const replacedTemplate = mjmlTemplate.replace(
+      /\${activationLink}/g,
       activationLink,
     );
-    const { html } = mjml2html(mjmlTemplate);
+
+    const { html } = mjml2html(replacedTemplate, {
+      minify: true,
+    });
+
     return html;
   }
 }
