@@ -12,7 +12,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ResizeService } from './resize.service';
 import { Response } from 'express';
 import { ResizeImageDto } from './dto/resize.dto';
-import { AttachInputFileHeader } from '../decorator/AttachInputFileHeader';
+import { AttachInputFileHeader } from '../../core/decorator/AttachInputFileHeader.decorator';
 import { FileProcessingExceptionFilter } from '../exceptions/file-processing.exception.filter';
 import { UploadedFileValidation } from '../validation/uploaded-file.validation';
 

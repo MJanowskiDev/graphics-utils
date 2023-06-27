@@ -8,10 +8,10 @@ import {
   Query,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { Public } from './decorator/public.decorator';
+import { Public } from '../core/decorator/public.decorator';
 import { SignInDto, SignUpDto } from './dto';
-import { Role } from 'src/enums/role.enum';
-import { Roles } from './decorator/roles.decorator';
+import { Role } from 'src/core/enums/role.enum';
+import { Roles } from '../core/decorator/roles.decorator';
 
 @Controller('auth')
 export class AuthController {
