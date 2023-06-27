@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
@@ -50,7 +51,7 @@ export class AuthService {
     const hashedPassword = await this.utilsService.hashPassword(password);
     const user = await this.usersService.create(email, hashedPassword);
     if (!user) {
-      throw new Error();
+      throw new InternalServerErrorException('User could not be created.');
     }
     const token = this.jwtService.sign({ id: user.id });
     this.activateService.sendActivationEmail(user.email, token);
@@ -80,7 +81,7 @@ export class AuthService {
     }
     const payload = { id: user?.id, email: user?.email, role: user?.role };
     return {
-      access_token: await this.jwtService.signAsync(payload),
+      access_token: this.jwtService.sign(payload),
     };
   }
 }

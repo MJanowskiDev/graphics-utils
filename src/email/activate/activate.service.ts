@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import mjml2html from 'mjml';
 import * as nodemailer from 'nodemailer';
 import * as fs from 'fs';
@@ -55,7 +55,9 @@ export class ActivateService {
         html,
       });
     } catch (error) {
-      console.error(error);
+      throw new InternalServerErrorException(
+        'Error while sending email. Please try again later',
+      );
     }
   }
 
