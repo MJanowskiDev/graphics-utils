@@ -3,13 +3,13 @@ import mjml2html from 'mjml';
 import * as nodemailer from 'nodemailer';
 import * as fs from 'fs';
 import path from 'path';
-import { User } from 'src/users/entity';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ActivateService {
   private transporter;
   private config;
+
   constructor(private emailConfigService: ConfigService) {
     this.config = this.emailConfigService.get('email');
     this.transporter = nodemailer.createTransport({
@@ -22,37 +22,45 @@ export class ActivateService {
     });
   }
 
-  async sendActivationEmail(user: User, token: string) {
+  async sendActivationEmail(email: string, token: string) {
     try {
       const activationLink = this.config.activateUrL(token);
 
-      const mailOptions = {
+      const html = mjml2html(
+        this.getMjmlTemplate(this.config.templatePaths.activate),
+      ).html.replace(/\${activationLink}/g, activationLink);
+
+      return await this.transporter.sendMail({
         from: this.config.smtp.user,
-        to: user.email,
+        to: email,
         subject: 'GraphicsUtils - Account Activation',
         text: `Click the following link to activate your account: ${activationLink}`,
-        html: this.generateActivationEmailHtml(activationLink),
-      };
-      return await this.transporter.sendMail(mailOptions);
+        html,
+      });
     } catch (error) {
       console.error(error);
     }
   }
 
-  private getMjmlTemplate() {
-    const templatePath = path.join(
-      process.cwd(),
-      this.config.templatePaths.activate,
-    );
-    return fs.readFileSync(templatePath, 'utf8');
+  async sendWelcomeEmail(email: string) {
+    try {
+      const { html } = mjml2html(
+        this.getMjmlTemplate(this.config.templatePaths.welcome),
+      );
+      return await this.transporter.sendMail({
+        from: this.config.smtp.user,
+        to: email,
+        subject: 'GraphicsUtils - Account has been activated',
+        text: `Congratulations! Your account has been successfully activated. Welcome to GraphicsUtils! You can now log in and start using our services.`,
+        html,
+      });
+    } catch (error) {
+      console.error(error);
+    }
   }
-  private generateActivationEmailHtml(activationLink: string) {
-    const mjmlTemplate = this.getMjmlTemplate();
-    const replacedTemplate = mjmlTemplate.replace(
-      /\${activationLink}/g,
-      activationLink,
-    );
 
-    return mjml2html(replacedTemplate).html;
+  private getMjmlTemplate(templatePath: string) {
+    const resultPath = path.join(process.cwd(), templatePath);
+    return fs.readFileSync(resultPath, 'utf8');
   }
 }

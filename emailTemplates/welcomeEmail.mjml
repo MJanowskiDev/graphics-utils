@@ -1,0 +1,40 @@
+<mjml>
+  <mj-head>
+    <mj-title>Account Activation Successful</mj-title>
+    <mj-preview>Your account has been activated</mj-preview>
+    <mj-attributes>
+      <mj-all font-family="Arial, sans-serif" />
+      <mj-text font-size="16px" color="#000" />
+      <mj-button background-color="#9102E4" />
+    </mj-attributes>
+  </mj-head>
+  <mj-body background-color="#f2f2f2">
+    <mj-section padding="16px" background-color="#fff">
+      <mj-column>
+        <mj-image src="https://www.mjanowski.dev/images/graphics_utils_xl.png" alt="graphics utils logo" align="center" padding="10px 0">
+        </mj-image>
+      </mj-column>
+    </mj-section>
+    <mj-section padding="16px" background-color="#fff">
+      <mj-column>
+        <mj-text padding-bottom="16px" font-size="22px" color="#9102E4" font-weight="bold" padding="0">Account Activation Successful</mj-text>
+        <mj-text padding="0" line-height="24px">
+          Congratulations! Your account has been successfully activated. Welcome to GraphicsUtils! You can now log in and start using our services.
+        </mj-text>
+        <mj-text padding="0" padding-top="8px">
+          Best regards,
+        </mj-text>
+        <mj-text padding="0">
+          The GraphicsUtils Team
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section background-color="#f2f2f2">
+      <mj-column>
+        <mj-text color="#6C757D" padding="8px 0">
+          2023 GraphicsUtils
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

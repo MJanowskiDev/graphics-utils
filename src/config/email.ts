@@ -4,6 +4,7 @@ export default registerAs('email', () => ({
   service: 'gmail',
   templatePaths: {
     activate: './emailTemplates/activationEmail.mjml',
+    welcome: './emailTemplates/welcomeEmail.mjml',
   },
   activateUrL: (token: string) =>
     `${process.env.FRONTEND_URL}/auth/activate?token=${token}`,

@@ -42,6 +42,7 @@ export class AuthService {
     if (wasAlreadyActivated) {
       return { result: 'failed', message: USER_ALREADY_ACTIVATED };
     }
+    this.activateService.sendWelcomeEmail(user.email);
     return { result: 'success', message: USER_ACTIVATED_SUCCESSFULLY };
   }
 
@@ -52,7 +53,7 @@ export class AuthService {
       throw new Error();
     }
     const token = this.jwtService.sign({ id: user.id });
-    this.activateService.sendActivationEmail(user, token);
+    this.activateService.sendActivationEmail(user.email, token);
     return omit(user, 'hashedPassword');
   }
 
