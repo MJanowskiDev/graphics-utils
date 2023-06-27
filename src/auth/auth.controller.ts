@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Get,
+  Query,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Public } from './decorator/public.decorator';
@@ -27,6 +28,12 @@ export class AuthController {
   @Post('sign-up')
   register(@Body() signUpDto: SignUpDto) {
     return this.authService.signUp(signUpDto);
+  }
+
+  @Public()
+  @Get('activate')
+  activate(@Query('token') token: string) {
+    return this.authService.activate(token);
   }
 
   @Get('test')

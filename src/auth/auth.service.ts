@@ -1,10 +1,19 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { UtilsService } from './utils/utils.service';
 import { SignInDto, SignUpDto } from './dto';
 import { ActivateService } from 'src/email/activate/activate.service';
 import { omit } from 'lodash';
+
+const USER_NOT_FOUND = 'User not found';
+const USER_ALREADY_ACTIVATED = 'User is already activated';
+const USER_ACTIVATED_SUCCESSFULLY = 'User activated successfully';
+const INVALID_TOKEN = 'Invalid token';
 
 @Injectable()
 export class AuthService {
@@ -14,6 +23,27 @@ export class AuthService {
     private utilsService: UtilsService,
     private readonly activateService: ActivateService,
   ) {}
+
+  async activate(token: string): Promise<{ result: string; message: string }> {
+    let decoded;
+    try {
+      decoded = this.jwtService.verify(token);
+    } catch (e) {
+      throw new BadRequestException(INVALID_TOKEN);
+    }
+    const { user, wasAlreadyActivated } = await this.usersService.activateById(
+      decoded.id,
+    );
+
+    if (!user) {
+      throw new BadRequestException(USER_NOT_FOUND);
+    }
+
+    if (wasAlreadyActivated) {
+      return { result: 'failed', message: USER_ALREADY_ACTIVATED };
+    }
+    return { result: 'success', message: USER_ACTIVATED_SUCCESSFULLY };
+  }
 
   async signUp({ email, password }: SignUpDto) {
     const hashedPassword = await this.utilsService.hashPassword(password);

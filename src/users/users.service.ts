@@ -11,6 +11,21 @@ export class UsersService {
     private readonly userRepositry: Repository<User>,
   ) {}
 
+  async activateById(
+    id: string,
+  ): Promise<{ user: User; wasAlreadyActivated: boolean }> {
+    const user = await this.userRepositry.findOneBy({ id });
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const wasAlreadyActivated = user.activated;
+
+    user.activated = true;
+
+    return { user: await this.userRepositry.save(user), wasAlreadyActivated };
+  }
+
   async findOneBy(email: string): Promise<User | null> {
     return this.userRepositry.findOneBy({ email });
   }
