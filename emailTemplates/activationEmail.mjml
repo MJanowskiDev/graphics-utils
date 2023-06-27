@@ -21,15 +21,15 @@
           Hi there,
         </mj-text>
         <mj-text padding="0" line-height="24px">
-          Thank you for signing up. To activate your account, please click the button below:
+          Thank you for signing up. To activate your account, click the button below:
         </mj-text>
-        <mj-button href="${activationLink}" font-size="18px" font-weight="bold" padding-top="20px" padding-bottom="20px">
+        <mj-button border-radius="2rem" href="${activationLink}" font-size="18px" font-weight="bold" padding="32px 0">
           Activate Account
         </mj-button>
         <mj-text padding="0" line-height="24px">
           If you're having trouble clicking the button, copy and paste the URL below into your web browser:
         </mj-text>
-        <mj-text color="#6C757D" padding="0">
+        <mj-text color="#6C757D" padding="8px" font-size="10px">
           ${activationLink}
         </mj-text>
         <mj-text padding="0" line-height="24px" padding-top="8px">
