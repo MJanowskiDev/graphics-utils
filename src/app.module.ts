@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ImageProcessingModule } from './image-processing/image-processing.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import AwsConfig from './config/aws';
@@ -56,9 +54,7 @@ import { AuthGuard } from './auth/auth.guard';
     AuthModule,
     UsersModule,
   ],
-  controllers: [AppController],
   providers: [
-    AppService,
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
