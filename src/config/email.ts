@@ -5,4 +5,6 @@ export default registerAs('email', () => ({
   templatePaths: {
     activate: './emailTemplates/activationEmail.mjml',
   },
+  activateUrL: (token: string) =>
+    `${process.env.FRONTEND_URL}/activate?token=${token}`,
 }));

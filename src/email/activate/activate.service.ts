@@ -24,7 +24,7 @@ export class ActivateService {
 
   async sendActivationEmail(user: User, token: string) {
     try {
-      const activationLink = `${process.env.FRONTEND_URL}/activate?token=${token}`;
+      const activationLink = this.config.activateUrL(token);
 
       const mailOptions = {
         from: this.config.smtp.user,
