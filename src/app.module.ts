@@ -19,6 +19,7 @@ import { UsersModule } from './users/users.module';
 import { User } from './users/entity';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
+import { LambdaModule } from './lambda/lambda.module';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { AuthGuard } from './auth/auth.guard';
     }),
     AuthModule,
     UsersModule,
+    LambdaModule,
   ],
   providers: [
     {
