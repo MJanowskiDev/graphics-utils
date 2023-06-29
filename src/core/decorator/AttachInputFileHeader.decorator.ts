@@ -1,13 +1,12 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
 export const AttachInputFileHeader = createParamDecorator(
-  (data: unknown, ctx: ExecutionContext) => {
-    const { mimetype, originalName } = ctx.switchToHttp().getRequest().file;
+  (ctx: ExecutionContext) => {
+    const { mimetype, originalname } = ctx.switchToHttp().getRequest().file;
     const response = ctx.switchToHttp().getResponse();
-
     response.set({
       'Content-Type': mimetype,
-      'Content-Disposition': `attachment; filename="${originalName}"`,
+      'Content-Disposition': `attachment; filename="${originalname}"`,
     });
 
     return response;

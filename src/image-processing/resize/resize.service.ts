@@ -28,7 +28,6 @@ export class ResizeService {
       operationData.type = OperationType.resize;
       operationData.userParams = JSON.stringify({ width, fileName });
       await this.operationDataRepository.create(operationData);
-
       return buffer;
     } catch (error) {
       throw error;
