@@ -33,4 +33,10 @@ export class AuthController {
   activate(@Query('token') token: string) {
     return this.authService.activate(token);
   }
+
+  @Public()
+  @Get('sentry-debug')
+  sentryDebug() {
+    throw new Error('First sentry error');
+  }
 }
