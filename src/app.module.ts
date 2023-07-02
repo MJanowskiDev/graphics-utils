@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { ImageProcessingModule } from './image-processing/image-processing.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import AwsConfig from './config/aws';
@@ -21,6 +21,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
 import { LambdaModule } from './lambda/lambda.module';
 import { LoggerModule } from './core/logger/logger.module';
+import { ControllerLogger } from './core/logger/ControllerLogger.middleware';
 
 @Module({
   imports: [
@@ -65,4 +66,8 @@ import { LoggerModule } from './core/logger/logger.module';
     },
   ],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(ControllerLogger).forRoutes('*');
+  }
+}
