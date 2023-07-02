@@ -10,20 +10,19 @@ export class ControllerLogger implements NestMiddleware {
     const { method, originalUrl, headers, ip } = request;
     const startAt = Date.now();
 
+    this.logger.verbose(`STARTING Method: ${method}  URL: ${originalUrl}`);
+
     headers['request-startAt'] = startAt.toString();
 
     response.on('finish', () => {
       const { statusCode } = response;
       const delay = Date.now() - startAt;
 
-      this.logger.verbose(`Method: ${method}  
-                          URL: ${originalUrl} 
-                          Response code: ${statusCode}
-                          Request was started at: ${new Date(
-                            startAt,
-                          ).toLocaleString()} 
-                          Request processing time: ${delay / 1000}s
-                          IP address: ${ip}`);
+      this.logger.verbose(
+        `FINISHING Method: ${method}, URL: ${originalUrl}, Code: ${statusCode}, Processing time: ${
+          delay / 1000
+        }s, IP address: ${ip}`,
+      );
     });
 
     next();
