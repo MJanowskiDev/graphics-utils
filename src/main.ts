@@ -8,7 +8,8 @@ async function bootstrap() {
   Sentry.init({
     dsn: process.env.SENTRY_DSN,
   });
-  const app = await NestFactory.create(AppModule, { logger: new Logger() });
+  const app = await NestFactory.create(AppModule);
+  app.useLogger(app.get(Logger));
   app.useGlobalPipes(new ValidationPipe());
   await app.listen(process.env.PORT || 3000);
 }

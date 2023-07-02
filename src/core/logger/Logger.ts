@@ -1,29 +1,28 @@
-import { LoggerService } from '@nestjs/common';
+import { ConsoleLogger } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
 
-export class Logger implements LoggerService {
+export class Logger extends ConsoleLogger {
   log(message: any) {
-    console.log(message);
-    Sentry.captureMessage(message, { level: 'log' });
+    super.log(message);
   }
 
   error(message: any) {
-    console.error(message);
-    Sentry.captureException(new Error(message));
+    super.error(message);
+    Sentry.captureMessage(message, { level: 'error' });
   }
 
   warn(message: any) {
-    console.warn(message);
+    super.warn(message);
     Sentry.captureMessage(message, { level: 'warning' });
   }
 
   debug(message: any) {
-    console.debug(message);
-    this.log(message);
+    super.debug(message);
+    Sentry.captureMessage(message, { level: 'debug' });
   }
 
   verbose(message: any) {
-    console.info(message);
-    this.log(message);
+    super.verbose(message);
+    Sentry.captureMessage(message, { level: 'info' });
   }
 }
