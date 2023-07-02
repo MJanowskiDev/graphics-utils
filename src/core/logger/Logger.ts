@@ -1,5 +1,6 @@
 import { ConsoleLogger } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
+import { HttpError } from '../errors/HttpError';
 
 export class Logger extends ConsoleLogger {
   log(message: any) {
@@ -8,6 +9,15 @@ export class Logger extends ConsoleLogger {
 
   error(message: any) {
     super.error(message);
+
+    if (message instanceof HttpError) {
+      const httpError = message as HttpError;
+      Sentry.withScope((scope) => {
+        scope.setExtra('body', httpError.body);
+        Sentry.captureException(httpError.exception);
+      });
+      return;
+    }
     Sentry.captureMessage(message, { level: 'error' });
   }
 

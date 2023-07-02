@@ -1,6 +1,7 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { Logger } from './Logger';
+import { getReasonPhrase } from 'http-status-codes';
 
 @Injectable()
 export class ControllerLogger implements NestMiddleware {
@@ -19,9 +20,9 @@ export class ControllerLogger implements NestMiddleware {
       const delay = Date.now() - startAt;
 
       this.logger.verbose(
-        `FINISHING Method: ${method}, URL: ${originalUrl}, Code: ${statusCode}, Processing time: ${
-          delay / 1000
-        }s, IP address: ${ip}`,
+        `FINISHING Method: ${method}, URL: ${originalUrl}, Code: ${statusCode} ${getReasonPhrase(
+          statusCode,
+        )}, Processing time: ${delay / 1000}s, IP address: ${ip}`,
       );
     });
 
