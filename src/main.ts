@@ -8,6 +8,7 @@ import { HttpExceptionFilter } from './core/exceptions/http-exception.filter';
 async function bootstrap() {
   Sentry.init({
     dsn: process.env.SENTRY_DSN,
+    environment: process.env.STAGE || 'development',
   });
   const app = await NestFactory.create(AppModule);
   app.useLogger(app.get(Logger));
