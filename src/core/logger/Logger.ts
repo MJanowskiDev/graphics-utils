@@ -16,7 +16,6 @@ export class Logger extends ConsoleLogger {
         scope.setExtra('body', httpError.body);
         Sentry.captureException(httpError.exception);
       });
-      return;
     }
     Sentry.captureMessage(message, { level: 'error' });
   }
