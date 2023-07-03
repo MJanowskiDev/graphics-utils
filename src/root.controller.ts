@@ -1,7 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { Public } from './core/decorator/public.decorator';
 
-@Controller('root')
+@Controller('')
 export class RootController {
   @Public()
   @Get()
