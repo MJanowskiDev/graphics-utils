@@ -4,6 +4,7 @@ import { ImagesBucketService } from '../images-bucket/images-bucket.service';
 import { OperationData } from '../entity';
 import { OperationType } from '../types';
 import { OperationDataRepository } from '../repository';
+import { Logger } from 'src/core/logger/Logger';
 
 @Injectable()
 export class ConvertService {
@@ -11,6 +12,8 @@ export class ConvertService {
     private imagesBucketService: ImagesBucketService,
     private operationDataRepository: OperationDataRepository,
   ) {}
+
+  private readonly logger = new Logger(ConvertService.name);
 
   async convertToFormat(
     inputBuffer: Buffer,
@@ -20,12 +23,23 @@ export class ConvertService {
     const outputFilename = `converted_${fileName.split('.')[0]}.${format}`;
     const mime = `image/${format}`;
 
+    this.logger.verbose(
+      `Uploading private image: ${outputFilename}, mime: ${mime}`,
+    );
+
     const { assetId } = await this.imagesBucketService.storePrivate(
       inputBuffer,
-      outputFilename,
+      fileName,
     );
+
+    this.logger.verbose(`Converting image: ${fileName}, to format: ${format}`);
+
     const buffer = await sharp(inputBuffer).toFormat(format).toBuffer();
     await this.imagesBucketService.storePublic(buffer, outputFilename, assetId);
+
+    this.logger.verbose(
+      `Uploading converted image: ${outputFilename}, assetId: ${assetId}}`,
+    );
 
     const operationData = new OperationData();
     operationData.type = OperationType.formatConversion;
