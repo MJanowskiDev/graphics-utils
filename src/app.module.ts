@@ -22,6 +22,7 @@ import { AuthGuard } from './auth/auth.guard';
 import { LambdaModule } from './lambda/lambda.module';
 import { LoggerModule } from './core/logger/logger.module';
 import { ControllerLogger } from './core/logger/ControllerLogger.middleware';
+import { RootController } from './root.controller';
 
 @Module({
   imports: [
@@ -65,6 +66,7 @@ import { ControllerLogger } from './core/logger/ControllerLogger.middleware';
       useClass: AuthGuard,
     },
   ],
+  controllers: [RootController],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
