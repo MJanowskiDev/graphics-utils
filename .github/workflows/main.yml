@@ -25,7 +25,7 @@ jobs:
     - run: yarn build
 
     - name: Deploy to Railway
-    uses: railwayapp/github-action@v1.2
-    with:
-      apiToken: ${{ secrets.RAILWAY_TOKEN }}
-      environmentId: ${{ secrets.ENVIRONMENT_ID }}
+      uses: railwayapp/github-action@v1.2
+      with:
+        apiToken: ${{ secrets.RAILWAY_TOKEN }}
+        environmentId: ${{ secrets.ENVIRONMENT_ID }}
