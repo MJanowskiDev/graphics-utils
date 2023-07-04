@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
-import aws from 'src/config/aws';
-import s3Buckets from 'src/config/s3-buckets';
+import aws from '../../config/aws';
+import s3Buckets from '../../config/s3-buckets';
 import { ConfigType } from '@nestjs/config';
 import { S3 } from 'aws-sdk';
 import crypto from 'crypto';

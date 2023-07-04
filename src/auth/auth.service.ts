@@ -8,7 +8,7 @@ import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { UtilsService } from './utils/utils.service';
 import { SignInDto, SignUpDto } from './dto';
-import { ActivateService } from 'src/email/activate/activate.service';
+import { ActivateService } from '../email/activate/activate.service';
 import { omit } from 'lodash';
 
 const USER_NOT_FOUND = 'User not found';

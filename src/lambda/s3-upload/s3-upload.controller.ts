@@ -1,5 +1,5 @@
 import { Controller, Post, Body } from '@nestjs/common';
-import { Public } from 'src/core/decorator/public.decorator';
+import { Public } from '../../core/decorator/public.decorator';
 
 @Public()
 @Controller('lambda')

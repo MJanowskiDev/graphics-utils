@@ -4,7 +4,7 @@ import { ImagesBucketService } from '../images-bucket/images-bucket.service';
 import { OperationData } from '../entity';
 import { OperationType } from '../types';
 import { OperationDataRepository } from '../repository';
-import { Logger } from 'src/core/logger/Logger';
+import { Logger } from '../../core/logger/Logger';
 
 @Injectable()
 export class ConvertService {
