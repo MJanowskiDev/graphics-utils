@@ -23,3 +23,9 @@ jobs:
     - run: yarn install --frozen-lockfile
     - run: yarn lint
     - run: yarn build
+
+    - name: Deploy to Railway
+    uses: railwayapp/github-action@v1.2
+    with:
+      apiToken: ${{ secrets.RAILWAY_TOKEN }}
+      environmentId: ${{ secrets.ENVIRONMENT_ID }}
