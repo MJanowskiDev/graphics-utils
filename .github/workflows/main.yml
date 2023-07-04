@@ -24,8 +24,11 @@ jobs:
     - run: yarn lint
     - run: yarn build
 
+    - name: Install Railway
+      run: npm install -g railway
+
+    - name: Login to Railway
+      run: railway login ${{ secrets.RAILWAY_TOKEN }}
+
     - name: Deploy to Railway
-      uses: railwayapp/github-action@v1.2
-      with:
-        apiToken: ${{ secrets.RAILWAY_TOKEN }}
-        environmentId: ${{ secrets.ENVIRONMENT_ID }}
+      run: railway up
