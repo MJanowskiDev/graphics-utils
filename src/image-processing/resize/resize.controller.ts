@@ -4,7 +4,6 @@ import {
   Post,
   Query,
   UploadedFile,
-  UseFilters,
   UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
@@ -13,11 +12,9 @@ import { ResizeService } from './resize.service';
 import { Response } from 'express';
 import { ResizeImageDto } from './dto/resize.dto';
 import { AttachInputFileHeader } from '../../core/decorator/AttachInputFileHeader.decorator';
-import { FileProcessingExceptionFilter } from '../exceptions/file-processing.exception.filter';
 import { UploadedFileValidation } from '../validation/uploaded-file.validation';
 
 @Controller('resize')
-@UseFilters(FileProcessingExceptionFilter)
 export class ResizeController {
   constructor(private resizeService: ResizeService) {}
 

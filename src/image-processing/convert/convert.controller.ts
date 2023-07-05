@@ -1,22 +1,21 @@
 import {
+  BadRequestException,
   Controller,
   Post,
   Query,
   Res,
   UploadedFile,
-  UseFilters,
+  UploadedFiles,
   UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { ConvertDto } from './dto/format.dto';
 import { Response } from 'express';
 import { ConvertService } from './convert.service';
 import { UploadedFileValidation } from '../validation/uploaded-file.validation';
-import { FileProcessingExceptionFilter } from '../exceptions/file-processing.exception.filter';
 
 @Controller('convert')
-@UseFilters(FileProcessingExceptionFilter)
 export class ConvertController {
   constructor(private convertService: ConvertService) {}
 
@@ -42,5 +41,23 @@ export class ConvertController {
         'Content-Disposition': `attachment; filename="${fileName}"`,
       })
       .send(buffer);
+  }
+
+  @Post('array')
+  @UseInterceptors(FilesInterceptor('files'))
+  async convertArrayToFormat(
+    @Query(new ValidationPipe({ transform: true })) { format }: ConvertDto,
+    @UploadedFiles() files: Array<Express.Multer.File>,
+    @Res() res: Response,
+  ) {
+    if (!files.length) {
+      throw new BadRequestException('Cannot convert files, empty files array');
+    }
+
+    const { archive, fileName } =
+      await this.convertService.convertArrayToFormat(files, format);
+
+    res.attachment(fileName);
+    archive.pipe(res);
   }
 }

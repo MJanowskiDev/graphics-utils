@@ -5,6 +5,7 @@ import { OperationData } from '../entity';
 import { OperationType } from '../types';
 import { OperationDataRepository } from '../repository';
 import { Logger } from '../../core/logger/Logger';
+import archiver from 'archiver';
 
 @Injectable()
 export class ConvertService {
@@ -47,5 +48,33 @@ export class ConvertService {
     await this.operationDataRepository.create(operationData);
 
     return { buffer, fileName: outputFilename, mime };
+  }
+
+  async convertArrayToFormat(
+    inputFiles: Express.Multer.File[],
+    format: keyof sharp.FormatEnum,
+  ) {
+    const archive = archiver('zip', {
+      zlib: { level: 9 },
+    });
+
+    const convertPromises = inputFiles.map((file) =>
+      sharp(file.buffer)
+        .toFormat(format)
+        .toBuffer()
+        .then((buffer) => {
+          const fileName = `${file.originalname.split('.')[0]}.${format}`;
+          archive.append(buffer, { name: fileName });
+        }),
+    );
+
+    await Promise.all(convertPromises);
+    archive.finalize();
+
+    const now = new Date();
+    const dateStr = now.toISOString().slice(0, 10);
+    const fileName = `images_resized_${[dateStr, now.getTime()].join('_')}.zip`;
+
+    return { archive, fileName };
   }
 }
