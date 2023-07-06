@@ -6,6 +6,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { Public } from './core/decorator/public.decorator';
+import { Response } from 'express';
 
 @Controller('')
 export class RootController {
