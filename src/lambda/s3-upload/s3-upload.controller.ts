@@ -7,5 +7,6 @@ export class S3UploadController {
   @Post()
   onPrivateBucketUpload(@Body() body: any) {
     console.log(body);
+    return body;
   }
 }
