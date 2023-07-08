@@ -33,8 +33,12 @@ export class ProcessingService {
         ? await this.processOne(inputFiles[0], algorithm)
         : await this.processMany(inputFiles, algorithm);
 
-    this.imagesBucketService.storePublic(result.output, result.fileName);
-    return result;
+    const storeResult = await this.imagesBucketService.storePublic(
+      result.output,
+      result.fileName,
+    );
+
+    return { ...result, bucketLocation: storeResult.Location };
   }
 
   private async processOne(
@@ -69,7 +73,6 @@ export class ProcessingService {
     archive.finalize();
 
     const output = await streamToPromise(archive);
-
     return {
       output,
       fileName: this.createArchiveName(),

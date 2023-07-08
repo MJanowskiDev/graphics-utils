@@ -5,7 +5,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { OperationType } from '../types/operations';
+import { OperationType } from '../types';
 
 @Entity()
 export class OperationData {

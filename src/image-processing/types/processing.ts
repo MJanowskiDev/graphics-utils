@@ -4,6 +4,7 @@ export type ProcessingResult = {
   output: Buffer;
   fileName: string;
   mime: string;
+  bucketLocation?: string;
 };
 
 export type SharpWithOptions = Sharp & { options: { formatOut: string } };
