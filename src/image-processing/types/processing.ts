@@ -1,8 +1,7 @@
-import { Archiver } from 'archiver';
 import { Sharp } from 'sharp';
 
 export type ProcessingResult = {
-  output: Buffer | Archiver;
+  output: Buffer;
   fileName: string;
   mime: string;
 };

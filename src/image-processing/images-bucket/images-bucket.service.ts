@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import aws from '../../config/aws';
 import s3Buckets from '../../config/s3-buckets';
 import { ConfigType } from '@nestjs/config';
@@ -21,17 +21,20 @@ export class ImagesBucketService {
     this.s3Client = new S3(this.awsConfig);
   }
 
+  private readonly logger = new Logger(ImagesBucketService.name);
+
   async storePublic(
     dataBuffer: Buffer,
     fileName: string,
-    assetId: number,
-  ): Promise<void> {
-    const uploadResult = await this.uploadToS3(
+  ): Promise<S3.ManagedUpload.SendData> {
+    this.logger.verbose(`Uploading public image: ${fileName}`);
+    const result = await this.uploadToS3(
       dataBuffer,
       fileName,
       this.s3BucketsConfig.imagesPublicBucket,
     );
-    await this.assetRepository.setOutputLink(assetId, uploadResult.Location);
+    this.logger.verbose(`Uploading public image succeded: ${result.Location}`);
+    return result;
   }
 
   async storePrivate(

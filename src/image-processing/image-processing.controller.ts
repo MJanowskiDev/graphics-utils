@@ -14,7 +14,6 @@ import { Response } from 'express';
 import { ResizeService } from './resize/resize.service';
 import { ConvertDto } from './convert/dto/format.dto';
 import { ConvertService } from './convert/convert.service';
-import { Archiver } from 'archiver';
 import { File, ProcessingResult } from './types';
 
 @Controller('image')
@@ -34,15 +33,7 @@ export class ImageProcessingController {
       'Content-Type': processingResult.mime,
       'Content-Disposition': `attachment; filename=${processingResult.fileName}`,
     });
-
-    if (
-      'pipe' in processingResult.output &&
-      typeof processingResult.output.pipe === 'function'
-    ) {
-      (processingResult.output as Archiver).pipe(res);
-    } else {
-      res.send(processingResult.output);
-    }
+    res.send(processingResult.output);
   }
 
   @Post('resize')
@@ -73,7 +64,7 @@ export class ImageProcessingController {
       throw new BadRequestException('Cannot convert files, empty files array');
     }
 
-    return await await this.processFiles(
+    return await this.processFiles(
       this.convertService.convert(files, format),
       res,
     );

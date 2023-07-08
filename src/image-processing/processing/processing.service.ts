@@ -3,12 +3,15 @@ import archiver from 'archiver';
 import { Sharp } from 'sharp';
 import moment from 'moment';
 import { ProcessingResult, SharpWithOptions, File, Algorithm } from '../types';
+import { ImagesBucketService } from '../images-bucket/images-bucket.service';
+import streamToPromise from 'stream-to-promise';
 
 const ZIP_MIME = 'application/zip';
 const ARCHIVE_FORMAT = 'zip';
 
 @Injectable()
 export class ProcessingService {
+  constructor(private imagesBucketService: ImagesBucketService) {}
   async process(
     inputFiles: File[],
     algorithm: Algorithm,
@@ -25,11 +28,13 @@ export class ProcessingService {
       throw new Error('algorithm is required');
     }
 
-    if (inputFiles.length === 1) {
-      return this.processOne(inputFiles[0], algorithm);
-    }
+    const result =
+      inputFiles.length === 1
+        ? await this.processOne(inputFiles[0], algorithm)
+        : await this.processMany(inputFiles, algorithm);
 
-    return this.processMany(inputFiles, algorithm);
+    this.imagesBucketService.storePublic(result.output, result.fileName);
+    return result;
   }
 
   private async processOne(
@@ -37,7 +42,7 @@ export class ProcessingService {
     algorithm: Algorithm,
   ): Promise<ProcessingResult> {
     const algorithmInstance = await algorithm(inputFile.buffer);
-    const format = this.extractFormat(algorithmInstance);
+    const format = await this.extractFormat(algorithmInstance);
     const output = await algorithmInstance.toBuffer();
     const fileName = this.createFileName(inputFile, format);
     return {
@@ -56,22 +61,27 @@ export class ProcessingService {
     const processingPromises = inputFiles.map(async (file) => {
       const algorithmInstance = operation(file.buffer);
       const buffer = await algorithmInstance.toBuffer();
-      const format = this.extractFormat(algorithmInstance);
+      const format = await this.extractFormat(algorithmInstance);
       archive.append(buffer, { name: this.createFileName(file, format) });
     });
 
     await Promise.all(processingPromises);
     archive.finalize();
 
+    const output = await streamToPromise(archive);
+
     return {
-      output: archive,
+      output,
       fileName: this.createArchiveName(),
       mime: ZIP_MIME,
     };
   }
 
-  private extractFormat(instance: Sharp): string {
-    return (instance as SharpWithOptions).options.formatOut;
+  private async extractFormat(instance: Sharp): Promise<string> {
+    const instanceWithOptions = instance as SharpWithOptions;
+    return instanceWithOptions.options.formatOut === 'input'
+      ? ((await instanceWithOptions.metadata()).format as string)
+      : instanceWithOptions.options.formatOut;
   }
 
   private createFileName(inputFile: File, format: string): string {
