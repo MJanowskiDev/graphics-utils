@@ -1,4 +1,2 @@
-export enum OperationType {
-  resize,
-  formatConversion,
-}
+export * from './processing';
+export * from './operations';

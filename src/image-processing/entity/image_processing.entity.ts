@@ -7,7 +7,7 @@ import {
   OneToOne,
   JoinColumn,
 } from 'typeorm';
-import { OperationType } from '../types';
+import { OperationType } from '../types/operations';
 import { Asset, OperationData } from './';
 
 @Entity()

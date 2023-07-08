@@ -6,6 +6,7 @@ import { Asset, OperationData, ImageProcessing } from './entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AssetRepository, OperationDataRepository } from './repository';
 import { ImageProcessingController } from './image-processing.controller';
+import { ProcessingService } from './processing/processing.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Asset, OperationData, ImageProcessing])],
@@ -16,6 +17,7 @@ import { ImageProcessingController } from './image-processing.controller';
     ConvertService,
     AssetRepository,
     OperationDataRepository,
+    ProcessingService,
   ],
 })
 export class ImageProcessingModule {}

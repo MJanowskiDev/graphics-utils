@@ -4,19 +4,18 @@ import {
   Post,
   Query,
   Res,
-  UploadedFile,
   UploadedFiles,
   UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
-import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import { AttachInputFileHeader } from '../core/decorator/AttachInputFileHeader.decorator';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { ResizeImageDto } from './resize/dto/resize.dto';
-import { UploadedFileValidation } from './validation/uploaded-file.validation';
 import { Response } from 'express';
 import { ResizeService } from './resize/resize.service';
 import { ConvertDto } from './convert/dto/format.dto';
 import { ConvertService } from './convert/convert.service';
+import { Archiver } from 'archiver';
+import { File, ProcessingResult } from './types';
 
 @Controller('image')
 export class ImageProcessingController {
@@ -25,60 +24,58 @@ export class ImageProcessingController {
     private convertService: ConvertService,
   ) {}
 
-  @Post('resize')
-  @UseInterceptors(FileInterceptor('image'))
-  async resizeImage(
-    @UploadedFile(UploadedFileValidation)
-    file: Express.Multer.File,
-    @Query(new ValidationPipe({ transform: true }))
-    { width }: ResizeImageDto,
-    @AttachInputFileHeader()
+  private async processFiles(
+    processingTask: Promise<ProcessingResult>,
     res: Response,
   ) {
-    res.send(
-      await this.resizeService.resize(file.buffer, width, file.originalname),
-    );
+    const processingResult = await processingTask;
+
+    res.set({
+      'Content-Type': processingResult.mime,
+      'Content-Disposition': `attachment; filename=${processingResult.fileName}`,
+    });
+
+    if (
+      'pipe' in processingResult.output &&
+      typeof processingResult.output.pipe === 'function'
+    ) {
+      (processingResult.output as Archiver).pipe(res);
+    } else {
+      res.send(processingResult.output);
+    }
   }
 
-  @Post()
-  @UseInterceptors(FileInterceptor('image'))
-  async convertToFormat(
-    @UploadedFile(UploadedFileValidation)
-    file: Express.Multer.File,
-    @Query(new ValidationPipe({ transform: true }))
-    { format }: ConvertDto,
-    @Res() res: Response,
-  ) {
-    const { buffer, fileName, mime } =
-      await this.convertService.convertToFormat(
-        file.buffer,
-        format,
-        file.originalname,
-      );
-
-    res
-      .set({
-        'Content-Type': mime,
-        'Content-Disposition': `attachment; filename="${fileName}"`,
-      })
-      .send(buffer);
-  }
-
-  @Post('array')
+  @Post('resize')
   @UseInterceptors(FilesInterceptor('files'))
-  async convertArrayToFormat(
-    @Query(new ValidationPipe({ transform: true })) { format }: ConvertDto,
-    @UploadedFiles() files: Array<Express.Multer.File>,
+  async resize(
+    @Query(new ValidationPipe({ transform: true })) { width }: ResizeImageDto,
+    @UploadedFiles() files: File[],
     @Res() res: Response,
   ) {
-    if (!files.length) {
+    if (!files?.length) {
       throw new BadRequestException('Cannot convert files, empty files array');
     }
 
-    const { archive, fileName } =
-      await this.convertService.convertArrayToFormat(files, format);
+    return await this.processFiles(
+      this.resizeService.resize(files, width),
+      res,
+    );
+  }
 
-    res.attachment(fileName);
-    archive.pipe(res);
+  @Post('convert')
+  @UseInterceptors(FilesInterceptor('files'))
+  async convert(
+    @Query(new ValidationPipe({ transform: true })) { format }: ConvertDto,
+    @UploadedFiles() files: File[],
+    @Res() res: Response,
+  ) {
+    if (!files?.length) {
+      throw new BadRequestException('Cannot convert files, empty files array');
+    }
+
+    return await await this.processFiles(
+      this.convertService.convert(files, format),
+      res,
+    );
   }
 }

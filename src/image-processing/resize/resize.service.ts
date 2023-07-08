@@ -1,36 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import sharp from 'sharp';
-import { ImagesBucketService } from '../images-bucket/images-bucket.service';
-import { OperationData } from '../entity';
-import { OperationType } from '../types';
-import { OperationDataRepository } from '../repository';
+import { ProcessingService } from '../processing/processing.service';
+import { ProcessingResult, File } from '../types';
 
 @Injectable()
 export class ResizeService {
-  constructor(
-    private imagesBucketService: ImagesBucketService,
-    private operationDataRepository: OperationDataRepository,
-  ) {}
-  async resize(
-    inputBuffer: Buffer,
-    width: number,
-    fileName: string,
-  ): Promise<Buffer> {
-    try {
-      const { assetId } = await this.imagesBucketService.storePrivate(
-        inputBuffer,
-        fileName,
-      );
-      const buffer = await sharp(inputBuffer).resize({ width }).toBuffer();
-      await this.imagesBucketService.storePublic(buffer, fileName, assetId);
+  constructor(private processingService: ProcessingService) {}
 
-      const operationData = new OperationData();
-      operationData.type = OperationType.resize;
-      operationData.userParams = JSON.stringify({ width, fileName });
-      await this.operationDataRepository.create(operationData);
-      return buffer;
-    } catch (error) {
-      throw error;
-    }
+  async resize(inputFiles: File[], width: number): Promise<ProcessingResult> {
+    const algorithm = (buffer: Buffer) => sharp(buffer).resize({ width });
+    return await this.processingService.process(inputFiles, algorithm);
   }
 }
