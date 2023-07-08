@@ -11,16 +11,14 @@ import {
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ResizeImageDto } from './resize/dto/resize.dto';
 import { Response } from 'express';
-import { ResizeService } from './resize/resize.service';
 import { ConvertDto } from './convert/dto/format.dto';
-import { ConvertService } from './convert/convert.service';
 import { File, ProcessingResult } from './types';
+import { BasicTransformationsService } from './basic-transformations/basic-transformations.service';
 
 @Controller('image')
 export class ImageProcessingController {
   constructor(
-    private resizeService: ResizeService,
-    private convertService: ConvertService,
+    private basicTransformationsService: BasicTransformationsService,
   ) {}
 
   private async processFiles(
@@ -48,7 +46,7 @@ export class ImageProcessingController {
     }
 
     return await this.processFiles(
-      this.resizeService.resize(files, width),
+      this.basicTransformationsService.resize(files, width),
       res,
     );
   }
@@ -65,7 +63,20 @@ export class ImageProcessingController {
     }
 
     return await this.processFiles(
-      this.convertService.convert(files, format),
+      this.basicTransformationsService.formatConversion(files, format),
+      res,
+    );
+  }
+
+  @Post('grayscale')
+  @UseInterceptors(FilesInterceptor('files'))
+  async toGrayscale(@UploadedFiles() files: File[], @Res() res: Response) {
+    if (!files?.length) {
+      throw new BadRequestException('Cannot convert files, empty files array');
+    }
+
+    return await this.processFiles(
+      this.basicTransformationsService.toGrayscale(files),
       res,
     );
   }
