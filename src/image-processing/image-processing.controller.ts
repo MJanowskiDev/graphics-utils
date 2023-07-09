@@ -9,9 +9,8 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { ResizeImageDto } from './resize/dto/resize.dto';
 import { Response } from 'express';
-import { ConvertDto } from './convert/dto/format.dto';
+import { ConvertDto, ResizeImageDto } from './dto';
 import { File, ProcessingResult } from './types';
 import { BasicTransformationsService } from './basic-transformations/basic-transformations.service';
 

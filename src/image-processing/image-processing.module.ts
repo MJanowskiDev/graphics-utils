@@ -1,7 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ResizeService } from './resize/resize.service';
 import { ImagesBucketService } from './images-bucket/images-bucket.service';
-import { ConvertService } from './convert/convert.service';
 import { Asset, OperationData, ImageProcessing } from './entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {
@@ -17,9 +15,7 @@ import { BasicTransformationsService } from './basic-transformations/basic-trans
   imports: [TypeOrmModule.forFeature([Asset, OperationData, ImageProcessing])],
   controllers: [ImageProcessingController],
   providers: [
-    ResizeService,
     ImagesBucketService,
-    ConvertService,
     AssetRepository,
     OperationDataRepository,
     ImageProcessingRepository,
