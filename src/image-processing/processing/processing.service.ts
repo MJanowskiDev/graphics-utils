@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import archiver from 'archiver';
 import { Sharp } from 'sharp';
 import moment from 'moment';
@@ -11,11 +11,16 @@ const ARCHIVE_FORMAT = 'zip';
 
 @Injectable()
 export class ProcessingService {
+  private readonly logger = new Logger(ProcessingService.name);
   constructor(private imagesBucketService: ImagesBucketService) {}
   async process(
     inputFiles: File[],
     algorithm: Algorithm,
   ): Promise<ProcessingResult> {
+    this.logger.log(
+      `Starting processing - amount to be processed: ${inputFiles.length}`,
+    );
+
     if (!Array.isArray(inputFiles)) {
       throw new Error('inputFiles should be an array');
     }
@@ -45,6 +50,7 @@ export class ProcessingService {
     inputFile: File,
     algorithm: Algorithm,
   ): Promise<ProcessingResult> {
+    this.logger.log(`Processing single file: ${inputFile.originalname}`);
     const algorithmInstance = await algorithm(inputFile.buffer);
     const format = await this.extractFormat(algorithmInstance);
     const output = await algorithmInstance.toBuffer();
@@ -60,6 +66,8 @@ export class ProcessingService {
     inputFiles: File[],
     operation: (buffer: Buffer) => Sharp,
   ): Promise<ProcessingResult> {
+    this.logger.log(`Processing multiple files: ${inputFiles.length}`);
+
     const archive = archiver(ARCHIVE_FORMAT, { zlib: { level: 9 } });
 
     const processingPromises = inputFiles.map(async (file) => {

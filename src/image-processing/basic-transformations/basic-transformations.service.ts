@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ProcessingResult, File, OperationType } from '../types';
 import { ProcessingService } from '../processing/processing.service';
 import sharp, { FormatEnum } from 'sharp';
@@ -10,6 +10,8 @@ export class BasicTransformationsService {
     private processingService: ProcessingService,
     private imageProcessingRepository: ImageProcessingRepository,
   ) {}
+
+  private readonly logger = new Logger(BasicTransformationsService.name);
 
   async formatConversion(
     inputFiles: File[],
