@@ -1,5 +1,5 @@
 export enum OperationType {
-  resize,
-  formatConversion,
-  toGrayscale,
+  resize = 'resize',
+  formatConversion = 'format-conversion',
+  toGrayscale = 'to-grayscale',
 }

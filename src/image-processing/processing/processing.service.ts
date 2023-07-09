@@ -17,7 +17,7 @@ export class ProcessingService {
     inputFiles: File[],
     algorithm: Algorithm,
   ): Promise<ProcessingResult> {
-    this.logger.log(
+    this.logger.verbose(
       `Starting processing - amount to be processed: ${inputFiles.length}`,
     );
 
@@ -50,7 +50,7 @@ export class ProcessingService {
     inputFile: File,
     algorithm: Algorithm,
   ): Promise<ProcessingResult> {
-    this.logger.log(`Processing single file: ${inputFile.originalname}`);
+    this.logger.verbose(`Processing single file: ${inputFile.originalname}`);
     const algorithmInstance = await algorithm(inputFile.buffer);
     const format = await this.extractFormat(algorithmInstance);
     const output = await algorithmInstance.toBuffer();
@@ -66,7 +66,7 @@ export class ProcessingService {
     inputFiles: File[],
     operation: (buffer: Buffer) => Sharp,
   ): Promise<ProcessingResult> {
-    this.logger.log(`Processing multiple files: ${inputFiles.length}`);
+    this.logger.verbose(`Processing multiple files: ${inputFiles.length}`);
 
     const archive = archiver(ARCHIVE_FORMAT, { zlib: { level: 9 } });
 

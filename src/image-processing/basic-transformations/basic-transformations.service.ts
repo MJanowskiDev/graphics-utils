@@ -6,12 +6,12 @@ import { ImageProcessingRepository } from '../repository';
 
 @Injectable()
 export class BasicTransformationsService {
+  private readonly logger = new Logger(BasicTransformationsService.name);
+
   constructor(
     private processingService: ProcessingService,
     private imageProcessingRepository: ImageProcessingRepository,
   ) {}
-
-  private readonly logger = new Logger(BasicTransformationsService.name);
 
   async formatConversion(
     inputFiles: File[],
@@ -48,6 +48,13 @@ export class BasicTransformationsService {
     operationType: OperationType,
     userParams?: object,
   ): Promise<ProcessingResult> {
+    this.logger.verbose(
+      `Starting basic transformation - amount to be processed: ${
+        inputFiles.length
+      }, operation: ${operationType}, userParams: ${JSON.stringify(
+        userParams,
+      )}`,
+    );
     const processingResult = await this.processingService.process(
       inputFiles,
       algorithm,
