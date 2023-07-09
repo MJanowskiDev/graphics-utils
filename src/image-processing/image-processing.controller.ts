@@ -1,18 +1,17 @@
 import {
-  BadRequestException,
   Controller,
   Post,
   Query,
   Res,
   UploadedFiles,
   UseInterceptors,
-  ValidationPipe,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import { ConvertDto, ResizeImageDto } from './dto';
 import { File, ProcessingResult } from './types';
 import { BasicTransformationsService } from './basic-transformations/basic-transformations.service';
+import { FileValidationPipe } from './validation/file-validation.pipe';
 
 @Controller('image')
 export class ImageProcessingController {
@@ -35,16 +34,12 @@ export class ImageProcessingController {
 
   @Post('resize')
   @UseInterceptors(FilesInterceptor('files'))
-  async resize(
-    @Query(new ValidationPipe({ transform: true })) { width }: ResizeImageDto,
-    @UploadedFiles() files: File[],
+  resize(
+    @Query() { width }: ResizeImageDto,
+    @UploadedFiles(new FileValidationPipe()) files: File[],
     @Res() res: Response,
   ) {
-    if (!files?.length) {
-      throw new BadRequestException('Cannot convert files, empty files array');
-    }
-
-    return await this.processFiles(
+    return this.processFiles(
       this.basicTransformationsService.resize(files, width),
       res,
     );
@@ -52,16 +47,12 @@ export class ImageProcessingController {
 
   @Post('convert')
   @UseInterceptors(FilesInterceptor('files'))
-  async convert(
-    @Query(new ValidationPipe({ transform: true })) { format }: ConvertDto,
-    @UploadedFiles() files: File[],
+  convert(
+    @Query() { format }: ConvertDto,
+    @UploadedFiles(new FileValidationPipe()) files: File[],
     @Res() res: Response,
   ) {
-    if (!files?.length) {
-      throw new BadRequestException('Cannot convert files, empty files array');
-    }
-
-    return await this.processFiles(
+    return this.processFiles(
       this.basicTransformationsService.formatConversion(files, format),
       res,
     );
@@ -69,12 +60,11 @@ export class ImageProcessingController {
 
   @Post('grayscale')
   @UseInterceptors(FilesInterceptor('files'))
-  async toGrayscale(@UploadedFiles() files: File[], @Res() res: Response) {
-    if (!files?.length) {
-      throw new BadRequestException('Cannot convert files, empty files array');
-    }
-
-    return await this.processFiles(
+  toGrayscale(
+    @UploadedFiles(new FileValidationPipe()) files: File[],
+    @Res() res: Response,
+  ) {
+    return this.processFiles(
       this.basicTransformationsService.toGrayscale(files),
       res,
     );
