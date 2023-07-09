@@ -50,23 +50,11 @@ export class BasicTransformationsService {
       inputFiles,
       algorithm,
     );
-    await this.storeOperationData(
+    await this.imageProcessingRepository.save(
       operationType,
-      userParams,
       processingResult.bucketLocation,
+      userParams,
     );
     return processingResult;
-  }
-
-  private async storeOperationData(
-    type: OperationType,
-    userParams = {},
-    bucketLocation = '',
-  ) {
-    return await this.imageProcessingRepository.save(
-      type,
-      userParams,
-      bucketLocation,
-    );
   }
 }

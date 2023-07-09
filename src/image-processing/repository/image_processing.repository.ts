@@ -15,7 +15,7 @@ export class ImageProcessingRepository {
     return this.imageProcessingRepository.save(operationData);
   }
 
-  async save(type: OperationType, userParams: object, bucketLocation: string) {
+  async save(type: OperationType, bucketLocation = '', userParams = {}) {
     const operationData = new ImageProcessing();
     operationData.type = type;
     operationData.userParams = JSON.stringify(userParams);
