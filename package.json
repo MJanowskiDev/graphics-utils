@@ -45,6 +45,7 @@
     "rxjs": "^7.2.0",
     "sharp": "^0.32.1",
     "stream-to-promise": "^3.0.0",
+    "swagger-ui-express": "^5.0.0",
     "typeorm": "^0.3.16"
   },
   "devDependencies": {

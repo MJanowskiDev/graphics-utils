@@ -4,11 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
 import { Logger } from './core/logger/Logger';
 import { HttpExceptionFilter } from './core/exceptions/http-exception.filter';
-import {
-  SwaggerModule,
-  DocumentBuilder,
-  SwaggerDocumentOptions,
-} from '@nestjs/swagger';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
   Sentry.init({
@@ -31,11 +27,10 @@ async function bootstrap() {
       'https://mjanowski.dev',
       'contact@mjanowski.dev',
     )
+    .addBearerAuth()
     .build();
-  const options: SwaggerDocumentOptions = {
-    operationIdFactory: (controllerKey: string, methodKey: string) => methodKey,
-  };
-  const document = SwaggerModule.createDocument(app, config, options);
+
+  const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
   await app.listen(process.env.PORT || 3000);
