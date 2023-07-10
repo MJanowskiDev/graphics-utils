@@ -7,12 +7,17 @@ import {
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ConvertDto, ResizeImageDto } from './dto';
-import { File } from './types';
 import { BasicTransformationsService } from './basic-transformations/basic-transformations.service';
 import { FileValidationPipe } from './validation/file-validation.pipe';
 import { BasicTransformationInterceptor } from './interceptor/BasicTransformationInterceptor.interceptor';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ProcessingResultDto } from './dto';
+import { SwaggerMultiFileBody } from 'src/core/decorator/swagger-files-upload.decorator';
+import { File } from './types';
 
 @Controller('image')
+@ApiTags('image')
+@ApiBearerAuth()
 @UseInterceptors(BasicTransformationInterceptor, FilesInterceptor('files'))
 export class ImageProcessingController {
   constructor(
@@ -20,23 +25,28 @@ export class ImageProcessingController {
   ) {}
 
   @Post('resize')
+  @SwaggerMultiFileBody
   resize(
     @Query() { width }: ResizeImageDto,
     @UploadedFiles(new FileValidationPipe()) files: File[],
-  ) {
+  ): Promise<ProcessingResultDto> {
     return this.basicTransformationsService.resize(files, width);
   }
 
   @Post('convert')
+  @SwaggerMultiFileBody
   convert(
     @Query() { format }: ConvertDto,
     @UploadedFiles(new FileValidationPipe()) files: File[],
-  ) {
+  ): Promise<ProcessingResultDto> {
     return this.basicTransformationsService.formatConversion(files, format);
   }
 
   @Post('grayscale')
-  toGrayscale(@UploadedFiles(new FileValidationPipe()) files: File[]) {
+  @SwaggerMultiFileBody
+  toGrayscale(
+    @UploadedFiles(new FileValidationPipe()) files: File[],
+  ): Promise<ProcessingResultDto> {
     return this.basicTransformationsService.toGrayscale(files);
   }
 }

@@ -2,9 +2,11 @@ import { Injectable, Logger } from '@nestjs/common';
 import archiver from 'archiver';
 import { Sharp } from 'sharp';
 import moment from 'moment';
-import { ProcessingResult, SharpWithOptions, File, Algorithm } from '../types';
+import { SharpWithOptions, Algorithm } from '../types';
 import { ImagesBucketService } from '../images-bucket/images-bucket.service';
 import streamToPromise from 'stream-to-promise';
+import { ProcessingResultDto } from '../dto';
+import { File } from '../types';
 
 const ZIP_MIME = 'application/zip';
 const ARCHIVE_FORMAT = 'zip';
@@ -16,7 +18,7 @@ export class ProcessingService {
   async process(
     inputFiles: File[],
     algorithm: Algorithm,
-  ): Promise<ProcessingResult> {
+  ): Promise<ProcessingResultDto> {
     this.logger.verbose(
       `Starting processing - amount to be processed: ${inputFiles.length}`,
     );
@@ -49,7 +51,7 @@ export class ProcessingService {
   private async processOne(
     inputFile: File,
     algorithm: Algorithm,
-  ): Promise<ProcessingResult> {
+  ): Promise<ProcessingResultDto> {
     this.logger.verbose(`Processing single file: ${inputFile.originalname}`);
     const algorithmInstance = await algorithm(inputFile.buffer);
     const format = await this.extractFormat(algorithmInstance);
@@ -65,7 +67,7 @@ export class ProcessingService {
   private async processMany(
     inputFiles: File[],
     operation: (buffer: Buffer) => Sharp,
-  ): Promise<ProcessingResult> {
+  ): Promise<ProcessingResultDto> {
     this.logger.verbose(`Processing multiple files: ${inputFiles.length}`);
 
     const archive = archiver(ARCHIVE_FORMAT, { zlib: { level: 9 } });

@@ -8,14 +8,14 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
-import { ProcessingResult } from '../types';
+import { ProcessingResultDto } from '../dto';
 
 @Injectable()
 export class BasicTransformationInterceptor implements NestInterceptor {
   intercept(
     context: ExecutionContext,
     next: CallHandler,
-  ): Observable<ProcessingResult | void> {
+  ): Observable<ProcessingResultDto | void> {
     return next.handle().pipe(
       map((data) => {
         const ctx = context.switchToHttp();

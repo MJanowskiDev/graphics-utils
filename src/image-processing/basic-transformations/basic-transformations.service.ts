@@ -1,8 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { ProcessingResult, File, OperationType } from '../types';
+import { OperationType } from '../types';
 import { ProcessingService } from '../processing/processing.service';
 import sharp, { FormatEnum } from 'sharp';
 import { ImageProcessingRepository } from '../repository';
+import { ProcessingResultDto } from '../dto';
+import { File } from '../types';
 
 @Injectable()
 export class BasicTransformationsService {
@@ -16,7 +18,7 @@ export class BasicTransformationsService {
   async formatConversion(
     inputFiles: File[],
     format: keyof FormatEnum,
-  ): Promise<ProcessingResult> {
+  ): Promise<ProcessingResultDto> {
     return await this.processFiles(
       inputFiles,
       (b: Buffer) => sharp(b).toFormat(format),
@@ -25,7 +27,10 @@ export class BasicTransformationsService {
     );
   }
 
-  async resize(inputFiles: File[], width: number): Promise<ProcessingResult> {
+  async resize(
+    inputFiles: File[],
+    width: number,
+  ): Promise<ProcessingResultDto> {
     return await this.processFiles(
       inputFiles,
       (b: Buffer) => sharp(b).resize({ width }),
@@ -34,7 +39,7 @@ export class BasicTransformationsService {
     );
   }
 
-  async toGrayscale(inputFiles: File[]): Promise<ProcessingResult> {
+  async toGrayscale(inputFiles: File[]): Promise<ProcessingResultDto> {
     return await this.processFiles(
       inputFiles,
       (b: Buffer) => sharp(b).grayscale(true),
@@ -47,7 +52,7 @@ export class BasicTransformationsService {
     algorithm: (buffer: Buffer) => sharp.Sharp,
     operationType: OperationType,
     userParams?: object,
-  ): Promise<ProcessingResult> {
+  ): Promise<ProcessingResultDto> {
     this.logger.verbose(
       `Starting basic transformation - amount to be processed: ${
         inputFiles.length
