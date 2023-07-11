@@ -1,4 +1,4 @@
-export { CredentialsDto } from './CredentialsDto.dto';
+export { CredentialsDto } from './credentials.dto';
 export { SignUpDto } from './sign-up.dto';
 export { SignInDto } from './sign-in.dto';
 export { UserDto } from './user.dto';
