@@ -7,7 +7,13 @@ import {
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { UtilsService } from './utils/utils.service';
-import { SignInDto, SignUpDto } from './dto';
+import {
+  AccessTokenDto,
+  ActivateDto,
+  SignInDto,
+  SignUpDto,
+  UserDto,
+} from './dto';
 import { ActivateService } from '../email/activate/activate.service';
 import { omit } from 'lodash';
 
@@ -25,7 +31,7 @@ export class AuthService {
     private readonly activateService: ActivateService,
   ) {}
 
-  async activate(token: string): Promise<{ result: string; message: string }> {
+  async activate(token: string): Promise<ActivateDto> {
     let decoded;
     try {
       decoded = this.jwtService.verify(token);
@@ -47,7 +53,7 @@ export class AuthService {
     return { result: 'success', message: USER_ACTIVATED_SUCCESSFULLY };
   }
 
-  async signUp({ email, password }: SignUpDto) {
+  async signUp({ email, password }: SignUpDto): Promise<UserDto> {
     const hashedPassword = await this.utilsService.hashPassword(password);
     const user = await this.usersService.create(email, hashedPassword);
     if (!user) {
@@ -58,10 +64,7 @@ export class AuthService {
     return omit(user, 'hashedPassword');
   }
 
-  async signIn({
-    email,
-    password,
-  }: SignInDto): Promise<{ access_token: string }> {
+  async signIn({ email, password }: SignInDto): Promise<AccessTokenDto> {
     const user = await this.usersService.findOneBy(email);
 
     if (!user) {

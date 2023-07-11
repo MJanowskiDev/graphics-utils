@@ -10,7 +10,7 @@ import { ConvertDto, ResizeImageDto } from './dto';
 import { BasicTransformationsService } from './basic-transformations/basic-transformations.service';
 import { FileValidationPipe } from './validation/file-validation.pipe';
 import { BasicTransformationInterceptor } from './interceptor/BasicTransformationInterceptor.interceptor';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ProcessingResultDto } from './dto';
 import { SwaggerMultiFileBody } from 'src/core/decorator/swagger-files-upload.decorator';
 import { File } from './types';
@@ -25,6 +25,9 @@ export class ImageProcessingController {
   ) {}
 
   @Post('resize')
+  @ApiOperation({
+    summary: 'Resizes image, when upscaling image quality will be degraded.',
+  })
   @SwaggerMultiFileBody
   resize(
     @Query() { width }: ResizeImageDto,
@@ -34,6 +37,9 @@ export class ImageProcessingController {
   }
 
   @Post('convert')
+  @ApiOperation({
+    summary: 'Converts image format, raster graphics accepted only.',
+  })
   @SwaggerMultiFileBody
   convert(
     @Query() { format }: ConvertDto,
@@ -43,6 +49,9 @@ export class ImageProcessingController {
   }
 
   @Post('grayscale')
+  @ApiOperation({
+    summary: 'Returns image in 256 shades of gray',
+  })
   @SwaggerMultiFileBody
   toGrayscale(
     @UploadedFiles(new FileValidationPipe()) files: File[],

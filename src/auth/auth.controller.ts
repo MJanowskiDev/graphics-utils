@@ -10,28 +10,37 @@ import {
 import { AuthService } from './auth.service';
 import { Public } from '../core/decorator/public.decorator';
 import { SignInDto, SignUpDto } from './dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @Post('sign-in')
   @Public()
   @HttpCode(HttpStatus.OK)
-  @Post('sign-in')
+  @ApiOperation({
+    summary: 'Login endpoint. Returns JWT token.',
+  })
   signIn(@Body() signInDto: SignInDto) {
     return this.authService.signIn(signInDto);
   }
 
-  @Public()
   @Post('sign-up')
+  @Public()
+  @ApiOperation({
+    summary: 'Register endpoint.',
+  })
   register(@Body() signUpDto: SignUpDto) {
     return this.authService.signUp(signUpDto);
   }
 
-  @Public()
   @Get('activate')
+  @Public()
+  @ApiOperation({
+    summary: 'Account activation endpoint.',
+  })
   activate(@Query('token') token: string) {
     return this.authService.activate(token);
   }

@@ -1,3 +1,6 @@
-export { CredentialsDto } from './Credentials.dto';
-export { SignUpDto } from './SignUp.dto';
-export { SignInDto } from './SignIn.dto';
+export { CredentialsDto } from './credentials.dto';
+export { SignUpDto } from './sign-up.dto';
+export { SignInDto } from './sign-in.dto';
+export { UserDto } from './user.dto';
+export { AccessTokenDto } from './access-token.dto';
+export { ActivateDto } from './activate.dto';
