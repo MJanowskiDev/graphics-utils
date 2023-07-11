@@ -1,5 +1,5 @@
 import { MinLength, Matches } from 'class-validator';
-import { CredentialsDto } from './credentials.dto';
+import { CredentialsDto } from './';
 
 export class SignUpDto extends CredentialsDto {
   @MinLength(8)

@@ -1,3 +1,3 @@
-import { CredentialsDto } from './credentials.dto';
+import { CredentialsDto } from './';
 
 export class SignInDto extends CredentialsDto {}
