@@ -11,6 +11,7 @@ export class FileValidationPipe implements PipeTransform {
     const mimeTypes = [
       'image/png',
       'image/jpeg',
+      'image/jpg',
       'image/gif',
       'image/webp',
       'image/avif',
