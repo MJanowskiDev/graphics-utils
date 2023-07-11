@@ -12,7 +12,7 @@ import { FileValidationPipe } from './validation/file-validation.pipe';
 import { BasicTransformationInterceptor } from './interceptor/BasicTransformationInterceptor.interceptor';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ProcessingResultDto } from './dto';
-import { SwaggerMultiFileBody } from 'src/core/decorator/swagger-files-upload.decorator';
+import { SwaggerMultiFileBody } from '../core/decorator/swagger-files-upload.decorator';
 import { File } from './types';
 
 @Controller('image')

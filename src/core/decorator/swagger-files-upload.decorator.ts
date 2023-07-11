@@ -1,5 +1,5 @@
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
-import { FileUploadDto } from 'src/image-processing/dto';
+import { FileUploadDto } from '../../image-processing/dto';
 
 export const SwaggerMultiFileBody: MethodDecorator = (
   target: any,
