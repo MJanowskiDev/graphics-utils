@@ -1,13 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, Matches } from 'class-validator';
+import { IsNotEmpty, IsEnum } from 'class-validator';
+import { SupportedImageFormats } from 'src/core/enums/supported-image-formats.enum';
 
 export class ConvertDto {
   @ApiProperty({
     name: 'format',
     description: 'The format to convert the image to.',
-    enum: ['png', 'jpeg', 'jpg', 'gif', 'webp', 'avif', 'tiff'],
+    enum: SupportedImageFormats,
   })
   @IsNotEmpty()
-  @Matches(/png|jpeg|jpg|gif|webp|avif|tiff/)
-  format: 'png' | 'jpeg' | 'jpg' | 'gif' | 'webp' | 'avif' | 'tiff';
+  @IsEnum(SupportedImageFormats)
+  format: SupportedImageFormats;
 }
