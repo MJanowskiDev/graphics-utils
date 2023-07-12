@@ -9,14 +9,8 @@ import EmailConfig from './config/email';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSourceOptions } from 'typeorm';
-import {
-  Asset,
-  OperationData,
-  ImageProcessing,
-} from './image-processing/entity';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
-import { User } from './users/entity';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
 import { LambdaModule } from './lambda/lambda.module';
@@ -32,17 +26,29 @@ import { RootController } from './root.controller';
       useFactory: async (
         configService: ConfigService,
       ): Promise<DataSourceOptions> => {
-        const { dbHost, dbPort, dbUsername, dbPassword, dbType, dbName } =
-          configService.get('database');
+        const {
+          host,
+          port,
+          username,
+          password,
+          type,
+          name,
+          entities,
+          synchronize,
+          logging,
+          migrations,
+        } = configService.get('database');
         return {
-          type: dbType,
-          host: dbHost,
-          port: dbPort,
-          username: dbUsername,
-          password: dbPassword,
-          database: dbName,
-          entities: [Asset, OperationData, ImageProcessing, User],
-          synchronize: true,
+          type,
+          host,
+          port,
+          username,
+          password,
+          name,
+          logging,
+          migrations,
+          synchronize,
+          entities,
         };
       },
     }),
