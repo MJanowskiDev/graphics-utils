@@ -10,7 +10,7 @@ export default new DataSource({
   password: process.env.DB_PASSWORD,
   type: 'postgres',
   database: process.env.DB_NAME || 'image-processing',
-  entities: [`${__dirname}/../src/**/*.entity{.ts,.js}`],
+  entities: [`${__dirname}/../**/*.entity{.ts,.js}`],
   synchronize: process.env.NODE_ENV === 'development',
   logging: process.env.NODE_ENV === 'development',
   migrations: [`${__dirname}/migrations/*{.ts,.js}`],
