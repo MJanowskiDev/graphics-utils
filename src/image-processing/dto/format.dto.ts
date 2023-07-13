@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsEnum } from 'class-validator';
-import { SupportedImageFormats } from 'src/core/enums/supported-image-formats.enum';
+import { SupportedImageFormats } from '../../core/enums/supported-image-formats.enum';
 
 export class ConvertDto {
   @ApiProperty({
