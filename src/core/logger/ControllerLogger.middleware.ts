@@ -1,7 +1,8 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import { Logger } from './Logger';
 import { getReasonPhrase } from 'http-status-codes';
+
+import { Logger } from './Logger';
 
 @Injectable()
 export class ControllerLogger implements NestMiddleware {

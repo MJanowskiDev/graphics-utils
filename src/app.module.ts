@@ -1,17 +1,18 @@
 import { MiddlewareConsumer, Module } from '@nestjs/common';
-import { ImageProcessingModule } from './image-processing/image-processing.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { DataSourceOptions } from 'typeorm';
+import { APP_GUARD } from '@nestjs/core';
+
+import { ImageProcessingModule } from './image-processing/image-processing.module';
 import AwsConfig from './config/aws';
 import S3Config from './config/s3-buckets';
 import DatabaseConfig from './config/database';
 import AuthConfig from './config/auth';
 import EmailConfig from './config/email';
-import { ThrottlerModule } from '@nestjs/throttler';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { DataSourceOptions } from 'typeorm';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
-import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
 import { LambdaModule } from './lambda/lambda.module';
 import { LoggerModule } from './core/logger/logger.module';
@@ -26,30 +27,7 @@ import { RootController } from './root.controller';
       useFactory: async (
         configService: ConfigService,
       ): Promise<DataSourceOptions> => {
-        const {
-          host,
-          port,
-          username,
-          password,
-          type,
-          name,
-          entities,
-          synchronize,
-          logging,
-          migrations,
-        } = configService.get('database');
-        return {
-          type,
-          host,
-          port,
-          username,
-          password,
-          name,
-          logging,
-          migrations,
-          synchronize,
-          entities,
-        };
+        return configService.get('database') as DataSourceOptions;
       },
     }),
     ImageProcessingModule,

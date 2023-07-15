@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { OperationData } from '../entity';
 import { Repository } from 'typeorm';
+
+import { OperationData } from '../entity';
 
 @Injectable()
 export class OperationDataRepository {

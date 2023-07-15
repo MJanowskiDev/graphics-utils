@@ -6,11 +6,12 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+
 import { ConvertDto, ResizeImageDto } from './dto';
 import { BasicTransformationsService } from './basic-transformations/basic-transformations.service';
 import { FileValidationPipe } from './validation/file-validation.pipe';
 import { BasicTransformationInterceptor } from './interceptor/BasicTransformationInterceptor.interceptor';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ProcessingResultDto } from './dto';
 import { SwaggerMultiFileBody } from '../core/decorator/swagger-files-upload.decorator';
 import { File } from './types';
@@ -29,7 +30,7 @@ export class ImageProcessingController {
     summary: 'Resizes image, when upscaling image quality will be degraded.',
   })
   @SwaggerMultiFileBody
-  resize(
+  public resize(
     @Query() { width }: ResizeImageDto,
     @UploadedFiles(new FileValidationPipe()) files: File[],
   ): Promise<ProcessingResultDto> {
@@ -41,7 +42,7 @@ export class ImageProcessingController {
     summary: 'Converts image format, raster graphics accepted only.',
   })
   @SwaggerMultiFileBody
-  convert(
+  public convert(
     @Query() { format }: ConvertDto,
     @UploadedFiles(new FileValidationPipe()) files: File[],
   ): Promise<ProcessingResultDto> {

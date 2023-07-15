@@ -1,6 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
-import { Public } from './core/decorator/public.decorator';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+
+import { Public } from './core/decorator/public.decorator';
 import { RootResponseDto } from './dto/root-response.dto';
 
 @ApiTags('root')

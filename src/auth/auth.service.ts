@@ -4,8 +4,10 @@ import {
   InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
+import { omit } from 'lodash';
+
+import { UsersService } from '../users/users.service';
 import { UtilsService } from './utils/utils.service';
 import {
   AccessTokenDto,
@@ -15,7 +17,6 @@ import {
   UserDto,
 } from './dto';
 import { ActivateService } from '../email/activate/activate.service';
-import { omit } from 'lodash';
 
 const USER_NOT_FOUND = 'User not found';
 const USER_ALREADY_ACTIVATED = 'User is already activated';

@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
 import { ImagesBucketService } from './images-bucket/images-bucket.service';
 import { Asset, OperationData, ImageProcessing } from './entity';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import {
   AssetRepository,
   OperationDataRepository,

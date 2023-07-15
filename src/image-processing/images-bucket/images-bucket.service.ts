@@ -1,9 +1,10 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import aws from '../../config/aws';
-import s3Buckets from '../../config/s3-buckets';
 import { ConfigType } from '@nestjs/config';
 import { S3 } from 'aws-sdk';
 import crypto from 'crypto';
+
+import s3Buckets from '../../config/s3-buckets';
+import aws from '../../config/aws';
 import { Asset } from '../entity';
 import { AssetRepository } from '../repository';
 

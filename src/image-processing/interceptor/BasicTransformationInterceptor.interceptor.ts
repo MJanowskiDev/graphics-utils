@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
+
 import { ProcessingResultDto } from '../dto';
 
 @Injectable()

@@ -2,9 +2,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import archiver from 'archiver';
 import { Sharp } from 'sharp';
 import moment from 'moment';
+import streamToPromise from 'stream-to-promise';
+
 import { SharpWithOptions, Algorithm } from '../types';
 import { ImagesBucketService } from '../images-bucket/images-bucket.service';
-import streamToPromise from 'stream-to-promise';
 import { ProcessingResultDto } from '../dto';
 import { File } from '../types';
 

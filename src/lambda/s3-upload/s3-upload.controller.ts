@@ -1,6 +1,7 @@
 import { Controller, Post, Body } from '@nestjs/common';
-import { Public } from '../../core/decorator/public.decorator';
 import { ApiTags } from '@nestjs/swagger';
+
+import { Public } from '../../core/decorator/public.decorator';
 
 @Public()
 @ApiTags('lambda')

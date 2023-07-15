@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ImageProcessing } from '../entity';
 import { Repository } from 'typeorm';
+
+import { ImageProcessing } from '../entity';
 import { OperationType } from '../types';
 
 @Injectable()

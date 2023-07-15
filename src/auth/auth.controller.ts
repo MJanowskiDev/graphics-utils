@@ -7,10 +7,11 @@ import {
   Get,
   Query,
 } from '@nestjs/common';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+
 import { AuthService } from './auth.service';
 import { Public } from '../core/decorator/public.decorator';
 import { SignInDto, SignUpDto } from './dto';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('auth')
 @Controller('auth')

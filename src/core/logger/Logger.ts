@@ -1,5 +1,6 @@
 import { ConsoleLogger } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
+
 import { HttpError } from '../errors/HttpError';
 
 export class Logger extends ConsoleLogger {

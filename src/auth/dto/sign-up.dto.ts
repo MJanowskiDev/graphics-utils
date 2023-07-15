@@ -1,4 +1,5 @@
 import { MinLength, Matches } from 'class-validator';
+
 import { CredentialsDto } from './';
 
 export class SignUpDto extends CredentialsDto {

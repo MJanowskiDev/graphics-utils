@@ -1,10 +1,11 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+
+import { AppModule } from './app.module';
 import { Logger } from './core/logger/Logger';
 import { HttpExceptionFilter } from './core/exceptions/http-exception.filter';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
   Sentry.init({

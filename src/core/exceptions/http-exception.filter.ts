@@ -5,9 +5,10 @@ import {
   HttpException,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { getReasonPhrase } from 'http-status-codes';
+
 import { Logger } from '../logger/Logger';
 import { HttpError } from '../errors/HttpError';
-import { getReasonPhrase } from 'http-status-codes';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {

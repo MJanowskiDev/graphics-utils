@@ -1,8 +1,9 @@
 import { ConflictException, Injectable } from '@nestjs/common';
-import { User } from './entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PostgresError } from 'pg-error-enum';
+
+import { User } from './entity';
 
 @Injectable()
 export class UsersService {
