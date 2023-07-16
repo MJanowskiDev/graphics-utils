@@ -1,11 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import sharp, { FormatEnum } from 'sharp';
 
-import { OperationType } from '../types';
 import { ProcessingService } from '../processing/processing.service';
 import { ImageProcessingRepository } from '../repository';
-import { ProcessingResultDto } from '../dto';
 import { File } from '../types';
+import { OperationType } from '../types';
+import { ProcessingResultDto } from '../dto';
 
 @Injectable()
 export class BasicTransformationsService {
