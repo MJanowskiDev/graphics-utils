@@ -11,7 +11,7 @@ export class UtilsService {
     return await bcrypt.hash(password, passwordSaltOrRounds);
   }
 
-  async comparePasswords(password: string, hashedPassword: string) {
-    return await bcrypt.compare(password, hashedPassword);
+  comparePasswords(password: string, hashedPassword: string) {
+    return bcrypt.compare(password, hashedPassword);
   }
 }

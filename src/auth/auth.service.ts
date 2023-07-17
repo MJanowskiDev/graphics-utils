@@ -76,7 +76,7 @@ export class AuthService {
       throw new UnauthorizedException('Please activate your account first.');
     }
 
-    const passwordMatches = this.utilsService.comparePasswords(
+    const passwordMatches = await this.utilsService.comparePasswords(
       password,
       user.hashedPassword,
     );
