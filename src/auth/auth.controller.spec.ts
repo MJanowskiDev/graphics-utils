@@ -1,14 +1,22 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import {
   ArgumentMetadata,
+  BadRequestException,
   ConflictException,
+  HttpStatus,
   UnauthorizedException,
   ValidationPipe,
 } from '@nestjs/common';
 
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { AccessTokenDto, SignInDto, SignUpDto, UserDto } from './dto';
+import {
+  AccessTokenDto,
+  ActivateDto,
+  SignInDto,
+  SignUpDto,
+  UserDto,
+} from './dto';
 
 describe('AuthController', () => {
   let authController: AuthController;
@@ -16,6 +24,7 @@ describe('AuthController', () => {
   const mockAuthService = {
     signIn: jest.fn<Promise<AccessTokenDto>, [SignInDto]>(),
     signUp: jest.fn<Promise<UserDto>, [SignUpDto]>(),
+    activate: jest.fn<Promise<ActivateDto>, [token: string]>(),
   };
 
   beforeEach(async () => {
@@ -71,7 +80,7 @@ describe('AuthController', () => {
     });
 
     describe('handle errors', () => {
-      it('should throw 409 conflict error when user already exists', async () => {
+      it('should throw CONFLICT error when user already exists', async () => {
         const signUpDto = { email: 'dummy@example.com', password: 'password' };
 
         mockAuthService.signUp.mockRejectedValue(
@@ -82,12 +91,12 @@ describe('AuthController', () => {
           await authController.register(signUpDto);
         } catch (error) {
           expect(error.response).toBeDefined();
-          expect(error.response.statusCode).toBe(409);
+          expect(error.response.statusCode).toBe(HttpStatus.CONFLICT);
           expect(error.response.message).toEqual('This email already exists.');
         }
       });
 
-      it('should throw 400 error if password doesnt match requirements', async () => {
+      it('should throw BAD_REQUEST error if password doesnt match requirements', async () => {
         const signUpDto: SignUpDto = {
           email: 'dummy@example.com',
           password: 'badpassword',
@@ -102,13 +111,13 @@ describe('AuthController', () => {
         }
 
         expect(error).toBeDefined();
-        expect(error.getResponse().statusCode).toBe(400);
+        expect(error.getResponse().statusCode).toBe(HttpStatus.BAD_REQUEST);
         expect(error.getResponse().message).toEqual([
           'Password must contain at least 8 characters, including one letter, one number, and one special character',
         ]);
       });
 
-      it('should throw 400 error if the invalid email provided', async () => {
+      it('should throw BAD_REQUEST error if the invalid email provided', async () => {
         const signUpDto: SignUpDto = {
           email: 'invalid_email',
           password: 'This!s4ValidPassword',
@@ -123,7 +132,7 @@ describe('AuthController', () => {
         }
 
         expect(error).toBeDefined();
-        expect(error.getResponse().statusCode).toBe(400);
+        expect(error.getResponse().statusCode).toBe(HttpStatus.BAD_REQUEST);
         expect(error.getResponse().message).toEqual([
           'Please provide a valid email address',
         ]);
@@ -168,7 +177,7 @@ describe('AuthController', () => {
         );
       });
 
-      it('should throw 400 error if the invalid email provided', async () => {
+      it('should throw BAD_REQUEST error if the invalid email provided', async () => {
         const signInDto: SignInDto = {
           email: 'invalid-email',
           password: 'password',
@@ -183,7 +192,7 @@ describe('AuthController', () => {
         }
 
         expect(error).toBeDefined();
-        expect(error.getResponse().statusCode).toBe(400);
+        expect(error.getResponse().statusCode).toBe(HttpStatus.BAD_REQUEST);
         expect(error.getResponse().message).toEqual([
           'Please provide a valid email address',
         ]);
@@ -211,6 +220,70 @@ describe('AuthController', () => {
         await expect(authController.signIn(signInDto)).rejects.toThrow(
           UnauthorizedException,
         );
+      });
+    });
+  });
+
+  describe('activate', () => {
+    it('should be public', () => {
+      const decorators = Reflect.getMetadataKeys(authController.activate);
+      expect(decorators).toContain('isPublic');
+    });
+
+    it('should activate user by token, and return message', async () => {
+      const activateDto: ActivateDto = {
+        result: 'success',
+        message: 'User activated successfully',
+      };
+
+      mockAuthService.activate.mockResolvedValue(activateDto);
+      const result = await authController.activate('token');
+
+      expect(result).toBe(activateDto);
+      expect(result).toHaveProperty('result');
+      expect(result).toHaveProperty('message');
+      expect(mockAuthService.activate).toHaveBeenCalledWith('token');
+    });
+
+    it('should return message when user is already activated', async () => {
+      const activateDto: ActivateDto = {
+        result: 'success',
+        message: 'User is already activated',
+      };
+
+      mockAuthService.activate.mockResolvedValue(activateDto);
+      const result = await authController.activate('token');
+      expect(result).toBe(activateDto);
+      expect(mockAuthService.activate).toHaveBeenCalledWith('token');
+    });
+
+    describe('handle errors', () => {
+      it('should throw BAD_REQUEST error when invalid token passed', async () => {
+        mockAuthService.activate.mockRejectedValue(
+          new BadRequestException('Invalid token'),
+        );
+
+        try {
+          await authController.activate('');
+        } catch (error) {
+          expect(error.response).toBeDefined();
+          expect(error.response.statusCode).toBe(HttpStatus.BAD_REQUEST);
+          expect(error.response.message).toEqual('Invalid token');
+        }
+      });
+
+      it('should throw BAD_REQUEST error when user to activate not found', async () => {
+        mockAuthService.activate.mockRejectedValue(
+          new BadRequestException('User not found'),
+        );
+
+        try {
+          await authController.activate('');
+        } catch (error) {
+          expect(error.response).toBeDefined();
+          expect(error.response.statusCode).toBe(HttpStatus.BAD_REQUEST);
+          expect(error.response.message).toEqual('User not found');
+        }
       });
     });
   });

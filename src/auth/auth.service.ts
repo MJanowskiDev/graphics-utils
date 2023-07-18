@@ -48,7 +48,7 @@ export class AuthService {
     }
 
     if (wasAlreadyActivated) {
-      return { result: 'failed', message: USER_ALREADY_ACTIVATED };
+      return { result: 'success', message: USER_ALREADY_ACTIVATED };
     }
     this.activateService.sendWelcomeEmail(user.email);
     return { result: 'success', message: USER_ACTIVATED_SUCCESSFULLY };
