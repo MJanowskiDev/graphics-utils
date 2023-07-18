@@ -20,7 +20,7 @@ export class UserDto {
     description: 'The role of the user',
     enum: Role,
   })
-  role: Role;
+  role: Role | null;
 
   @ApiProperty({
     example: true,
