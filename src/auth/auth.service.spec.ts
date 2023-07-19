@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from 'aws-sdk';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 
@@ -11,59 +10,90 @@ import { AuthService } from './auth.service';
 import { UtilsService } from './utils/utils.service';
 import { User } from '../users/entity';
 
-const mockEmailConfigService = {
-  get: (key: string) => {
-    if (key === 'email') {
-      return {
-        smtp: {
-          port: 587,
-          user: 'smtp-email',
-          pass: 'smtp-password',
-        },
-        service: 'service-provider',
-        templatePaths: {
-          activate: './emailTemplates/activationEmail.mjml',
-          welcome: './emailTemplates/welcomeEmail.mjml',
-        },
-        activateUrL: '/auth/activate?token=${token}',
-      };
-    }
-  },
-};
+const TEST_USER_ID = 'test_id';
+const TEST_EMAIL = 'test@example.com';
+const HASHED_PASSWORD = 'hashed-test-pass';
+const TEST_PASSWORD = 'test_password';
+const ACTIVATION_TOKEN = 'test-activation-token';
 
 const getTestingModule = async (): Promise<TestingModule> => {
   return Test.createTestingModule({
-    imports: [ConfigModule, Repository<User>],
+    imports: [ConfigModule.forRoot(), Repository<User>],
     providers: [
       AuthService,
-      UtilsService,
-      ActivateService,
-      UsersService,
       ConfigService,
+      {
+        provide: UsersService,
+        useValue: {
+          activateById: jest.fn().mockResolvedValue({
+            user: { id: TEST_USER_ID },
+          }),
+          findOneBy: jest.fn().mockResolvedValue({
+            id: TEST_USER_ID,
+            email: TEST_EMAIL,
+            activated: true,
+            hashedPassword: HASHED_PASSWORD,
+          }),
+          create: jest.fn().mockResolvedValue({
+            id: TEST_USER_ID,
+            email: TEST_EMAIL,
+            hashedPassword: HASHED_PASSWORD,
+          }),
+        },
+      },
+      {
+        provide: UtilsService,
+        useValue: {
+          hashPassword: jest.fn((password) => `password-${password}`),
+        },
+      },
+      {
+        provide: ActivateService,
+        useValue: {
+          sendActivationEmail: jest.fn(),
+          getMjmlTemplate: jest
+            .fn()
+            .mockImplementation(() => '<p>Mock E-mail Template</p>'),
+        },
+      },
       {
         provide: JwtService,
         useValue: {
-          sign: jest.fn(() => 'test-signed-token'),
+          sign: jest.fn(() => ACTIVATION_TOKEN),
           verify: jest.fn((token) =>
-            token === 'test-token' ? { id: 'test-id' } : null,
+            token === 'test-token' ? { id: TEST_USER_ID } : null,
           ),
         },
       },
       {
         provide: getRepositoryToken(User),
-        useClass: Repository,
+        useValue: {
+          save: jest.fn().mockResolvedValue({
+            id: TEST_USER_ID,
+            email: TEST_EMAIL,
+            hashedPassword: HASHED_PASSWORD,
+          }),
+        },
       },
       {
-        provide: 'EmailConfigService',
-        useValue: mockEmailConfigService,
+        provide: ConfigService,
+        useValue: {
+          get: jest.fn().mockImplementation((key) => {
+            switch (key) {
+              case 'auth':
+                return { passwordSaltOrRounds: 10 };
+              case 'email':
+                return {
+                  activateUrL: jest.fn().mockImplementation(() => 'test-url'),
+                };
+              default:
+                return null;
+            }
+          }),
+        },
       },
     ],
-  })
-    .overrideProvider(ActivateService)
-    .useValue({
-      emailConfigService: mockEmailConfigService,
-    })
-    .compile();
+  }).compile();
 };
 
 describe('AuthService', () => {
@@ -91,5 +121,107 @@ describe('AuthService', () => {
     expect(activateService).toBeDefined();
     expect(usersService).toBeDefined();
     expect(configService).toBeDefined();
+  });
+
+  describe('sign-up', () => {
+    it('should sign up a new user', async () => {
+      const email = TEST_EMAIL;
+      const password = TEST_PASSWORD;
+
+      const signUpDto = {
+        email,
+        password,
+      };
+
+      const hashedPassword = utilsService.hashPassword(password);
+
+      const result = await service.signUp(signUpDto);
+      expect(result).toBeDefined();
+      expect(result.id).toBe(TEST_USER_ID);
+      expect(result.email).toBe(email);
+      expect(utilsService.hashPassword).toHaveBeenCalledWith(password);
+      expect(usersService.create).toHaveBeenCalledWith(email, hashedPassword);
+      expect(jwtService.sign).toHaveBeenCalledWith({ id: TEST_USER_ID });
+      expect(activateService.sendActivationEmail).toHaveBeenCalledWith(
+        email,
+        ACTIVATION_TOKEN,
+      );
+    });
+
+    it('should send activation email with correct token', async () => {
+      const signUpDto = {
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+      };
+      const user = {
+        id: TEST_USER_ID,
+        email: TEST_EMAIL,
+        hashedPassword: HASHED_PASSWORD,
+      };
+      (usersService.create as jest.Mock).mockResolvedValue(user);
+
+      await service.signUp(signUpDto);
+      expect(activateService.sendActivationEmail).toHaveBeenCalledWith(
+        TEST_EMAIL,
+        ACTIVATION_TOKEN,
+      );
+    });
+
+    it('should hash the password before saving', async () => {
+      const signUpDto = {
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+      };
+
+      await service.signUp(signUpDto);
+
+      expect(utilsService.hashPassword).toHaveBeenCalledWith(TEST_PASSWORD);
+      expect(usersService.create).toHaveBeenCalledWith(
+        TEST_EMAIL,
+        `password-${TEST_PASSWORD}`,
+      );
+    });
+
+    it('should sign the JWT token with the correct payload', async () => {
+      const signUpDto = {
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+      };
+
+      await service.signUp(signUpDto);
+      expect(jwtService.sign).toHaveBeenCalledWith({ id: TEST_USER_ID });
+    });
+
+    it('should omit hashedPassword from the returned user data', async () => {
+      const signUpDto = {
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+      };
+
+      const result = await service.signUp(signUpDto);
+      expect(result).not.toHaveProperty('hashedPassword');
+    });
+
+    describe('errors', () => {
+      it('should throw an error if user creation fails', async () => {
+        const signUpDto = {
+          email: TEST_EMAIL,
+          password: TEST_PASSWORD,
+        };
+        (usersService.create as jest.Mock).mockResolvedValue(null);
+
+        await expect(service.signUp(signUpDto)).rejects.toThrow(
+          'User could not be created.',
+        );
+
+        expect(utilsService.hashPassword).toHaveBeenCalledWith(TEST_PASSWORD);
+        expect(usersService.create).toHaveBeenCalledWith(
+          TEST_EMAIL,
+          `password-${TEST_PASSWORD}`,
+        );
+        expect(jwtService.sign).not.toHaveBeenCalled();
+        expect(activateService.sendActivationEmail).not.toHaveBeenCalled();
+      });
+    });
   });
 });
