@@ -9,12 +9,13 @@ import { ActivateService } from '../email/activate/activate.service';
 import { AuthService } from './auth.service';
 import { UtilsService } from './utils/utils.service';
 import { User } from '../users/entity';
+import { UnauthorizedException } from '@nestjs/common';
 
 const TEST_USER_ID = 'test_id';
 const TEST_EMAIL = 'test@example.com';
-const HASHED_PASSWORD = 'hashed-test-pass';
+const HASHED_PASSWORD = 'hashed-test_password';
 const TEST_PASSWORD = 'test_password';
-const ACTIVATION_TOKEN = 'test-activation-token';
+const TEST_ROLE = 'user';
 
 const getTestingModule = async (): Promise<TestingModule> => {
   return Test.createTestingModule({
@@ -28,11 +29,18 @@ const getTestingModule = async (): Promise<TestingModule> => {
           activateById: jest.fn().mockResolvedValue({
             user: { id: TEST_USER_ID },
           }),
-          findOneBy: jest.fn().mockResolvedValue({
-            id: TEST_USER_ID,
-            email: TEST_EMAIL,
-            activated: true,
-            hashedPassword: HASHED_PASSWORD,
+          findOneBy: jest.fn().mockImplementation((email) => {
+            if (email === TEST_EMAIL) {
+              return Promise.resolve({
+                id: TEST_USER_ID,
+                email: TEST_EMAIL,
+                activated: true,
+                role: TEST_ROLE,
+                hashedPassword: HASHED_PASSWORD,
+              });
+            } else {
+              return Promise.resolve(null);
+            }
           }),
           create: jest.fn().mockResolvedValue({
             id: TEST_USER_ID,
@@ -44,7 +52,10 @@ const getTestingModule = async (): Promise<TestingModule> => {
       {
         provide: UtilsService,
         useValue: {
-          hashPassword: jest.fn((password) => `password-${password}`),
+          hashPassword: jest.fn((password) => `hashed-${password}`),
+          comparePasswords: jest.fn((password, hashedPassword) => {
+            return password === hashedPassword.replace('hashed-', '');
+          }),
         },
       },
       {
@@ -59,7 +70,10 @@ const getTestingModule = async (): Promise<TestingModule> => {
       {
         provide: JwtService,
         useValue: {
-          sign: jest.fn(() => ACTIVATION_TOKEN),
+          sign: jest.fn((o) => {
+            console.log(o, JSON.stringify(o));
+            return JSON.stringify(o);
+          }),
           verify: jest.fn((token) =>
             token === 'test-token' ? { id: TEST_USER_ID } : null,
           ),
@@ -123,6 +137,71 @@ describe('AuthService', () => {
     expect(configService).toBeDefined();
   });
 
+  describe('sign-in', () => {
+    it('should sign in a user and return jwt when succeded', async () => {
+      const signInDto = { email: TEST_EMAIL, password: TEST_PASSWORD };
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const { id, email, role } = (await usersService.findOneBy(TEST_EMAIL))!;
+      await service.signIn(signInDto);
+      expect(usersService.findOneBy).toHaveBeenCalledWith(TEST_EMAIL);
+      expect(jwtService.sign).toHaveBeenCalledWith({
+        id,
+        email,
+        role,
+      });
+      expect(service.signIn(signInDto)).resolves.toEqual({
+        access_token: JSON.stringify({
+          id,
+          email,
+          role,
+        }),
+      });
+    });
+    describe('errors', () => {
+      it('should throw an error if user is not found', async () => {
+        const signInDto = {
+          email: 'non-existing-email',
+          password: TEST_PASSWORD,
+        };
+
+        await expect(service.signIn(signInDto)).rejects.toThrow(
+          UnauthorizedException,
+        );
+
+        expect(utilsService.comparePasswords).not.toHaveBeenCalled();
+        expect(jwtService.sign).not.toHaveBeenCalled();
+      });
+
+      it('should throw an error if user is not activated', async () => {
+        const signInDto = {
+          email: 'not-activated',
+          password: TEST_PASSWORD,
+        };
+
+        jest
+          .spyOn(usersService, 'findOneBy')
+          .mockImplementation(async (email) => {
+            return Promise.resolve<User | null>({
+              id: TEST_USER_ID,
+              email,
+              activated: false,
+              role: '' as any,
+              hashedPassword: HASHED_PASSWORD,
+              created_at: new Date(),
+              updated_at: new Date(),
+            });
+          });
+
+        await expect(service.signIn(signInDto)).rejects.toThrow(
+          new UnauthorizedException('Please activate your account first.'),
+        );
+
+        expect(utilsService.comparePasswords).not.toHaveBeenCalled();
+        expect(jwtService.sign).not.toHaveBeenCalled();
+      });
+    });
+  });
+
   describe('sign-up', () => {
     it('should sign up a new user', async () => {
       const email = TEST_EMAIL;
@@ -144,7 +223,7 @@ describe('AuthService', () => {
       expect(jwtService.sign).toHaveBeenCalledWith({ id: TEST_USER_ID });
       expect(activateService.sendActivationEmail).toHaveBeenCalledWith(
         email,
-        ACTIVATION_TOKEN,
+        JSON.stringify({ id: TEST_USER_ID }),
       );
     });
 
@@ -163,7 +242,7 @@ describe('AuthService', () => {
       await service.signUp(signUpDto);
       expect(activateService.sendActivationEmail).toHaveBeenCalledWith(
         TEST_EMAIL,
-        ACTIVATION_TOKEN,
+        JSON.stringify({ id: TEST_USER_ID }),
       );
     });
 
@@ -178,7 +257,7 @@ describe('AuthService', () => {
       expect(utilsService.hashPassword).toHaveBeenCalledWith(TEST_PASSWORD);
       expect(usersService.create).toHaveBeenCalledWith(
         TEST_EMAIL,
-        `password-${TEST_PASSWORD}`,
+        `hashed-${TEST_PASSWORD}`,
       );
     });
 
@@ -217,7 +296,7 @@ describe('AuthService', () => {
         expect(utilsService.hashPassword).toHaveBeenCalledWith(TEST_PASSWORD);
         expect(usersService.create).toHaveBeenCalledWith(
           TEST_EMAIL,
-          `password-${TEST_PASSWORD}`,
+          `hashed-${TEST_PASSWORD}`,
         );
         expect(jwtService.sign).not.toHaveBeenCalled();
         expect(activateService.sendActivationEmail).not.toHaveBeenCalled();
