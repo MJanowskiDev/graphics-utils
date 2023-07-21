@@ -3,13 +3,13 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 
 import { UsersService } from '../users/users.service';
 import { ActivateService } from '../email/activate/activate.service';
 import { AuthService } from './auth.service';
 import { UtilsService } from './utils/utils.service';
 import { User } from '../users/entity';
-import { UnauthorizedException } from '@nestjs/common';
 
 const TEST_USER_ID = 'test_id';
 const TEST_EMAIL = 'test@example.com';
@@ -27,7 +27,14 @@ const getTestingModule = async (): Promise<TestingModule> => {
         provide: UsersService,
         useValue: {
           activateById: jest.fn().mockResolvedValue({
-            user: { id: TEST_USER_ID },
+            user: {
+              id: TEST_USER_ID,
+              email: TEST_EMAIL,
+              activated: true,
+              role: TEST_ROLE,
+              hashedPassword: HASHED_PASSWORD,
+            },
+            wasAlreadyActivated: false,
           }),
           findOneBy: jest.fn().mockImplementation((email) => {
             if (email === TEST_EMAIL) {
@@ -62,6 +69,7 @@ const getTestingModule = async (): Promise<TestingModule> => {
         provide: ActivateService,
         useValue: {
           sendActivationEmail: jest.fn(),
+          sendWelcomeEmail: jest.fn(),
           getMjmlTemplate: jest
             .fn()
             .mockImplementation(() => '<p>Mock E-mail Template</p>'),
@@ -71,7 +79,6 @@ const getTestingModule = async (): Promise<TestingModule> => {
         provide: JwtService,
         useValue: {
           sign: jest.fn((o) => {
-            console.log(o, JSON.stringify(o));
             return JSON.stringify(o);
           }),
           verify: jest.fn((token) =>
@@ -137,12 +144,85 @@ describe('AuthService', () => {
     expect(configService).toBeDefined();
   });
 
+  describe('activate', () => {
+    it('should activate a user', async () => {
+      const token = 'test-token';
+      await service.activate(token);
+      expect(jwtService.verify).toHaveBeenCalledWith(token);
+      expect(usersService.activateById).toHaveBeenCalledWith(TEST_USER_ID);
+      expect(activateService.sendWelcomeEmail).toHaveBeenCalledWith(TEST_EMAIL);
+      expect(service.activate(token)).resolves.toEqual({
+        result: 'success',
+        message: 'User activated successfully',
+      });
+    });
+
+    it('should return a success message if user was already activated', async () => {
+      const token = 'test-token';
+
+      jest.spyOn(usersService, 'activateById').mockResolvedValue({
+        user: {
+          id: TEST_USER_ID,
+          email: '',
+          hashedPassword: '',
+          role: '' as any,
+          activated: true,
+          created_at: new Date(),
+          updated_at: new Date(),
+        },
+        wasAlreadyActivated: true,
+      });
+
+      await service.activate(token);
+
+      expect(service.activate(token)).resolves.toEqual({
+        result: 'success',
+        message: 'User is already activated',
+      });
+    });
+    it('should send a welcome email if user was not activated', async () => {
+      await service.activate('test-token');
+      expect(activateService.sendWelcomeEmail).toHaveBeenCalledWith(TEST_EMAIL);
+    });
+
+    describe('errors', () => {
+      it('should throw an error if token is invalid', async () => {
+        jest.spyOn(jwtService, 'verify').mockImplementation(() => {
+          throw new Error('Invalid token');
+        });
+
+        const invalidToken = 'invalid-token';
+
+        //await service.activate(invalidToken);
+        expect(service.activate(invalidToken)).rejects.toThrow(
+          new BadRequestException('Invalid token'),
+        );
+        expect(jwtService.verify).toHaveBeenCalledWith(invalidToken);
+      });
+
+      it('should throw an error if user is not found', async () => {
+        const token = 'test-token';
+
+        jest.spyOn(usersService, 'activateById').mockResolvedValue({
+          user: null as any,
+          wasAlreadyActivated: false,
+        });
+
+        await expect(service.activate(token)).rejects.toThrow(
+          new BadRequestException('User not found'),
+        );
+      });
+    });
+  });
+
   describe('sign-in', () => {
     it('should sign in a user and return jwt when succeded', async () => {
       const signInDto = { email: TEST_EMAIL, password: TEST_PASSWORD };
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const { id, email, role } = (await usersService.findOneBy(TEST_EMAIL))!;
+
       await service.signIn(signInDto);
+
       expect(usersService.findOneBy).toHaveBeenCalledWith(TEST_EMAIL);
       expect(jwtService.sign).toHaveBeenCalledWith({
         id,
@@ -197,6 +277,22 @@ describe('AuthService', () => {
         );
 
         expect(utilsService.comparePasswords).not.toHaveBeenCalled();
+        expect(jwtService.sign).not.toHaveBeenCalled();
+      });
+      it('should throw an error if password does not match', async () => {
+        const signInDto = {
+          email: TEST_EMAIL,
+          password: 'wrong-password',
+        };
+
+        await expect(service.signIn(signInDto)).rejects.toThrow(
+          UnauthorizedException,
+        );
+
+        expect(utilsService.comparePasswords).toHaveBeenCalledWith(
+          signInDto.password,
+          HASHED_PASSWORD,
+        );
         expect(jwtService.sign).not.toHaveBeenCalled();
       });
     });
