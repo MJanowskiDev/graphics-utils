@@ -16,6 +16,7 @@ const TEST_EMAIL = 'test@example.com';
 const HASHED_PASSWORD = 'hashed-test_password';
 const TEST_PASSWORD = 'test_password';
 const TEST_ROLE = 'user';
+const ACTIVATE_TEST_TOKEN = 'activate-test-token';
 
 const getTestingModule = async (): Promise<TestingModule> => {
   return Test.createTestingModule({
@@ -82,7 +83,7 @@ const getTestingModule = async (): Promise<TestingModule> => {
             return JSON.stringify(o);
           }),
           verify: jest.fn((token) =>
-            token === 'test-token' ? { id: TEST_USER_ID } : null,
+            token === ACTIVATE_TEST_TOKEN ? { id: TEST_USER_ID } : null,
           ),
         },
       },
@@ -146,11 +147,14 @@ describe('AuthService', () => {
 
   describe('activate', () => {
     it('should activate a user', async () => {
-      const token = 'test-token';
+      const token = ACTIVATE_TEST_TOKEN;
+
       await service.activate(token);
+
       expect(jwtService.verify).toHaveBeenCalledWith(token);
       expect(usersService.activateById).toHaveBeenCalledWith(TEST_USER_ID);
       expect(activateService.sendWelcomeEmail).toHaveBeenCalledWith(TEST_EMAIL);
+
       expect(service.activate(token)).resolves.toEqual({
         result: 'success',
         message: 'User activated successfully',
@@ -158,18 +162,10 @@ describe('AuthService', () => {
     });
 
     it('should return a success message if user was already activated', async () => {
-      const token = 'test-token';
+      const token = ACTIVATE_TEST_TOKEN;
 
       jest.spyOn(usersService, 'activateById').mockResolvedValue({
-        user: {
-          id: TEST_USER_ID,
-          email: '',
-          hashedPassword: '',
-          role: '' as any,
-          activated: true,
-          created_at: new Date(),
-          updated_at: new Date(),
-        },
+        user: new User(),
         wasAlreadyActivated: true,
       });
 
@@ -180,8 +176,10 @@ describe('AuthService', () => {
         message: 'User is already activated',
       });
     });
+
     it('should send a welcome email if user was not activated', async () => {
-      await service.activate('test-token');
+      await service.activate(ACTIVATE_TEST_TOKEN);
+
       expect(activateService.sendWelcomeEmail).toHaveBeenCalledWith(TEST_EMAIL);
     });
 
@@ -193,7 +191,6 @@ describe('AuthService', () => {
 
         const invalidToken = 'invalid-token';
 
-        //await service.activate(invalidToken);
         expect(service.activate(invalidToken)).rejects.toThrow(
           new BadRequestException('Invalid token'),
         );
@@ -201,7 +198,7 @@ describe('AuthService', () => {
       });
 
       it('should throw an error if user is not found', async () => {
-        const token = 'test-token';
+        const token = ACTIVATE_TEST_TOKEN;
 
         jest.spyOn(usersService, 'activateById').mockResolvedValue({
           user: null as any,
@@ -218,8 +215,9 @@ describe('AuthService', () => {
   describe('sign-in', () => {
     it('should sign in a user and return jwt when succeded', async () => {
       const signInDto = { email: TEST_EMAIL, password: TEST_PASSWORD };
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const { id, email, role } = (await usersService.findOneBy(TEST_EMAIL))!;
+      const { id, email, role } = (await usersService.findOneBy(
+        TEST_EMAIL,
+      )) as User;
 
       await service.signIn(signInDto);
 
@@ -237,6 +235,7 @@ describe('AuthService', () => {
         }),
       });
     });
+
     describe('errors', () => {
       it('should throw an error if user is not found', async () => {
         const signInDto = {
@@ -275,10 +274,10 @@ describe('AuthService', () => {
         await expect(service.signIn(signInDto)).rejects.toThrow(
           new UnauthorizedException('Please activate your account first.'),
         );
-
         expect(utilsService.comparePasswords).not.toHaveBeenCalled();
         expect(jwtService.sign).not.toHaveBeenCalled();
       });
+
       it('should throw an error if password does not match', async () => {
         const signInDto = {
           email: TEST_EMAIL,
@@ -302,15 +301,14 @@ describe('AuthService', () => {
     it('should sign up a new user', async () => {
       const email = TEST_EMAIL;
       const password = TEST_PASSWORD;
-
       const signUpDto = {
         email,
         password,
       };
-
       const hashedPassword = utilsService.hashPassword(password);
 
       const result = await service.signUp(signUpDto);
+
       expect(result).toBeDefined();
       expect(result.id).toBe(TEST_USER_ID);
       expect(result.email).toBe(email);
@@ -336,6 +334,7 @@ describe('AuthService', () => {
       (usersService.create as jest.Mock).mockResolvedValue(user);
 
       await service.signUp(signUpDto);
+
       expect(activateService.sendActivationEmail).toHaveBeenCalledWith(
         TEST_EMAIL,
         JSON.stringify({ id: TEST_USER_ID }),
@@ -364,6 +363,7 @@ describe('AuthService', () => {
       };
 
       await service.signUp(signUpDto);
+
       expect(jwtService.sign).toHaveBeenCalledWith({ id: TEST_USER_ID });
     });
 
@@ -374,6 +374,7 @@ describe('AuthService', () => {
       };
 
       const result = await service.signUp(signUpDto);
+
       expect(result).not.toHaveProperty('hashedPassword');
     });
 
