@@ -11,10 +11,11 @@ import { AuthService } from './auth.service';
 import { UtilsService } from './utils/utils.service';
 import { User } from '../users/entity';
 
+const HASHED_PREFIX = 'hashed-';
 const TEST_USER_ID = 'test_id';
 const TEST_EMAIL = 'test@example.com';
-const HASHED_PASSWORD = 'hashed-test_password';
 const TEST_PASSWORD = 'test_password';
+const HASHED_PASSWORD = `${HASHED_PREFIX}${TEST_PASSWORD}`;
 const TEST_ROLE = 'user';
 const ACTIVATE_TEST_TOKEN = 'activate-test-token';
 
@@ -23,7 +24,6 @@ const getTestingModule = async (): Promise<TestingModule> => {
     imports: [ConfigModule.forRoot(), Repository<User>],
     providers: [
       AuthService,
-      ConfigService,
       {
         provide: UsersService,
         useValue: {
@@ -53,16 +53,15 @@ const getTestingModule = async (): Promise<TestingModule> => {
           create: jest.fn().mockResolvedValue({
             id: TEST_USER_ID,
             email: TEST_EMAIL,
-            hashedPassword: HASHED_PASSWORD,
           }),
         },
       },
       {
         provide: UtilsService,
         useValue: {
-          hashPassword: jest.fn((password) => `hashed-${password}`),
+          hashPassword: jest.fn((password) => `${HASHED_PREFIX}${password}`),
           comparePasswords: jest.fn((password, hashedPassword) => {
-            return password === hashedPassword.replace('hashed-', '');
+            return password === hashedPassword.replace(HASHED_PREFIX, '');
           }),
         },
       },
@@ -124,7 +123,6 @@ describe('AuthService', () => {
   let jwtService: JwtService;
   let activateService: ActivateService;
   let usersService: UsersService;
-  let configService: ConfigService;
 
   beforeEach(async () => {
     const module = await getTestingModule();
@@ -133,81 +131,116 @@ describe('AuthService', () => {
     jwtService = module.get<JwtService>(JwtService);
     activateService = module.get<ActivateService>(ActivateService);
     usersService = module.get<UsersService>(UsersService);
-    configService = module.get<ConfigService>(ConfigService);
   });
 
-  it('should be defined', () => {
+  it('should be defined with activate, signIn, signUp methods', () => {
     expect(service).toBeDefined();
-    expect(utilsService).toBeDefined();
-    expect(jwtService).toBeDefined();
-    expect(activateService).toBeDefined();
-    expect(usersService).toBeDefined();
-    expect(configService).toBeDefined();
+    expect(service).toBeInstanceOf(AuthService);
+    expect(service.activate).toBeDefined();
+    expect(service.signIn).toBeDefined();
+    expect(service.signUp).toBeDefined();
   });
 
-  describe('activate', () => {
-    it('should activate a user', async () => {
-      const token = ACTIVATE_TEST_TOKEN;
+  describe('sign-up', () => {
+    it('should sign up a new user', async () => {
+      const email = TEST_EMAIL;
+      const password = TEST_PASSWORD;
+      const signUpDto = {
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+      };
+      const hashedPassword = utilsService.hashPassword(password);
 
-      await service.activate(token);
+      const result = await service.signUp(signUpDto);
 
-      expect(jwtService.verify).toHaveBeenCalledWith(token);
-      expect(usersService.activateById).toHaveBeenCalledWith(TEST_USER_ID);
-      expect(activateService.sendWelcomeEmail).toHaveBeenCalledWith(TEST_EMAIL);
-
-      expect(service.activate(token)).resolves.toEqual({
-        result: 'success',
-        message: 'User activated successfully',
-      });
+      expect(result).toBeDefined();
+      expect(result.id).toBe(TEST_USER_ID);
+      expect(result.email).toBe(email);
+      expect(utilsService.hashPassword).toHaveBeenCalledWith(password);
+      expect(usersService.create).toHaveBeenCalledWith(email, hashedPassword);
+      expect(jwtService.sign).toHaveBeenCalledWith({ id: TEST_USER_ID });
+      expect(activateService.sendActivationEmail).toHaveBeenCalledWith(
+        email,
+        JSON.stringify({ id: TEST_USER_ID }),
+      );
     });
 
-    it('should return a success message if user was already activated', async () => {
-      const token = ACTIVATE_TEST_TOKEN;
+    it('should send activation email with correct token', async () => {
+      const signUpDto = {
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+      };
+      const user = {
+        id: TEST_USER_ID,
+        email: TEST_EMAIL,
+        hashedPassword: HASHED_PASSWORD,
+      };
+      (usersService.create as jest.Mock).mockResolvedValue(user);
 
-      jest.spyOn(usersService, 'activateById').mockResolvedValue({
-        user: new User(),
-        wasAlreadyActivated: true,
-      });
+      await service.signUp(signUpDto);
 
-      await service.activate(token);
-
-      expect(service.activate(token)).resolves.toEqual({
-        result: 'success',
-        message: 'User is already activated',
-      });
+      expect(activateService.sendActivationEmail).toHaveBeenCalledWith(
+        TEST_EMAIL,
+        JSON.stringify({ id: TEST_USER_ID }),
+      );
     });
 
-    it('should send a welcome email if user was not activated', async () => {
-      await service.activate(ACTIVATE_TEST_TOKEN);
+    it('should hash the password before saving', async () => {
+      const signUpDto = {
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+      };
 
-      expect(activateService.sendWelcomeEmail).toHaveBeenCalledWith(TEST_EMAIL);
+      await service.signUp(signUpDto);
+
+      expect(utilsService.hashPassword).toHaveBeenCalledWith(TEST_PASSWORD);
+      expect(usersService.create).toHaveBeenCalledWith(
+        TEST_EMAIL,
+        `${HASHED_PREFIX}${TEST_PASSWORD}`,
+      );
+    });
+
+    it('should sign the JWT token with the correct payload', async () => {
+      const signUpDto = {
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+      };
+
+      await service.signUp(signUpDto);
+
+      expect(jwtService.sign).toHaveBeenCalledWith({ id: TEST_USER_ID });
+    });
+
+    it('should omit hashedPassword from the returned user data', async () => {
+      const signUpDto = {
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+      };
+
+      const result = await service.signUp(signUpDto);
+
+      expect(result).not.toHaveProperty('hashedPassword');
     });
 
     describe('errors', () => {
-      it('should throw an error if token is invalid', async () => {
-        jest.spyOn(jwtService, 'verify').mockImplementation(() => {
-          throw new Error('Invalid token');
-        });
+      it('should throw an error if user creation fails', async () => {
+        const signUpDto = {
+          email: TEST_EMAIL,
+          password: TEST_PASSWORD,
+        };
+        (usersService.create as jest.Mock).mockResolvedValue(null);
 
-        const invalidToken = 'invalid-token';
-
-        expect(service.activate(invalidToken)).rejects.toThrow(
-          new BadRequestException('Invalid token'),
+        await expect(service.signUp(signUpDto)).rejects.toThrow(
+          'User could not be created.',
         );
-        expect(jwtService.verify).toHaveBeenCalledWith(invalidToken);
-      });
 
-      it('should throw an error if user is not found', async () => {
-        const token = ACTIVATE_TEST_TOKEN;
-
-        jest.spyOn(usersService, 'activateById').mockResolvedValue({
-          user: null as any,
-          wasAlreadyActivated: false,
-        });
-
-        await expect(service.activate(token)).rejects.toThrow(
-          new BadRequestException('User not found'),
+        expect(utilsService.hashPassword).toHaveBeenCalledWith(TEST_PASSWORD);
+        expect(usersService.create).toHaveBeenCalledWith(
+          TEST_EMAIL,
+          `${HASHED_PREFIX}${TEST_PASSWORD}`,
         );
+        expect(jwtService.sign).not.toHaveBeenCalled();
+        expect(activateService.sendActivationEmail).not.toHaveBeenCalled();
       });
     });
   });
@@ -297,106 +330,69 @@ describe('AuthService', () => {
     });
   });
 
-  describe('sign-up', () => {
-    it('should sign up a new user', async () => {
-      const email = TEST_EMAIL;
-      const password = TEST_PASSWORD;
-      const signUpDto = {
-        email,
-        password,
-      };
-      const hashedPassword = utilsService.hashPassword(password);
+  describe('activate', () => {
+    it('should activate a user', async () => {
+      const token = ACTIVATE_TEST_TOKEN;
 
-      const result = await service.signUp(signUpDto);
+      await service.activate(token);
 
-      expect(result).toBeDefined();
-      expect(result.id).toBe(TEST_USER_ID);
-      expect(result.email).toBe(email);
-      expect(utilsService.hashPassword).toHaveBeenCalledWith(password);
-      expect(usersService.create).toHaveBeenCalledWith(email, hashedPassword);
-      expect(jwtService.sign).toHaveBeenCalledWith({ id: TEST_USER_ID });
-      expect(activateService.sendActivationEmail).toHaveBeenCalledWith(
-        email,
-        JSON.stringify({ id: TEST_USER_ID }),
-      );
+      expect(jwtService.verify).toHaveBeenCalledWith(token);
+      expect(usersService.activateById).toHaveBeenCalledWith(TEST_USER_ID);
+      expect(activateService.sendWelcomeEmail).toHaveBeenCalledWith(TEST_EMAIL);
+
+      expect(service.activate(token)).resolves.toEqual({
+        result: 'success',
+        message: 'User activated successfully',
+      });
     });
 
-    it('should send activation email with correct token', async () => {
-      const signUpDto = {
-        email: TEST_EMAIL,
-        password: TEST_PASSWORD,
-      };
-      const user = {
-        id: TEST_USER_ID,
-        email: TEST_EMAIL,
-        hashedPassword: HASHED_PASSWORD,
-      };
-      (usersService.create as jest.Mock).mockResolvedValue(user);
+    it('should return a success message if user was already activated', async () => {
+      const token = ACTIVATE_TEST_TOKEN;
 
-      await service.signUp(signUpDto);
+      jest.spyOn(usersService, 'activateById').mockResolvedValue({
+        user: new User(),
+        wasAlreadyActivated: true,
+      });
 
-      expect(activateService.sendActivationEmail).toHaveBeenCalledWith(
-        TEST_EMAIL,
-        JSON.stringify({ id: TEST_USER_ID }),
-      );
+      await service.activate(token);
+
+      expect(service.activate(token)).resolves.toEqual({
+        result: 'success',
+        message: 'User is already activated',
+      });
     });
 
-    it('should hash the password before saving', async () => {
-      const signUpDto = {
-        email: TEST_EMAIL,
-        password: TEST_PASSWORD,
-      };
+    it('should send a welcome email if user was not activated', async () => {
+      await service.activate(ACTIVATE_TEST_TOKEN);
 
-      await service.signUp(signUpDto);
-
-      expect(utilsService.hashPassword).toHaveBeenCalledWith(TEST_PASSWORD);
-      expect(usersService.create).toHaveBeenCalledWith(
-        TEST_EMAIL,
-        `hashed-${TEST_PASSWORD}`,
-      );
-    });
-
-    it('should sign the JWT token with the correct payload', async () => {
-      const signUpDto = {
-        email: TEST_EMAIL,
-        password: TEST_PASSWORD,
-      };
-
-      await service.signUp(signUpDto);
-
-      expect(jwtService.sign).toHaveBeenCalledWith({ id: TEST_USER_ID });
-    });
-
-    it('should omit hashedPassword from the returned user data', async () => {
-      const signUpDto = {
-        email: TEST_EMAIL,
-        password: TEST_PASSWORD,
-      };
-
-      const result = await service.signUp(signUpDto);
-
-      expect(result).not.toHaveProperty('hashedPassword');
+      expect(activateService.sendWelcomeEmail).toHaveBeenCalledWith(TEST_EMAIL);
     });
 
     describe('errors', () => {
-      it('should throw an error if user creation fails', async () => {
-        const signUpDto = {
-          email: TEST_EMAIL,
-          password: TEST_PASSWORD,
-        };
-        (usersService.create as jest.Mock).mockResolvedValue(null);
+      it('should throw an error if token is invalid', async () => {
+        jest.spyOn(jwtService, 'verify').mockImplementation(() => {
+          throw new Error('Invalid token');
+        });
 
-        await expect(service.signUp(signUpDto)).rejects.toThrow(
-          'User could not be created.',
-        );
+        const invalidToken = 'invalid-token';
 
-        expect(utilsService.hashPassword).toHaveBeenCalledWith(TEST_PASSWORD);
-        expect(usersService.create).toHaveBeenCalledWith(
-          TEST_EMAIL,
-          `hashed-${TEST_PASSWORD}`,
+        expect(service.activate(invalidToken)).rejects.toThrow(
+          new BadRequestException('Invalid token'),
         );
-        expect(jwtService.sign).not.toHaveBeenCalled();
-        expect(activateService.sendActivationEmail).not.toHaveBeenCalled();
+        expect(jwtService.verify).toHaveBeenCalledWith(invalidToken);
+      });
+
+      it('should throw an error if user is not found', async () => {
+        const token = ACTIVATE_TEST_TOKEN;
+
+        jest.spyOn(usersService, 'activateById').mockResolvedValue({
+          user: null as any,
+          wasAlreadyActivated: false,
+        });
+
+        await expect(service.activate(token)).rejects.toThrow(
+          new BadRequestException('User not found'),
+        );
       });
     });
   });

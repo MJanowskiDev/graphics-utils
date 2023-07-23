@@ -49,7 +49,6 @@ describe('AuthController', () => {
     const metadata: ArgumentMetadata = {
       type: 'body',
       metatype: SignUpDto,
-      data: '',
     };
 
     it('should be public', () => {
@@ -62,15 +61,9 @@ describe('AuthController', () => {
         email: 'dummy@example.com',
         password: 'password',
       };
-      const user: UserDto = {
-        email: 'dummy@example.com',
-        role: null,
-        id: '6d160cc4-a36b-4596-8b50-bf11760f3308',
-        activated: false,
-        created_at: new Date(),
-        updated_at: new Date(),
-      };
+      const user = new UserDto();
       mockAuthService.signUp.mockResolvedValue(user);
+
       const result = await authController.register(signUpDto);
 
       expect(result).toBe(user);
@@ -82,7 +75,6 @@ describe('AuthController', () => {
     describe('handle errors', () => {
       it('should throw CONFLICT error when user already exists', async () => {
         const signUpDto = { email: 'dummy@example.com', password: 'password' };
-
         mockAuthService.signUp.mockRejectedValue(
           new ConflictException('This email already exists.'),
         );
