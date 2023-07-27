@@ -28,7 +28,7 @@ export class User {
   activated: boolean;
 
   @Column('uuid', { nullable: true })
-  tokenId: string;
+  tokenId: string | null;
 
   @CreateDateColumn()
   created_at: Date;

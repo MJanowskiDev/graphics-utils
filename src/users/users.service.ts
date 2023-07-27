@@ -31,7 +31,10 @@ export class UsersService {
     return this.userRepository.findOneBy({ email });
   }
 
-  async updateTokenId(userId: string, tokenId: string): Promise<UpdateResult> {
+  async updateTokenId(
+    userId: string,
+    tokenId: string | null,
+  ): Promise<UpdateResult> {
     return await this.userRepository.update(userId, { tokenId });
   }
 

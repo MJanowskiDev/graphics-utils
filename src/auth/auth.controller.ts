@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Get,
   Query,
+  Headers,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
@@ -44,5 +45,15 @@ export class AuthController {
   })
   activate(@Query('token') token: string) {
     return this.authService.activate(token);
+  }
+
+  @Post('sign-out')
+  @Public()
+  @ApiOperation({
+    summary: 'User logout endpoint',
+  })
+  signOut(@Headers('Authorization') authHeader: string) {
+    const token = authHeader.replace('Bearer ', '');
+    return this.authService.signOut(token);
   }
 }

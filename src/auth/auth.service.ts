@@ -99,6 +99,21 @@ export class AuthService {
     };
   }
 
+  async signOut(token: string) {
+    if (!token) {
+      throw new BadRequestException('No authorization token provided');
+    }
+    let decoded;
+    try {
+      decoded = this.jwtService.verify(token);
+    } catch (e) {
+      throw new BadRequestException(INVALID_TOKEN);
+    }
+
+    await this.usersService.updateTokenId(decoded.id, null);
+    return { result: 'success', message: 'Logged out successfully' };
+  }
+
   private generateTokenId() {
     return crypto.randomUUID();
   }
