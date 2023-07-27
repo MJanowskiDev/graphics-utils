@@ -299,6 +299,7 @@ describe('AuthService', () => {
               activated: false,
               role: '' as any,
               hashedPassword: HASHED_PASSWORD,
+              tokenId: '123',
               created_at: new Date(),
               updated_at: new Date(),
             });

@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { omit } from 'lodash';
+import crypto from 'crypto';
 
 import { UsersService } from '../users/users.service';
 import { UtilsService } from './utils/utils.service';
@@ -83,9 +84,22 @@ export class AuthService {
     if (!passwordMatches) {
       throw new UnauthorizedException();
     }
-    const payload = { id: user?.id, email: user?.email, role: user?.role };
+
+    const tokenId = this.generateTokenId();
+    await this.usersService.updateTokenId(user.id, tokenId);
+
+    const payload = {
+      id: user?.id,
+      email: user?.email,
+      role: user?.role,
+      tokenId,
+    };
     return {
       access_token: this.jwtService.sign(payload),
     };
+  }
+
+  private generateTokenId() {
+    return crypto.randomUUID();
   }
 }

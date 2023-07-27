@@ -27,6 +27,9 @@ export class User {
   @Column({ default: false })
   activated: boolean;
 
+  @Column('uuid', { nullable: true })
+  tokenId: string;
+
   @CreateDateColumn()
   created_at: Date;
 
