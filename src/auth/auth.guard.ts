@@ -10,6 +10,7 @@ import { Request } from 'express';
 import { Reflector } from '@nestjs/core';
 
 import { Role } from '../core/enums/role.enum';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -17,6 +18,7 @@ export class AuthGuard implements CanActivate {
     private jwtService: JwtService,
     private configService: ConfigService,
     private reflector: Reflector,
+    private usersService: UsersService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -44,8 +46,12 @@ export class AuthGuard implements CanActivate {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: authJwtSecret,
       });
-      request['email'] = payload;
-      request['role'] = payload;
+
+      const user = await this.usersService.findOneById(payload.id);
+
+      if (!user || user.tokenId !== payload.tokenId || !user.tokenId) {
+        throw new UnauthorizedException();
+      }
 
       return payload?.role ? payload.role === requiredRole : true;
     } catch {

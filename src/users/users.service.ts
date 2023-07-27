@@ -31,11 +31,12 @@ export class UsersService {
     return this.userRepository.findOneBy({ email });
   }
 
-  async updateTokenId(
-    userId: string,
-    tokenId: string | null,
-  ): Promise<UpdateResult> {
-    return await this.userRepository.update(userId, { tokenId });
+  async findOneById(id: string): Promise<User | null> {
+    return this.userRepository.findOneBy({ id });
+  }
+
+  updateTokenId(userId: string, tokenId: string | null): Promise<UpdateResult> {
+    return this.userRepository.update(userId, { tokenId });
   }
 
   async create(email: string, hashedPassword: string): Promise<User | null> {
