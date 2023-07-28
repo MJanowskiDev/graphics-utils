@@ -4,12 +4,10 @@ import {
   InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { omit } from 'lodash';
-import crypto from 'crypto';
 
+import { User } from '../users/entity';
 import { UsersService } from '../users/users.service';
-import { UtilsService } from './utils/utils.service';
 import {
   AccessTokenDto,
   ActivateDto,
@@ -17,53 +15,55 @@ import {
   SignUpDto,
   UserDto,
 } from './dto';
+import { PasswordService } from './utils/password.service';
+import { TokenService } from './utils/token.service';
 import { ActivateService } from '../email/activate/activate.service';
-
-const USER_NOT_FOUND = 'User not found';
-const USER_ALREADY_ACTIVATED = 'User is already activated';
-const USER_ACTIVATED_SUCCESSFULLY = 'User activated successfully';
-const INVALID_TOKEN = 'Invalid token';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
-    private jwtService: JwtService,
-    private utilsService: UtilsService,
-    private readonly activateService: ActivateService,
+    private passwordsService: PasswordService,
+    private activateService: ActivateService,
+    private tokenService: TokenService,
   ) {}
+
+  async signUp({ email, password }: SignUpDto): Promise<UserDto> {
+    const hashedPassword = await this.passwordsService.hashPassword(password);
+    const user = await this.usersService.create(email, hashedPassword);
+    if (!user) {
+      throw new InternalServerErrorException('User could not be created.');
+    }
+    const activationToken = this.tokenService.signPayload({
+      id: user.id,
+    });
+
+    this.activateService.sendActivationEmail(user.email, activationToken);
+    return omit(user, 'hashedPassword');
+  }
 
   async activate(token: string): Promise<ActivateDto> {
     let decoded;
     try {
-      decoded = this.jwtService.verify(token);
+      decoded = this.tokenService.decodeToken(token);
     } catch (e) {
-      throw new BadRequestException(INVALID_TOKEN);
+      throw new BadRequestException('Invalid token');
     }
+
     const { user, wasAlreadyActivated } = await this.usersService.activateById(
       decoded.id,
     );
 
     if (!user) {
-      throw new BadRequestException(USER_NOT_FOUND);
+      throw new BadRequestException('User not found');
     }
 
     if (wasAlreadyActivated) {
-      return { result: 'success', message: USER_ALREADY_ACTIVATED };
+      return { result: 'success', message: 'User is already activated' };
     }
-    this.activateService.sendWelcomeEmail(user.email);
-    return { result: 'success', message: USER_ACTIVATED_SUCCESSFULLY };
-  }
 
-  async signUp({ email, password }: SignUpDto): Promise<UserDto> {
-    const hashedPassword = await this.utilsService.hashPassword(password);
-    const user = await this.usersService.create(email, hashedPassword);
-    if (!user) {
-      throw new InternalServerErrorException('User could not be created.');
-    }
-    const token = this.jwtService.sign({ id: user.id });
-    this.activateService.sendActivationEmail(user.email, token);
-    return omit(user, 'hashedPassword');
+    this.activateService.sendWelcomeEmail(user.email);
+    return { result: 'success', message: 'User activated successfully' };
   }
 
   async signIn({ email, password }: SignInDto): Promise<AccessTokenDto> {
@@ -77,7 +77,7 @@ export class AuthService {
       throw new UnauthorizedException('Please activate your account first.');
     }
 
-    const passwordMatches = await this.utilsService.comparePasswords(
+    const passwordMatches = await this.passwordsService.comparePasswords(
       password,
       user.hashedPassword,
     );
@@ -85,36 +85,46 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    const tokenId = this.generateTokenId();
+    const tokenId = this.tokenService.generateTokenId();
     await this.usersService.updateTokenId(user.id, tokenId);
 
-    const payload = {
-      id: user?.id,
-      email: user?.email,
-      role: user?.role,
+    const payload = this.tokenService.generatePayload(
+      user.id,
+      user.role,
       tokenId,
-    };
+    );
+
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token: this.tokenService.signPayload(payload),
     };
   }
 
   async signOut(token: string) {
-    if (!token) {
-      throw new BadRequestException('No authorization token provided');
-    }
-    let decoded;
-    try {
-      decoded = this.jwtService.verify(token);
-    } catch (e) {
-      throw new BadRequestException(INVALID_TOKEN);
-    }
-
+    const decoded = this.tokenService.decodeToken(token);
     await this.usersService.updateTokenId(decoded.id, null);
     return { result: 'success', message: 'Logged out successfully' };
   }
 
-  private generateTokenId() {
-    return crypto.randomUUID();
+  async refresh(token: string) {
+    const decoded = this.tokenService.decodeToken(token);
+    const user = await this.findUserAndHandleError(decoded.id);
+    const tokenId = this.tokenService.generateTokenId();
+    const payload = this.tokenService.generatePayload(
+      user.id,
+      user.role,
+      tokenId,
+    );
+    await this.usersService.updateTokenId(user.id, tokenId);
+    return {
+      access_token: this.tokenService.signPayload(payload),
+    };
+  }
+
+  private async findUserAndHandleError(userId: string): Promise<User> {
+    const user = await this.usersService.findOneById(userId);
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+    return user;
   }
 }

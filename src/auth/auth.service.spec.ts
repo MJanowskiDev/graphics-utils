@@ -1,15 +1,16 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { JwtService } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 
 import { UsersService } from '../users/users.service';
 import { ActivateService } from '../email/activate/activate.service';
 import { AuthService } from './auth.service';
-import { UtilsService } from './utils/utils.service';
 import { User } from '../users/entity';
+import { PasswordService } from './utils/password.service';
+import { TokenService } from './utils/token.service';
 
 const HASHED_PREFIX = 'hashed-';
 const TEST_USER_ID = 'test_id';
@@ -18,12 +19,24 @@ const TEST_PASSWORD = 'test_password';
 const HASHED_PASSWORD = `${HASHED_PREFIX}${TEST_PASSWORD}`;
 const TEST_ROLE = 'user';
 const ACTIVATE_TEST_TOKEN = 'activate-test-token';
+const TOKEN_ID = 'test-token-id';
 
 const getTestingModule = async (): Promise<TestingModule> => {
   return Test.createTestingModule({
     imports: [ConfigModule.forRoot(), Repository<User>],
     providers: [
       AuthService,
+      PasswordService,
+      JwtService,
+      {
+        provide: PasswordService,
+        useValue: {
+          hashPassword: jest.fn((password) => `${HASHED_PREFIX}${password}`),
+          comparePasswords: jest.fn((password, hashedPassword) => {
+            return password === hashedPassword.replace(HASHED_PREFIX, '');
+          }),
+        },
+      },
       {
         provide: UsersService,
         useValue: {
@@ -34,6 +47,7 @@ const getTestingModule = async (): Promise<TestingModule> => {
               activated: true,
               role: TEST_ROLE,
               hashedPassword: HASHED_PASSWORD,
+              tokenId: TOKEN_ID,
             },
             wasAlreadyActivated: false,
           }),
@@ -45,6 +59,21 @@ const getTestingModule = async (): Promise<TestingModule> => {
                 activated: true,
                 role: TEST_ROLE,
                 hashedPassword: HASHED_PASSWORD,
+                tokenId: TOKEN_ID,
+              });
+            } else {
+              return Promise.resolve(null);
+            }
+          }),
+          findOneById: jest.fn().mockImplementation((id) => {
+            if (id === TEST_USER_ID) {
+              return Promise.resolve({
+                id: TEST_USER_ID,
+                email: TEST_EMAIL,
+                activated: true,
+                role: TEST_ROLE,
+                hashedPassword: HASHED_PASSWORD,
+                tokenId: TOKEN_ID,
               });
             } else {
               return Promise.resolve(null);
@@ -54,15 +83,7 @@ const getTestingModule = async (): Promise<TestingModule> => {
             id: TEST_USER_ID,
             email: TEST_EMAIL,
           }),
-        },
-      },
-      {
-        provide: UtilsService,
-        useValue: {
-          hashPassword: jest.fn((password) => `${HASHED_PREFIX}${password}`),
-          comparePasswords: jest.fn((password, hashedPassword) => {
-            return password === hashedPassword.replace(HASHED_PREFIX, '');
-          }),
+          updateTokenId: jest.fn(),
         },
       },
       {
@@ -76,13 +97,21 @@ const getTestingModule = async (): Promise<TestingModule> => {
         },
       },
       {
-        provide: JwtService,
+        provide: TokenService,
         useValue: {
-          sign: jest.fn((o) => {
+          signPayload: jest.fn((o) => {
             return JSON.stringify(o);
           }),
-          verify: jest.fn((token) =>
-            token === ACTIVATE_TEST_TOKEN ? { id: TEST_USER_ID } : null,
+          generateTokenId: jest.fn(() => TOKEN_ID),
+          generatePayload: jest.fn((id, role, tokenId) => {
+            return { id, role, tokenId };
+          }),
+          decodeToken: jest.fn((token) =>
+            token === ACTIVATE_TEST_TOKEN
+              ? {
+                  id: TEST_USER_ID,
+                }
+              : null,
           ),
         },
       },
@@ -106,6 +135,8 @@ const getTestingModule = async (): Promise<TestingModule> => {
               case 'email':
                 return {
                   activateUrL: jest.fn().mockImplementation(() => 'test-url'),
+                  smtp: { port: 587, user: 'smtp-user', pass: 'smtp-pass' },
+                  service: 'service-provider',
                 };
               default:
                 return null;
@@ -119,18 +150,18 @@ const getTestingModule = async (): Promise<TestingModule> => {
 
 describe('AuthService', () => {
   let service: AuthService;
-  let utilsService: UtilsService;
-  let jwtService: JwtService;
-  let activateService: ActivateService;
   let usersService: UsersService;
+  let activateService: ActivateService;
+  let passwordService: PasswordService;
+  let tokenService: TokenService;
 
   beforeEach(async () => {
     const module = await getTestingModule();
     service = module.get<AuthService>(AuthService);
-    utilsService = module.get<UtilsService>(UtilsService);
-    jwtService = module.get<JwtService>(JwtService);
-    activateService = module.get<ActivateService>(ActivateService);
     usersService = module.get<UsersService>(UsersService);
+    activateService = module.get<ActivateService>(ActivateService);
+    passwordService = module.get<PasswordService>(PasswordService);
+    tokenService = module.get<TokenService>(TokenService);
   });
 
   it('should be defined with activate, signIn, signUp methods', () => {
@@ -149,16 +180,18 @@ describe('AuthService', () => {
         email: TEST_EMAIL,
         password: TEST_PASSWORD,
       };
-      const hashedPassword = utilsService.hashPassword(password);
+      const hashedPassword = passwordService.hashPassword(password);
 
       const result = await service.signUp(signUpDto);
 
       expect(result).toBeDefined();
       expect(result.id).toBe(TEST_USER_ID);
       expect(result.email).toBe(email);
-      expect(utilsService.hashPassword).toHaveBeenCalledWith(password);
+      expect(passwordService.hashPassword).toHaveBeenCalledWith(password);
       expect(usersService.create).toHaveBeenCalledWith(email, hashedPassword);
-      expect(jwtService.sign).toHaveBeenCalledWith({ id: TEST_USER_ID });
+      expect(tokenService.signPayload).toHaveBeenCalledWith({
+        id: TEST_USER_ID,
+      });
       expect(activateService.sendActivationEmail).toHaveBeenCalledWith(
         email,
         JSON.stringify({ id: TEST_USER_ID }),
@@ -193,7 +226,7 @@ describe('AuthService', () => {
 
       await service.signUp(signUpDto);
 
-      expect(utilsService.hashPassword).toHaveBeenCalledWith(TEST_PASSWORD);
+      expect(passwordService.hashPassword).toHaveBeenCalledWith(TEST_PASSWORD);
       expect(usersService.create).toHaveBeenCalledWith(
         TEST_EMAIL,
         `${HASHED_PREFIX}${TEST_PASSWORD}`,
@@ -208,7 +241,9 @@ describe('AuthService', () => {
 
       await service.signUp(signUpDto);
 
-      expect(jwtService.sign).toHaveBeenCalledWith({ id: TEST_USER_ID });
+      expect(tokenService.signPayload).toHaveBeenCalledWith({
+        id: TEST_USER_ID,
+      });
     });
 
     it('should omit hashedPassword from the returned user data', async () => {
@@ -234,12 +269,14 @@ describe('AuthService', () => {
           'User could not be created.',
         );
 
-        expect(utilsService.hashPassword).toHaveBeenCalledWith(TEST_PASSWORD);
+        expect(passwordService.hashPassword).toHaveBeenCalledWith(
+          TEST_PASSWORD,
+        );
         expect(usersService.create).toHaveBeenCalledWith(
           TEST_EMAIL,
           `${HASHED_PREFIX}${TEST_PASSWORD}`,
         );
-        expect(jwtService.sign).not.toHaveBeenCalled();
+        expect(tokenService.signPayload).not.toHaveBeenCalled();
         expect(activateService.sendActivationEmail).not.toHaveBeenCalled();
       });
     });
@@ -248,23 +285,24 @@ describe('AuthService', () => {
   describe('sign-in', () => {
     it('should sign in a user and return jwt when succeded', async () => {
       const signInDto = { email: TEST_EMAIL, password: TEST_PASSWORD };
-      const { id, email, role } = (await usersService.findOneBy(
+      const { id, role, tokenId } = (await usersService.findOneBy(
         TEST_EMAIL,
       )) as User;
 
       await service.signIn(signInDto);
+      jest.spyOn(tokenService, 'generateTokenId').mockReturnValue(TOKEN_ID);
 
       expect(usersService.findOneBy).toHaveBeenCalledWith(TEST_EMAIL);
-      expect(jwtService.sign).toHaveBeenCalledWith({
+      expect(tokenService.signPayload).toHaveBeenCalledWith({
         id,
-        email,
         role,
+        tokenId,
       });
       expect(service.signIn(signInDto)).resolves.toEqual({
         access_token: JSON.stringify({
           id,
-          email,
           role,
+          tokenId,
         }),
       });
     });
@@ -280,8 +318,8 @@ describe('AuthService', () => {
           UnauthorizedException,
         );
 
-        expect(utilsService.comparePasswords).not.toHaveBeenCalled();
-        expect(jwtService.sign).not.toHaveBeenCalled();
+        expect(passwordService.comparePasswords).not.toHaveBeenCalled();
+        expect(tokenService.signPayload).not.toHaveBeenCalled();
       });
 
       it('should throw an error if user is not activated', async () => {
@@ -299,7 +337,7 @@ describe('AuthService', () => {
               activated: false,
               role: '' as any,
               hashedPassword: HASHED_PASSWORD,
-              tokenId: '123',
+              tokenId: TOKEN_ID,
               created_at: new Date(),
               updated_at: new Date(),
             });
@@ -308,8 +346,8 @@ describe('AuthService', () => {
         await expect(service.signIn(signInDto)).rejects.toThrow(
           new UnauthorizedException('Please activate your account first.'),
         );
-        expect(utilsService.comparePasswords).not.toHaveBeenCalled();
-        expect(jwtService.sign).not.toHaveBeenCalled();
+        expect(passwordService.comparePasswords).not.toHaveBeenCalled();
+        expect(tokenService.signPayload).not.toHaveBeenCalled();
       });
 
       it('should throw an error if password does not match', async () => {
@@ -322,11 +360,11 @@ describe('AuthService', () => {
           UnauthorizedException,
         );
 
-        expect(utilsService.comparePasswords).toHaveBeenCalledWith(
+        expect(passwordService.comparePasswords).toHaveBeenCalledWith(
           signInDto.password,
           HASHED_PASSWORD,
         );
-        expect(jwtService.sign).not.toHaveBeenCalled();
+        expect(tokenService.signPayload).not.toHaveBeenCalled();
       });
     });
   });
@@ -337,7 +375,7 @@ describe('AuthService', () => {
 
       await service.activate(token);
 
-      expect(jwtService.verify).toHaveBeenCalledWith(token);
+      expect(tokenService.decodeToken).toHaveBeenCalledWith(token);
       expect(usersService.activateById).toHaveBeenCalledWith(TEST_USER_ID);
       expect(activateService.sendWelcomeEmail).toHaveBeenCalledWith(TEST_EMAIL);
 
@@ -371,7 +409,7 @@ describe('AuthService', () => {
 
     describe('errors', () => {
       it('should throw an error if token is invalid', async () => {
-        jest.spyOn(jwtService, 'verify').mockImplementation(() => {
+        jest.spyOn(tokenService, 'decodeToken').mockImplementation(() => {
           throw new Error('Invalid token');
         });
 
@@ -380,7 +418,7 @@ describe('AuthService', () => {
         expect(service.activate(invalidToken)).rejects.toThrow(
           new BadRequestException('Invalid token'),
         );
-        expect(jwtService.verify).toHaveBeenCalledWith(invalidToken);
+        expect(tokenService.decodeToken).toHaveBeenCalledWith(invalidToken);
       });
 
       it('should throw an error if user is not found', async () => {

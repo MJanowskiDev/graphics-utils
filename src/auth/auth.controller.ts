@@ -56,4 +56,14 @@ export class AuthController {
     const token = authHeader.replace('Bearer ', '');
     return this.authService.signOut(token);
   }
+
+  @Post('refresh')
+  @Public()
+  @ApiOperation({
+    summary: 'Refresh token endpoint',
+  })
+  refresh(@Headers('Authorization') authHeader: string) {
+    const token = authHeader.replace('Bearer ', '');
+    return this.authService.refresh(token);
+  }
 }

@@ -7,6 +7,8 @@ import { AuthService } from './auth.service';
 import { UsersModule } from '../users/users.module';
 import { UtilsService } from './utils/utils.service';
 import { ActivateService } from '../email/activate/activate.service';
+import { PasswordService } from './utils/password.service';
+import { TokenService } from './utils/token.service';
 
 @Module({
   imports: [
@@ -23,6 +25,12 @@ import { ActivateService } from '../email/activate/activate.service';
   ],
   exports: [JwtModule],
   controllers: [AuthController],
-  providers: [AuthService, UtilsService, ActivateService],
+  providers: [
+    AuthService,
+    UtilsService,
+    ActivateService,
+    PasswordService,
+    TokenService,
+  ],
 })
 export class AuthModule {}
