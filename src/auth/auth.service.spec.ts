@@ -103,16 +103,16 @@ const getTestingModule = async (): Promise<TestingModule> => {
             return JSON.stringify(o);
           }),
           generateTokenId: jest.fn(() => TOKEN_ID),
-          generatePayload: jest.fn((id, role, tokenId) => {
-            return { id, role, tokenId };
-          }),
-          decodeToken: jest.fn((token) =>
+          decodeUserToken: jest.fn((token) =>
             token === ACTIVATE_TEST_TOKEN
               ? {
                   id: TEST_USER_ID,
                 }
               : null,
           ),
+          decodeActivateToken: jest.fn(() => {
+            return { id: TEST_USER_ID };
+          }),
         },
       },
       {
@@ -376,10 +376,9 @@ describe('AuthService', () => {
 
       await service.activate(token);
 
-      expect(tokenService.decodeToken).toHaveBeenCalledWith(token);
+      expect(tokenService.decodeActivateToken).toHaveBeenCalledWith(token);
       expect(usersService.activateById).toHaveBeenCalledWith(TEST_USER_ID);
       expect(activateService.sendWelcomeEmail).toHaveBeenCalledWith(TEST_EMAIL);
-
       expect(service.activate(token)).resolves.toEqual({
         result: 'success',
         message: 'User activated successfully',
@@ -410,21 +409,24 @@ describe('AuthService', () => {
 
     describe('errors', () => {
       it('should throw an error if token is invalid', async () => {
-        jest.spyOn(tokenService, 'decodeToken').mockImplementation(() => {
-          throw new Error('Invalid token');
-        });
+        jest
+          .spyOn(tokenService, 'decodeActivateToken')
+          .mockImplementation(() => {
+            throw new Error('Invalid token');
+          });
 
         const invalidToken = 'invalid-token';
 
         expect(service.activate(invalidToken)).rejects.toThrow(
           new BadRequestException('Invalid token'),
         );
-        expect(tokenService.decodeToken).toHaveBeenCalledWith(invalidToken);
+        expect(tokenService.decodeActivateToken).toHaveBeenCalledWith(
+          invalidToken,
+        );
       });
 
       it('should throw an error if user is not found', async () => {
         const token = ACTIVATE_TEST_TOKEN;
-
         jest.spyOn(usersService, 'activateById').mockResolvedValue({
           user: null as any,
           wasAlreadyActivated: false,

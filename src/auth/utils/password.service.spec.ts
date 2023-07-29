@@ -52,14 +52,11 @@ describe('PasswordService', () => {
 
   describe('comparePasswords', () => {
     it('should return true for matching passwords', async () => {
-      // Arrange
       const password = 'password';
       const hashedPassword = 'hashed-password';
 
-      // Act
       const result = await service.comparePasswords(password, hashedPassword);
 
-      // Assert
       expect(result).toBe(true);
     });
 

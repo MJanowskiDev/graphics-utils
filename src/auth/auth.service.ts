@@ -45,7 +45,7 @@ export class AuthService {
   async activate(token: string): Promise<ActivateDto> {
     let decoded;
     try {
-      decoded = this.tokenService.decodeToken(token);
+      decoded = this.tokenService.decodeActivateToken(token);
     } catch (e) {
       throw new BadRequestException('Invalid token');
     }
@@ -88,40 +88,38 @@ export class AuthService {
     const tokenId = this.tokenService.generateTokenId();
     await this.usersService.updateTokenId(user.id, tokenId);
 
-    const payload = this.tokenService.generatePayload(
-      user.id,
-      user.role,
-      tokenId,
-    );
-
     return {
-      access_token: this.tokenService.signPayload(payload),
+      access_token: this.tokenService.signPayload({
+        id: user.id,
+        role: user.role,
+        tokenId,
+      }),
     };
   }
 
   async signOut(token: string) {
-    const decoded = this.tokenService.decodeToken(token);
+    const decoded = this.tokenService.decodeUserToken(token);
     await this.usersService.updateTokenId(decoded.id, null);
     return { result: 'success', message: 'Logged out successfully' };
   }
 
   async refresh(token: string) {
-    const decoded = this.tokenService.decodeToken(token);
+    const decoded = this.tokenService.decodeUserToken(token);
     const user = await this.findUserAndHandleError(decoded.id);
     const tokenId = this.tokenService.generateTokenId();
-    const payload = this.tokenService.generatePayload(
-      user.id,
-      user.role,
-      tokenId,
-    );
+
     await this.usersService.updateTokenId(user.id, tokenId);
     return {
-      access_token: this.tokenService.signPayload(payload),
+      access_token: this.tokenService.signPayload({
+        id: user.id,
+        role: user.role,
+        tokenId,
+      }),
     };
   }
 
   async delete(token: string) {
-    const decoded = this.tokenService.decodeToken(token);
+    const decoded = this.tokenService.decodeUserToken(token);
     const user = await this.findUserAndHandleError(decoded.id);
     const deletedEmail = `deleted_at_${Date.now()}__${user.email}`;
     await this.usersService.softDeleteAndUpdateEmail(user.id, deletedEmail);

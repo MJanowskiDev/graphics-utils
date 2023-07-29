@@ -2,10 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import crypto from 'crypto';
 
-import { User } from '../../users/entity';
-import { Role } from '../../core/enums/role.enum';
-
-type TokenPayload = Pick<User, 'id' | 'tokenId' | 'role'>;
+import { UserTokenPayloadDto, ActivateTokenPayloadDto } from '../dto';
 
 @Injectable()
 export class TokenService {
@@ -15,25 +12,43 @@ export class TokenService {
     return crypto.randomUUID();
   }
 
-  decodeToken(token: string): TokenPayload {
+  decodeUserToken(token: string): UserTokenPayloadDto {
     let decoded;
     try {
       decoded = this.jwtService.verify(token);
     } catch (e) {
       throw new BadRequestException('Invalid token');
     }
-    return decoded;
+
+    const { id, tokenId, role } = decoded;
+    if (!id) {
+      throw new BadRequestException('Invalid token payload');
+    }
+
+    const payloadDto = new UserTokenPayloadDto();
+    payloadDto.id = id;
+    payloadDto.tokenId = tokenId;
+    payloadDto.role = role;
+
+    return payloadDto;
   }
 
-  generatePayload(id: string, role: Role, tokenId: string): TokenPayload {
-    return {
-      id,
-      role,
-      tokenId,
-    };
+  decodeActivateToken(token: string): ActivateTokenPayloadDto {
+    let decoded;
+    try {
+      decoded = this.jwtService.verify(token);
+    } catch (e) {
+      throw new BadRequestException('Invalid token');
+    }
+    if (!decoded?.id) {
+      throw new BadRequestException('Invalid token payload');
+    }
+    const payloadDto = new ActivateTokenPayloadDto();
+    payloadDto.id = decoded.id;
+    return payloadDto;
   }
 
-  signPayload(payload: { id: string }): string {
+  signPayload(payload: UserTokenPayloadDto | ActivateTokenPayloadDto): string {
     return this.jwtService.sign(payload);
   }
 }
