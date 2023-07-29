@@ -20,11 +20,15 @@ import {
 
 describe('AuthController', () => {
   let authController: AuthController;
+  let authService: AuthService;
 
   const mockAuthService = {
     signIn: jest.fn<Promise<AccessTokenDto>, [SignInDto]>(),
     signUp: jest.fn<Promise<UserDto>, [SignUpDto]>(),
     activate: jest.fn<Promise<ActivateDto>, [token: string]>(),
+    signOut: jest.fn<Promise<any>, [{ message: string; result: string }]>(),
+    refresh: jest.fn<Promise<any>, [{ message: string; result: string }]>(),
+    delete: jest.fn<Promise<any>, [{ message: string; result: string }]>(),
   };
 
   beforeEach(async () => {
@@ -39,6 +43,7 @@ describe('AuthController', () => {
     }).compile();
 
     authController = module.get<AuthController>(AuthController);
+    authService = module.get<AuthService>(AuthService);
   });
 
   it('should be defined', () => {
@@ -277,6 +282,68 @@ describe('AuthController', () => {
           expect(error.response.message).toEqual('User not found');
         }
       });
+    });
+  });
+
+  describe('signOut', () => {
+    it("shouldn't be public", () => {
+      const decorators = Reflect.getMetadataKeys(authController.signOut);
+      expect(decorators).not.toContain('isPublic');
+    });
+
+    it('should sign out a user and return result and message object', async () => {
+      jest.spyOn(authService, 'signOut').mockResolvedValue({
+        result: 'success',
+        message: 'Logged out successfully',
+      });
+
+      const result = await authController.signOut('token');
+
+      expect(authService.signOut).toHaveBeenCalledWith('token');
+      expect(result).toHaveProperty('result');
+      expect(result).toHaveProperty('message');
+      expect(result.result).toBe('success');
+      expect(result.message).toBe('Logged out successfully');
+    });
+  });
+  describe('refresh', () => {
+    it("shouldn't be public", () => {
+      const decorators = Reflect.getMetadataKeys(authController.refresh);
+      expect(decorators).not.toContain('isPublic');
+    });
+
+    it('should refresh a token and return a new token', async () => {
+      jest
+        .spyOn(authService, 'refresh')
+        .mockResolvedValue({ access_token: 'new-token' });
+
+      const result = await authController.refresh('token');
+
+      expect(authService.refresh).toHaveBeenCalledWith('token');
+      expect(result).toHaveProperty('access_token');
+      expect(result.access_token).toBe('new-token');
+    });
+  });
+
+  describe('delete', () => {
+    it("shouldn't be public", () => {
+      const decorators = Reflect.getMetadataKeys(authController.delete);
+      expect(decorators).not.toContain('isPublic');
+    });
+
+    it('should delete a user and return result and message object', async () => {
+      jest.spyOn(authService, 'delete').mockResolvedValue({
+        result: 'success',
+        message: 'User deleted successfully',
+      });
+
+      const result = await authController.delete('token');
+
+      expect(authService.delete).toHaveBeenCalledWith('token');
+      expect(result).toHaveProperty('result');
+      expect(result).toHaveProperty('message');
+      expect(result.result).toBe('success');
+      expect(result.message).toBe('User deleted successfully');
     });
   });
 });

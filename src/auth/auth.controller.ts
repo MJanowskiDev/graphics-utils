@@ -6,11 +6,11 @@ import {
   HttpStatus,
   Get,
   Query,
-  Headers,
   Delete,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
+import { BearerTokenHeader } from '../core/decorator/bearer-token-header.decorator';
 import { AuthService } from './auth.service';
 import { Public } from '../core/decorator/public.decorator';
 import { SignInDto, SignUpDto } from './dto';
@@ -52,8 +52,7 @@ export class AuthController {
   @ApiOperation({
     summary: 'User logout endpoint',
   })
-  signOut(@Headers('Authorization') authHeader: string) {
-    const token = authHeader.replace('Bearer ', '');
+  signOut(@BearerTokenHeader() token: string) {
     return this.authService.signOut(token);
   }
 
@@ -61,17 +60,15 @@ export class AuthController {
   @ApiOperation({
     summary: 'Refresh token endpoint',
   })
-  refresh(@Headers('Authorization') authHeader: string) {
-    const token = authHeader.replace('Bearer ', '');
+  refresh(@BearerTokenHeader() token: string) {
     return this.authService.refresh(token);
   }
 
   @Delete('/user')
   @ApiOperation({
-    summary: 'Soft delete of an user',
+    summary: 'Soft delete of a user',
   })
-  delete(@Headers('Authorization') authHeader: string) {
-    const token = authHeader.replace('Bearer ', '');
+  delete(@BearerTokenHeader() token: string) {
     return this.authService.delete(token);
   }
 }
