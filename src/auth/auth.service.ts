@@ -120,9 +120,21 @@ export class AuthService {
     };
   }
 
+  async delete(token: string) {
+    const decoded = this.tokenService.decodeToken(token);
+    const user = await this.findUserAndHandleError(decoded.id);
+    const deletedEmail = `deleted_at_${Date.now()}__${user.email}`;
+    await this.usersService.softDeleteAndUpdateEmail(user.id, deletedEmail);
+    return { result: 'success', message: 'User deleted successfully' };
+  }
+
   private async findUserAndHandleError(userId: string): Promise<User> {
     const user = await this.usersService.findOneById(userId);
     if (!user) {
+      throw new UnauthorizedException();
+    }
+
+    if (user.deleted) {
       throw new UnauthorizedException();
     }
     return user;

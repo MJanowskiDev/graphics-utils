@@ -39,6 +39,10 @@ export class UsersService {
     return this.userRepository.update(userId, { tokenId });
   }
 
+  async softDeleteAndUpdateEmail(userId: string, email: string) {
+    return this.userRepository.update(userId, { email, deleted: true });
+  }
+
   async create(email: string, hashedPassword: string): Promise<User | null> {
     const user = new User();
     user.email = email;

@@ -338,6 +338,7 @@ describe('AuthService', () => {
               role: '' as any,
               hashedPassword: HASHED_PASSWORD,
               tokenId: TOKEN_ID,
+              deleted: false,
               created_at: new Date(),
               updated_at: new Date(),
             });

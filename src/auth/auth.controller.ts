@@ -7,6 +7,7 @@ import {
   Get,
   Query,
   Headers,
+  Delete,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
@@ -48,7 +49,6 @@ export class AuthController {
   }
 
   @Post('sign-out')
-  @Public()
   @ApiOperation({
     summary: 'User logout endpoint',
   })
@@ -58,12 +58,20 @@ export class AuthController {
   }
 
   @Post('refresh')
-  @Public()
   @ApiOperation({
     summary: 'Refresh token endpoint',
   })
   refresh(@Headers('Authorization') authHeader: string) {
     const token = authHeader.replace('Bearer ', '');
     return this.authService.refresh(token);
+  }
+
+  @Delete('/user')
+  @ApiOperation({
+    summary: 'Soft delete of an user',
+  })
+  delete(@Headers('Authorization') authHeader: string) {
+    const token = authHeader.replace('Bearer ', '');
+    return this.authService.delete(token);
   }
 }
