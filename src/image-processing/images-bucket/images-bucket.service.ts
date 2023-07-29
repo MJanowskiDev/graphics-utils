@@ -3,8 +3,8 @@ import { ConfigType } from '@nestjs/config';
 import { S3 } from 'aws-sdk';
 import crypto from 'crypto';
 
-import s3Buckets from '../../config/s3-buckets';
-import aws from '../../config/aws';
+import { s3BucketsConfig as s3Buckets } from '../../config';
+import { awsConfig as aws } from '../../config';
 import { Asset } from '../entity';
 import { AssetRepository } from '../repository';
 

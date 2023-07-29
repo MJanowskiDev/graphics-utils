@@ -51,6 +51,7 @@ const getTestingModule = async (): Promise<TestingModule> => {
             },
             wasAlreadyActivated: false,
           }),
+          softDeleteAndUpdateEmail: jest.fn(),
           findOneBy: jest.fn().mockImplementation((email) => {
             if (email === TEST_EMAIL) {
               return Promise.resolve({
@@ -434,6 +435,135 @@ describe('AuthService', () => {
 
         await expect(service.activate(token)).rejects.toThrow(
           new BadRequestException('User not found'),
+        );
+      });
+    });
+  });
+
+  describe('sign-out', () => {
+    it('should sign out a user', async () => {
+      jest.spyOn(tokenService, 'decodeUserToken').mockReturnValue({
+        id: 'user-id',
+        tokenId: '',
+        role: null,
+      });
+
+      const response = await service.signOut('token');
+
+      expect(usersService.updateTokenId).toHaveBeenCalledWith('user-id', null);
+      expect(response).toHaveProperty('result', 'success');
+      expect(response.message).toBe('Logged out successfully');
+      expect(response.result).toBe('success');
+    });
+  });
+
+  describe('refresh', () => {
+    it('should refresh a user token', async () => {
+      jest.spyOn(tokenService, 'decodeUserToken').mockReturnValue({
+        id: 'user-id',
+        tokenId: '',
+        role: null,
+      });
+      jest
+        .spyOn(usersService, 'findOneById')
+        .mockResolvedValue({ id: 'user-id', deleted: false } as User);
+
+      const response = await service.refresh('token');
+
+      expect(tokenService.decodeUserToken).toHaveBeenCalledWith('token');
+      expect(usersService.findOneById).toHaveBeenCalledWith('user-id');
+      expect(usersService.updateTokenId).toHaveBeenCalledWith(
+        'user-id',
+        TOKEN_ID,
+      );
+      expect(response).toHaveProperty('access_token');
+    });
+
+    describe('errors', () => {
+      it('should throw an error if user is not found', async () => {
+        jest.spyOn(tokenService, 'decodeUserToken').mockReturnValue({
+          id: 'user-id',
+          tokenId: '',
+          role: null,
+        });
+        jest.spyOn(usersService, 'findOneById').mockResolvedValue(null);
+
+        await expect(service.refresh('token')).rejects.toThrow(
+          new UnauthorizedException(),
+        );
+      });
+
+      it('should throw an error if user is deleted', async () => {
+        jest.spyOn(tokenService, 'decodeUserToken').mockReturnValue({
+          id: 'user-id',
+          tokenId: '',
+          role: null,
+        });
+        jest.spyOn(usersService, 'findOneById').mockResolvedValue({
+          id: 'user-id',
+          deleted: true,
+        } as User);
+
+        await expect(service.refresh('token')).rejects.toThrow(
+          new UnauthorizedException(),
+        );
+      });
+    });
+  });
+  describe('delete', () => {
+    it('should mark user as deleted', async () => {
+      jest.spyOn(tokenService, 'decodeUserToken').mockReturnValue({
+        id: 'user-id',
+        tokenId: '',
+        role: null,
+      });
+      jest.spyOn(usersService, 'findOneById').mockResolvedValue({
+        id: 'user-id',
+        deleted: false,
+        email: TEST_EMAIL,
+      } as User);
+      const dateNow = Date.now();
+      jest.spyOn(Date, 'now').mockImplementation(() => dateNow);
+
+      const response = await service.delete('token');
+
+      expect(tokenService.decodeUserToken).toHaveBeenCalledWith('token');
+      expect(usersService.findOneById).toHaveBeenCalledWith('user-id');
+      expect(usersService.softDeleteAndUpdateEmail).toHaveBeenCalledWith(
+        'user-id',
+        `deleted_at_${dateNow}__${TEST_EMAIL}`,
+      );
+      expect(response).toHaveProperty('result', 'success');
+      expect(response.message).toBe('User deleted successfully');
+      expect(response.result).toBe('success');
+    });
+    describe('errors', () => {
+      it('should throw an error if user is not found', async () => {
+        jest.spyOn(tokenService, 'decodeUserToken').mockReturnValue({
+          id: 'user-id',
+          tokenId: '',
+          role: null,
+        });
+        jest.spyOn(usersService, 'findOneById').mockResolvedValue(null);
+
+        await expect(service.refresh('token')).rejects.toThrow(
+          new UnauthorizedException(),
+        );
+      });
+
+      it('should throw an error if user is deleted', async () => {
+        jest.spyOn(tokenService, 'decodeUserToken').mockReturnValue({
+          id: 'user-id',
+          tokenId: '',
+          role: null,
+        });
+        jest.spyOn(usersService, 'findOneById').mockResolvedValue({
+          id: 'user-id',
+          deleted: true,
+        } as User);
+
+        await expect(service.refresh('token')).rejects.toThrow(
+          new UnauthorizedException(),
         );
       });
     });

@@ -6,11 +6,7 @@ import { DataSourceOptions } from 'typeorm';
 import { APP_GUARD } from '@nestjs/core';
 
 import { ImageProcessingModule } from './image-processing/image-processing.module';
-import AwsConfig from './config/aws';
-import S3Config from './config/s3-buckets';
-import DatabaseConfig from './config/database';
-import AuthConfig from './config/auth';
-import EmailConfig from './config/email';
+import configModuleOptions from './config';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { AuthGuard } from './auth/auth.guard';
@@ -35,10 +31,7 @@ import { RootController } from './root.controller';
       ttl: 60,
       limit: 10,
     }),
-    ConfigModule.forRoot({
-      load: [AwsConfig, S3Config, DatabaseConfig, AuthConfig, EmailConfig],
-      isGlobal: true,
-    }),
+    ConfigModule.forRoot(configModuleOptions),
     AuthModule,
     UsersModule,
     LambdaModule,
