@@ -4,6 +4,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSourceOptions } from 'typeorm';
 import { APP_GUARD } from '@nestjs/core';
+import { TerminusModule } from '@nestjs/terminus';
 
 import { ImageProcessingModule } from './image-processing/image-processing.module';
 import configModuleOptions from './config';
@@ -14,9 +15,15 @@ import { LambdaModule } from './lambda/lambda.module';
 import { LoggerModule } from './core/logger/logger.module';
 import { ControllerLogger } from './core/logger/ControllerLogger.middleware';
 import { RootController } from './root.controller';
+import { HealthModule } from './health/health.module';
+import { HealthController } from './health/health.controller';
+import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
+    TerminusModule.forRoot({
+      errorLogStyle: 'pretty',
+    }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -36,6 +43,8 @@ import { RootController } from './root.controller';
     UsersModule,
     LambdaModule,
     LoggerModule,
+    HealthModule,
+    EmailModule,
   ],
   providers: [
     {
@@ -43,7 +52,7 @@ import { RootController } from './root.controller';
       useClass: AuthGuard,
     },
   ],
-  controllers: [RootController],
+  controllers: [RootController, HealthController],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {

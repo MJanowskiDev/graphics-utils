@@ -61,6 +61,16 @@ export class ActivateService {
     }
   }
 
+  async verifyEmailService() {
+    try {
+      return await this.transporter.verify();
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Error while sending email. Please try again later',
+      );
+    }
+  }
+
   private getMjmlTemplate(templatePath: string) {
     const resultPath = path.join(process.cwd(), templatePath);
     return fs.readFileSync(resultPath, 'utf8');
