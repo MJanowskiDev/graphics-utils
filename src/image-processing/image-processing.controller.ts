@@ -13,7 +13,7 @@ import { BasicTransformationsService } from './basic-transformations/basic-trans
 import { FileValidationPipe } from './validation/file-validation.pipe';
 import { BasicTransformationInterceptor } from './interceptor/BasicTransformationInterceptor.interceptor';
 import { ProcessingResultDto } from './dto';
-import { SwaggerMultiFileBody } from '../core/decorator/swagger-files-upload.decorator';
+import { SwaggerFileBody } from '../core/decorator/swagger-files-upload.decorator';
 import { File } from './types';
 
 @Controller('image')
@@ -29,7 +29,7 @@ export class ImageProcessingController {
   @ApiOperation({
     summary: 'Resizes image, when upscaling image quality will be degraded.',
   })
-  @SwaggerMultiFileBody
+  @SwaggerFileBody
   public resize(
     @Query() { width }: ResizeImageDto,
     @UploadedFiles(new FileValidationPipe()) files: File[],
@@ -41,7 +41,7 @@ export class ImageProcessingController {
   @ApiOperation({
     summary: 'Converts image format, raster graphics accepted only.',
   })
-  @SwaggerMultiFileBody
+  @SwaggerFileBody
   public convert(
     @Query() { format }: ConvertDto,
     @UploadedFiles(new FileValidationPipe()) files: File[],
@@ -53,7 +53,7 @@ export class ImageProcessingController {
   @ApiOperation({
     summary: 'Returns image in 256 shades of gray',
   })
-  @SwaggerMultiFileBody
+  @SwaggerFileBody
   toGrayscale(
     @UploadedFiles(new FileValidationPipe()) files: File[],
   ): Promise<ProcessingResultDto> {

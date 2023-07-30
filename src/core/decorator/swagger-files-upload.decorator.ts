@@ -2,7 +2,7 @@ import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 
 import { FileUploadDto } from '../../image-processing/dto';
 
-export const SwaggerMultiFileBody: MethodDecorator = (
+export const SwaggerFileBody: MethodDecorator = (
   target: any,
   propertyKey: string,
   descriptor: PropertyDescriptor,
