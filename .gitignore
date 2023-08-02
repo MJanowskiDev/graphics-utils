@@ -2,6 +2,9 @@
 /dist
 /node_modules
 
+#python
+/advanced-transformations-service/env
+/advanced-transformations-service/__pycache__
 # Logs
 logs
 *.log
