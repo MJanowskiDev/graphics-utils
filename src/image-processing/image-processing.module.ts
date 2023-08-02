@@ -11,6 +11,7 @@ import {
 import { ImageProcessingController } from './image-processing.controller';
 import { ProcessingService } from './processing/processing.service';
 import { BasicTransformationsService } from './basic-transformations/basic-transformations.service';
+import { AdvancedTransformationsService } from './advanced-transformations/advanced-transformations.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Asset, OperationData, ImageProcessing])],
@@ -22,6 +23,7 @@ import { BasicTransformationsService } from './basic-transformations/basic-trans
     ImageProcessingRepository,
     ProcessingService,
     BasicTransformationsService,
+    AdvancedTransformationsService,
   ],
 })
 export class ImageProcessingModule {}

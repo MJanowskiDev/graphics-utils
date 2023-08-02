@@ -15,6 +15,7 @@ import { BasicTransformationInterceptor } from './interceptor/BasicTransformatio
 import { ProcessingResultDto } from './dto';
 import { SwaggerFileBody } from '../core/decorator/swagger-files-upload.decorator';
 import { File } from './types';
+import { AdvancedTransformationsService } from './advanced-transformations/advanced-transformations.service';
 
 @Controller('image')
 @ApiTags('image')
@@ -23,6 +24,7 @@ import { File } from './types';
 export class ImageProcessingController {
   constructor(
     private basicTransformationsService: BasicTransformationsService,
+    private advancedTransformationsService: AdvancedTransformationsService,
   ) {}
 
   @Post('resize')
@@ -58,5 +60,16 @@ export class ImageProcessingController {
     @UploadedFiles(new FileValidationPipe()) files: File[],
   ): Promise<ProcessingResultDto> {
     return this.basicTransformationsService.toGrayscale(files);
+  }
+
+  @Post('bgremoval')
+  @ApiOperation({
+    summary: 'Returns image in png format with transparent background',
+  })
+  @SwaggerFileBody
+  bgRemoval(
+    @UploadedFiles(new FileValidationPipe()) files: File[],
+  ): Promise<ProcessingResultDto> {
+    return this.advancedTransformationsService.removeBackground(files);
   }
 }
