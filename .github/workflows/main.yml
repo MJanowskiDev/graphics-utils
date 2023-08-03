@@ -40,22 +40,22 @@ jobs:
       env:
         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
     
-    build-python:
-      runs-on: ubuntu-latest
-      
-      steps:
-      - uses: actions/checkout@v2
+  build-python:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
 
-      - name: Build Docker Image
-        run: docker build -t python-microservice ./advanced-transformations-service/
+    - name: Build Docker Image
+      run: docker build -t python-microservice ./advanced-transformations-service/
 
-      - name: Install Railway
-        run: npm i -g @railway/cli
+    - name: Install Railway
+      run: npm i -g @railway/cli
 
-      - name: Login to Railway
-        run: echo ${{ secrets.RAILWAY_TOKEN }} | railway login
+    - name: Login to Railway
+      run: echo ${{ secrets.RAILWAY_TOKEN }} | railway login
 
-      - name: Deploy
-        run: railway up
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+    - name: Deploy
+      run: railway up
+      env:
+        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
