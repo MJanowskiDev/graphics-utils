@@ -36,7 +36,9 @@ jobs:
       run: npm i -g @railway/cli
 
     - name: Deploy
-      run: railway up
+      run: |
+        railway service graphics-utils
+        railway up
       env:
         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
     
@@ -53,6 +55,8 @@ jobs:
       run: npm i -g @railway/cli
 
     - name: Deploy
-      run: railway up
+      run: |
+        railway service advanced-transformations-service
+        railway up
       env:
         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
