@@ -26,4 +26,4 @@ def remove_background():
     return send_file(img_no_bg, mimetype='image/png')
 
 if __name__ == "__main__":
-    app.run(host='::', port=4100)
+    app.run(host='0.0.0.0', port=4100)
