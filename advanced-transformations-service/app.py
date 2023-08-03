@@ -9,7 +9,7 @@ app = Flask(__name__)
 def hello_world():
     return 'OK'
 
-@app.route('/removebg', methods=['POST'])
+@app.route('/removebg/', methods=['POST'])
 def remove_background():
     if 'image' not in request.files:
         return 'No image provided', 400
