@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  build-nestjs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -35,37 +35,20 @@ jobs:
     - name: Install Railway
       run: npm i -g @railway/cli
 
-    - name: Login to Railway
-      run: echo ${{ secrets.RAILWAY_TOKEN }} | railway login
-
-    - name: Link to Railway Project
-      run: echo ${{ secrets.RAILWAY_PROJECT_ID }} | railway link
-      
-    - name: Deploy Nest.js
-      run: |
-        railway service graphics-utils
-        railway up
+    - name: Deploy to Railway
+      run: railway up --service graphics-utils
       env:
         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-    
+
   build-python:
     runs-on: ubuntu-latest
-    
     steps:
     - uses: actions/checkout@v2
 
     - name: Install Railway
       run: npm i -g @railway/cli
 
-    - name: Login to Railway
-      run: echo ${{ secrets.RAILWAY_TOKEN }} | railway login
-
-    - name: Link to Railway Project
-      run: echo ${{ secrets.RAILWAY_PROJECT_ID }} | railway link
-      
-    - name: Deploy Python
-      run: |
-        railway service advanced-transformations-service
-        railway up
+    - name: Deploy to Railway
+      run: railway up --service advanced-transformations-python
       env:
         RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
