@@ -4,6 +4,7 @@ import * as nodemailer from 'nodemailer';
 import * as fs from 'fs';
 import path from 'path';
 import { ConfigService } from '@nestjs/config';
+import { EmailConfigSchema } from 'src/config';
 
 @Injectable()
 export class ActivateService {
@@ -12,6 +13,7 @@ export class ActivateService {
 
   constructor(private emailConfigService: ConfigService) {
     this.config = this.emailConfigService.get('email');
+    console.log(this.config.activateUrl);
     this.transporter = nodemailer.createTransport({
       service: this.config.service,
       port: this.config.smtp.port,
@@ -24,7 +26,7 @@ export class ActivateService {
 
   async sendActivationEmail(email: string, token: string) {
     try {
-      const activationLink = this.config.activateUrL(token);
+      const activationLink = `${this.config.activateUrl}${token}`;
 
       const html = mjml2html(
         this.getMjmlTemplate(this.config.templatePaths.activate),
