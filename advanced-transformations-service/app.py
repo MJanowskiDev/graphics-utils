@@ -1,16 +1,21 @@
-from flask import Flask
+import logging
 from flask import Flask, request, send_file
 from rembg import remove
 from io import BytesIO
 
 app = Flask(__name__)
+gunicorn_logger = logging.getLogger('gunicorn.error')
+app.logger.handlers = gunicorn_logger.handlers
+app.logger.setLevel(gunicorn_logger.level)
 
 @app.route('/')
-def hello_world():
+def health():
+    app.logger.info('Processing health request')
     return 'OK'
 
 @app.route('/removebg/', methods=['POST'])
 def remove_background():
+    app.logger.info('Processing remove_background request')
     if 'image' not in request.files:
         return 'No image provided', 400
     img = request.files['image'].read()

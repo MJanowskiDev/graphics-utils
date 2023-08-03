@@ -1,17 +1,30 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
 import FormData from 'form-data';
+import { ConfigService } from '@nestjs/config';
 
+import { ExternalRoutesConfigSchema } from '../../config';
 import { ProcessingResultDto } from '../dto';
 
 @Injectable()
 export class AdvancedTransformationsService {
+  private config;
+
+  constructor(private emailConfigService: ConfigService) {
+    this.config =
+      this.emailConfigService.get<ExternalRoutesConfigSchema>(
+        'external-routes',
+      );
+  }
+
   async removeBackground(
     files: Express.Multer.File[],
   ): Promise<ProcessingResultDto> {
-    const url = 'http://127.0.0.1:4100/removebg';
+    const url = this.config?.bgRemovalUrl;
+    if (!url) {
+      throw new Error('BG_REMOVAL_URL is not defined');
+    }
     const file = files[0];
-
     const formData = new FormData();
     formData.append('image', file.buffer, { filename: file.originalname });
 

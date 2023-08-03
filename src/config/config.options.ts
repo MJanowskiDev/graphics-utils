@@ -11,18 +11,28 @@ import {
   DatabaseConfigSchema,
   EmailConfigSchema,
   S3BucketsConfigSchema,
+  externalRoutesConfig,
+  ExternalRoutesConfigSchema,
 } from './';
 
 export const configModuleOptions = {
-  load: [authConfig, awsConfig, databaseConfig, emailConfig, s3BucketsConfig],
+  load: [
+    authConfig,
+    awsConfig,
+    databaseConfig,
+    emailConfig,
+    s3BucketsConfig,
+    externalRoutesConfig,
+  ],
   isGlobal: true,
-  validate: () => {
+  _validate: () => {
     const configObjects = [
       new AuthConfigSchema(),
       new AwsConfigSchema(),
       new DatabaseConfigSchema(),
       new EmailConfigSchema(),
       new S3BucketsConfigSchema(),
+      new ExternalRoutesConfigSchema(),
     ];
 
     const allErrors: string[] = configObjects.flatMap(validateAndFormatErrors);
@@ -32,6 +42,12 @@ export const configModuleOptions = {
     }
 
     return configObjects;
+  },
+  get validate() {
+    return this._validate;
+  },
+  set validate(value) {
+    this._validate = value;
   },
 };
 
