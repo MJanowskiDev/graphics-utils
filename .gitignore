@@ -5,6 +5,7 @@
 #python
 /advanced-transformations-service/env
 /advanced-transformations-service/__pycache__
+/advanced-transformations-service/storage
 # Logs
 logs
 *.log
