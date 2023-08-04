@@ -1,4 +1,5 @@
 import logging
+import os
 from flask import Flask, request, send_file
 from rembg import remove
 from io import BytesIO
@@ -7,6 +8,10 @@ app = Flask(__name__)
 gunicorn_logger = logging.getLogger('gunicorn.error')
 app.logger.handlers = gunicorn_logger.handlers
 app.logger.setLevel(gunicorn_logger.level)
+
+storage_path = os.getenv("STORAGE_PATH", "./storage")
+os.makedirs(storage_path, exist_ok=True)
+os.chdir(storage_path)
 
 @app.route('/')
 def health():
