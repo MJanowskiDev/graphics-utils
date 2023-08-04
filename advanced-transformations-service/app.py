@@ -10,23 +10,7 @@ gunicorn_logger = logging.getLogger('gunicorn.error')
 app.logger.handlers = gunicorn_logger.handlers
 app.logger.setLevel(gunicorn_logger.level)
 
-storage_path = os.getenv("STORAGE_PATH", "./storage")
-os.makedirs(storage_path, exist_ok=True)
-os.chdir(storage_path)
-
-u2net_path = os.getenv("U2NET_PATH", "./u2net.onnx")
 model_name = os.getenv("MODEL_NAME", "u2netp")
-
-def download_u2net_model():
-    url = "https://github.com/danielgatis/rembg/releases/download/v0.0.0/u2netp.onnx"
-    response = requests.get(url, stream=True)
-    response.raise_for_status()
-    with open(u2net_path, 'wb') as f:
-        for chunk in response.iter_content(chunk_size=8192):
-            f.write(chunk)
-
-if not os.path.exists(u2net_path):
-    download_u2net_model()
 
 @app.route('/')
 def health():
