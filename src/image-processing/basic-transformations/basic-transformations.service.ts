@@ -6,6 +6,7 @@ import { ImageProcessingRepository } from '../repository';
 import { File } from '../types';
 import { OperationType } from '../types';
 import { ProcessingResultDto } from '../dto';
+import { EventsService } from '../events/events.service';
 
 @Injectable()
 export class BasicTransformationsService {
@@ -14,6 +15,7 @@ export class BasicTransformationsService {
   constructor(
     private processingService: ProcessingService,
     private imageProcessingRepository: ImageProcessingRepository,
+    private eventsService: EventsService,
   ) {}
 
   async formatConversion(
@@ -41,6 +43,10 @@ export class BasicTransformationsService {
   }
 
   async toGrayscale(inputFiles: File[]): Promise<ProcessingResultDto> {
+    this.eventsService.emitEvent('hello-world', {
+      data: 'Grayscale operation started',
+    });
+
     return await this.processFiles(
       inputFiles,
       (b: Buffer) => sharp(b).grayscale(true),
