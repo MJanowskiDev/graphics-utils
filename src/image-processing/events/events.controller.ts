@@ -1,18 +1,18 @@
 import { Controller, Sse } from '@nestjs/common';
 import { Observable } from 'rxjs';
 
-import { Public } from '../../core/decorator/public.decorator';
 import { EventsService } from './events.service';
 import { MessageEvent } from '../types';
+import { UserOperationEventId } from '../decorators/user-operation-event-id.decorator';
 
 @Controller('/events')
 export class EventsController {
   constructor(private eventService: EventsService) {}
 
-  @Sse('basic-transformations')
-  @Public()
-  basicTransformationsEvents(): Observable<MessageEvent> {
-    const operationId = 'hello-world';
+  @Sse('basic-transformations/:operationType')
+  basicTransformationsEvents(
+    @UserOperationEventId() operationId: string,
+  ): Observable<MessageEvent> {
     const subject = this.eventService.getEventStream(operationId);
 
     return new Observable<MessageEvent>((observer) => {

@@ -14,8 +14,9 @@ import { FileValidationPipe } from './validation/file-validation.pipe';
 import { BasicTransformationInterceptor } from './interceptor/BasicTransformationInterceptor.interceptor';
 import { ProcessingResultDto } from './dto';
 import { SwaggerFileBody } from '../core/decorator/swagger-files-upload.decorator';
-import { File } from './types';
+import { File, OperationType } from './types';
 import { AdvancedTransformationsService } from './advanced-transformations/advanced-transformations.service';
+import { UserOperationEventId } from './decorators/user-operation-event-id.decorator';
 
 @Controller('image')
 @ApiTags('image')
@@ -35,8 +36,9 @@ export class ImageProcessingController {
   public resize(
     @Query() { width }: ResizeImageDto,
     @UploadedFiles(new FileValidationPipe()) files: File[],
+    @UserOperationEventId(OperationType.resize) operationId: string,
   ): Promise<ProcessingResultDto> {
-    return this.basicTransformationsService.resize(files, width);
+    return this.basicTransformationsService.resize(files, width, operationId);
   }
 
   @Post('convert')
@@ -47,8 +49,13 @@ export class ImageProcessingController {
   public convert(
     @Query() { format }: ConvertDto,
     @UploadedFiles(new FileValidationPipe()) files: File[],
+    @UserOperationEventId(OperationType.formatConversion) operationId: string,
   ): Promise<ProcessingResultDto> {
-    return this.basicTransformationsService.formatConversion(files, format);
+    return this.basicTransformationsService.formatConversion(
+      files,
+      format,
+      operationId,
+    );
   }
 
   @Post('grayscale')
@@ -58,8 +65,9 @@ export class ImageProcessingController {
   @SwaggerFileBody
   toGrayscale(
     @UploadedFiles(new FileValidationPipe()) files: File[],
+    @UserOperationEventId(OperationType.toGrayscale) operationId: string,
   ): Promise<ProcessingResultDto> {
-    return this.basicTransformationsService.toGrayscale(files);
+    return this.basicTransformationsService.toGrayscale(files, operationId);
   }
 
   @Post('bgremoval')
