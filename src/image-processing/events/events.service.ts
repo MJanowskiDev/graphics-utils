@@ -18,7 +18,7 @@ export class EventsService {
     const subject = this.eventSubjects.get(operationId) || new ReplaySubject();
 
     this.eventSubjects.set(operationId, subject);
-    subject.next(data);
+    subject.next({ data, timestamp: Date.now() });
   }
 
   completeEvent(operationId: string): void {
