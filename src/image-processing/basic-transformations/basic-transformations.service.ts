@@ -43,10 +43,6 @@ export class BasicTransformationsService {
   }
 
   async toGrayscale(inputFiles: File[]): Promise<ProcessingResultDto> {
-    this.eventsService.emitEvent('hello-world', {
-      data: 'Grayscale operation started',
-    });
-
     return await this.processFiles(
       inputFiles,
       (b: Buffer) => sharp(b).grayscale(true),
@@ -60,13 +56,13 @@ export class BasicTransformationsService {
     operationType: OperationType,
     userParams?: object,
   ): Promise<ProcessingResultDto> {
-    this.logger.verbose(
-      `Starting basic transformation - amount to be processed: ${
-        inputFiles.length
-      }, operation: ${operationType}, userParams: ${JSON.stringify(
-        userParams,
-      )}`,
-    );
+    const msg = `Starting basic transformation - amount to be processed: ${
+      inputFiles.length
+    }, operation: ${operationType}, userParams: ${JSON.stringify(userParams)}`;
+    this.eventsService.emitEvent('hello-world', {
+      data: msg,
+    });
+    this.logger.verbose(msg);
     const processingResult = await this.processingService.process(
       inputFiles,
       algorithm,
@@ -76,6 +72,9 @@ export class BasicTransformationsService {
       processingResult.bucketLocation,
       userParams,
     );
+    this.eventsService.emitEvent('hello-world', {
+      data: `Finishing basic transformation, operation: ${operationType}`,
+    });
     return processingResult;
   }
 }

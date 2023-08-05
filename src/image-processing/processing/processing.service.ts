@@ -8,6 +8,7 @@ import { SharpWithOptions, Algorithm } from '../types';
 import { ImagesBucketService } from '../images-bucket/images-bucket.service';
 import { ProcessingResultDto } from '../dto';
 import { File } from '../types';
+import { EventsService } from '../events/events.service';
 
 const ZIP_MIME = 'application/zip';
 const ARCHIVE_FORMAT = 'zip';
@@ -15,7 +16,10 @@ const ARCHIVE_FORMAT = 'zip';
 @Injectable()
 export class ProcessingService {
   private readonly logger = new Logger(ProcessingService.name);
-  constructor(private imagesBucketService: ImagesBucketService) {}
+  constructor(
+    private imagesBucketService: ImagesBucketService,
+    private eventsService: EventsService,
+  ) {}
   async process(
     inputFiles: File[],
     algorithm: Algorithm,
@@ -23,16 +27,29 @@ export class ProcessingService {
     this.logger.verbose(
       `Starting processing - amount to be processed: ${inputFiles.length}`,
     );
+    this.eventsService.emitEvent('hello-world', {
+      data: `Starting processing - amount to be processed: ${inputFiles.length}`,
+    });
 
     if (!Array.isArray(inputFiles)) {
+      this.eventsService.emitEvent('hello-world', {
+        data: `ERROR: inputFiles should be an array`,
+      });
+
       throw new Error('inputFiles should be an array');
     }
 
     if (inputFiles.length === 0) {
+      this.eventsService.emitEvent('hello-world', {
+        data: `ERROR: inputFiles array should not be empty`,
+      });
       throw new Error('inputFiles array should not be empty');
     }
 
     if (!algorithm) {
+      this.eventsService.emitEvent('hello-world', {
+        data: `ERROR: algorithm is required`,
+      });
       throw new Error('algorithm is required');
     }
 
@@ -40,7 +57,9 @@ export class ProcessingService {
       inputFiles.length === 1
         ? await this.processOne(inputFiles[0], algorithm)
         : await this.processMany(inputFiles, algorithm);
-
+    this.eventsService.emitEvent('hello-world', {
+      data: `Storing result to s3 bucket`,
+    });
     const storeResult = await this.imagesBucketService.storePublic(
       result.output,
       result.fileName,
@@ -54,8 +73,14 @@ export class ProcessingService {
     algorithm: Algorithm,
   ): Promise<ProcessingResultDto> {
     this.logger.verbose(`Processing single file: ${inputFile.originalname}`);
+    this.eventsService.emitEvent('hello-world', {
+      data: `Processing single file: ${inputFile.originalname}`,
+    });
     const algorithmInstance = await algorithm(inputFile.buffer);
     const format = await this.extractFormat(algorithmInstance);
+    this.eventsService.emitEvent('hello-world', {
+      data: `Processing single file: running algorithm`,
+    });
     const output = await algorithmInstance.toBuffer();
     const fileName = this.createFileName(inputFile, format);
     return {
