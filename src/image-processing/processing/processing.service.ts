@@ -27,10 +27,6 @@ export class ProcessingService {
     this.logger.verbose(
       `Starting processing - amount to be processed: ${inputFiles.length}`,
     );
-    this.eventsService.emitEvent('hello-world', {
-      data: `Starting processing - amount to be processed: ${inputFiles.length}`,
-    });
-
     if (!Array.isArray(inputFiles)) {
       this.eventsService.emitEvent('hello-world', {
         data: `ERROR: inputFiles should be an array`,
@@ -58,13 +54,15 @@ export class ProcessingService {
         ? await this.processOne(inputFiles[0], algorithm)
         : await this.processMany(inputFiles, algorithm);
     this.eventsService.emitEvent('hello-world', {
-      data: `Storing result to s3 bucket`,
+      data: `Sending result to S3 bucket`,
     });
     const storeResult = await this.imagesBucketService.storePublic(
       result.output,
       result.fileName,
     );
-
+    this.eventsService.emitEvent('hello-world', {
+      data: `Image uploaded to s3 bucket, location: ${storeResult.Location}`,
+    });
     return { ...result, bucketLocation: storeResult.Location };
   }
 
@@ -74,13 +72,10 @@ export class ProcessingService {
   ): Promise<ProcessingResultDto> {
     this.logger.verbose(`Processing single file: ${inputFile.originalname}`);
     this.eventsService.emitEvent('hello-world', {
-      data: `Processing single file: ${inputFile.originalname}`,
+      data: `Processing file ${inputFile.originalname}`,
     });
     const algorithmInstance = await algorithm(inputFile.buffer);
     const format = await this.extractFormat(algorithmInstance);
-    this.eventsService.emitEvent('hello-world', {
-      data: `Processing single file: running algorithm`,
-    });
     const output = await algorithmInstance.toBuffer();
     const fileName = this.createFileName(inputFile, format);
     return {
@@ -95,10 +90,15 @@ export class ProcessingService {
     operation: (buffer: Buffer) => Sharp,
   ): Promise<ProcessingResultDto> {
     this.logger.verbose(`Processing multiple files: ${inputFiles.length}`);
-
+    this.eventsService.emitEvent('hello-world', {
+      data: `Processing multiple files: ${inputFiles.length}`,
+    });
     const archive = archiver(ARCHIVE_FORMAT, { zlib: { level: 9 } });
 
     const processingPromises = inputFiles.map(async (file) => {
+      this.eventsService.emitEvent('hello-world', {
+        data: `Processing file ${file.originalname}`,
+      });
       const algorithmInstance = operation(file.buffer);
       const buffer = await algorithmInstance.toBuffer();
       const format = await this.extractFormat(algorithmInstance);
@@ -106,6 +106,9 @@ export class ProcessingService {
     });
 
     await Promise.all(processingPromises);
+    this.eventsService.emitEvent('hello-world', {
+      data: `Compressing to archive...`,
+    });
     archive.finalize();
 
     const output = await streamToPromise(archive);

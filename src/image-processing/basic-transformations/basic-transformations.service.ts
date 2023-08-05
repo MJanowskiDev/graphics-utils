@@ -59,9 +59,11 @@ export class BasicTransformationsService {
     const msg = `Starting basic transformation - amount to be processed: ${
       inputFiles.length
     }, operation: ${operationType}, userParams: ${JSON.stringify(userParams)}`;
+
     this.eventsService.emitEvent('hello-world', {
-      data: msg,
+      data: `Starting operation: ${operationType}, images to be processed: ${inputFiles.length}`,
     });
+
     this.logger.verbose(msg);
     const processingResult = await this.processingService.process(
       inputFiles,
@@ -73,7 +75,7 @@ export class BasicTransformationsService {
       userParams,
     );
     this.eventsService.emitEvent('hello-world', {
-      data: `Finishing basic transformation, operation: ${operationType}`,
+      data: `Finished - amount processed: ${inputFiles.length}`,
     });
     return processingResult;
   }
