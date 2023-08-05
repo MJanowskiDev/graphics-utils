@@ -4,7 +4,6 @@ import * as nodemailer from 'nodemailer';
 import * as fs from 'fs';
 import path from 'path';
 import { ConfigService } from '@nestjs/config';
-import { EmailConfigSchema } from 'src/config';
 
 @Injectable()
 export class ActivateService {
