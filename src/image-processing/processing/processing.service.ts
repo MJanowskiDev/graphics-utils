@@ -8,6 +8,7 @@ import { SharpWithOptions, Algorithm } from '../types';
 import { ImagesBucketService } from '../images-bucket/images-bucket.service';
 import { ProcessingResultDto } from '../dto';
 import { File } from '../types';
+import { EventsService } from '../events/events.service';
 
 const ZIP_MIME = 'application/zip';
 const ARCHIVE_FORMAT = 'zip';
@@ -15,24 +16,41 @@ const ARCHIVE_FORMAT = 'zip';
 @Injectable()
 export class ProcessingService {
   private readonly logger = new Logger(ProcessingService.name);
-  constructor(private imagesBucketService: ImagesBucketService) {}
+  private operationId: string;
+
+  constructor(
+    private imagesBucketService: ImagesBucketService,
+    private eventsService: EventsService,
+  ) {}
+
   async process(
     inputFiles: File[],
     algorithm: Algorithm,
+    operationId: string,
   ): Promise<ProcessingResultDto> {
+    this.operationId = operationId;
     this.logger.verbose(
       `Starting processing - amount to be processed: ${inputFiles.length}`,
     );
-
     if (!Array.isArray(inputFiles)) {
+      this.eventsService.emitEvent(this.operationId, {
+        data: `ERROR: inputFiles should be an array`,
+      });
+
       throw new Error('inputFiles should be an array');
     }
 
     if (inputFiles.length === 0) {
+      this.eventsService.emitEvent(this.operationId, {
+        data: `ERROR: inputFiles array should not be empty`,
+      });
       throw new Error('inputFiles array should not be empty');
     }
 
     if (!algorithm) {
+      this.eventsService.emitEvent(this.operationId, {
+        data: `ERROR: algorithm is required`,
+      });
       throw new Error('algorithm is required');
     }
 
@@ -40,12 +58,16 @@ export class ProcessingService {
       inputFiles.length === 1
         ? await this.processOne(inputFiles[0], algorithm)
         : await this.processMany(inputFiles, algorithm);
-
+    this.eventsService.emitEvent(this.operationId, {
+      data: `Sending result to S3 bucket`,
+    });
     const storeResult = await this.imagesBucketService.storePublic(
       result.output,
       result.fileName,
     );
-
+    this.eventsService.emitEvent(this.operationId, {
+      data: `Image uploaded to s3 bucket, location: ${storeResult.Location}`,
+    });
     return { ...result, bucketLocation: storeResult.Location };
   }
 
@@ -54,6 +76,9 @@ export class ProcessingService {
     algorithm: Algorithm,
   ): Promise<ProcessingResultDto> {
     this.logger.verbose(`Processing single file: ${inputFile.originalname}`);
+    this.eventsService.emitEvent(this.operationId, {
+      data: `Processing file ${inputFile.originalname}`,
+    });
     const algorithmInstance = await algorithm(inputFile.buffer);
     const format = await this.extractFormat(algorithmInstance);
     const output = await algorithmInstance.toBuffer();
@@ -70,10 +95,15 @@ export class ProcessingService {
     operation: (buffer: Buffer) => Sharp,
   ): Promise<ProcessingResultDto> {
     this.logger.verbose(`Processing multiple files: ${inputFiles.length}`);
-
+    this.eventsService.emitEvent(this.operationId, {
+      data: `Processing multiple files: ${inputFiles.length}`,
+    });
     const archive = archiver(ARCHIVE_FORMAT, { zlib: { level: 9 } });
 
     const processingPromises = inputFiles.map(async (file) => {
+      this.eventsService.emitEvent(this.operationId, {
+        data: `Processing file ${file.originalname}`,
+      });
       const algorithmInstance = operation(file.buffer);
       const buffer = await algorithmInstance.toBuffer();
       const format = await this.extractFormat(algorithmInstance);
@@ -81,6 +111,9 @@ export class ProcessingService {
     });
 
     await Promise.all(processingPromises);
+    this.eventsService.emitEvent(this.operationId, {
+      data: `Compressing to archive...`,
+    });
     archive.finalize();
 
     const output = await streamToPromise(archive);

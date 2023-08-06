@@ -3,6 +3,7 @@ import Link from 'next/link';
 
 import logo from '../../public/images/graphics_utils_logo.svg';
 import author from '../../public/images/mjanowskidev.png';
+import SSE from './features/sse';
 
 export default function Home() {
   return (
@@ -26,6 +27,7 @@ export default function Home() {
           </p>
         </div>
       </section>
+      <SSE />
       <div className="sticky top-[100vh] flex gap-2 p-4 justify-between text-[#6c757dff] tracking-wide text-sm">
         <div className="flex items-center gap-2">
           <p>Created by</p>
