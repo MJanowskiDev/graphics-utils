@@ -25,7 +25,9 @@ export default function SSE() {
 
   useEffect(() => {
     if (!token) return;
-    const url = `http://localhost:4005/events/basic-transformations/${selectedOperation}`;
+    const baseURL = process.env.NEXT_PUBLIC_BACKEND_URL;
+    console.log(baseURL);
+    const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/events/basic-transformations/${selectedOperation}`;
     const headers = { Authorization: `Bearer ${token}` };
     const eventSource = new EventSourcePolyfill(url, { headers });
 
