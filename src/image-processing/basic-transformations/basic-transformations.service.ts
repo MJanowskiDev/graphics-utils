@@ -65,28 +65,36 @@ export class BasicTransformationsService {
     operationId: string,
     userParams?: object,
   ): Promise<ProcessingResultDto> {
-    const msg = `Starting basic transformation - amount to be processed: ${
-      inputFiles.length
-    }, operation: ${operationType}, userParams: ${JSON.stringify(userParams)}`;
+    try {
+      const msg = `Starting basic transformation - amount to be processed: ${
+        inputFiles.length
+      }, operation: ${operationType}, userParams: ${JSON.stringify(
+        userParams,
+      )}`;
 
-    this.eventsService.emitEvent(operationId, {
-      data: `Starting operation: ${operationType}, images to be processed: ${inputFiles.length}`,
-    });
+      this.eventsService.emitEvent(operationId, {
+        data: `Starting operation: ${operationType}, images to be processed: ${inputFiles.length}`,
+      });
 
-    this.logger.verbose(msg);
-    const processingResult = await this.processingService.process(
-      inputFiles,
-      algorithm,
-      operationId,
-    );
-    await this.imageProcessingRepository.save(
-      operationType,
-      processingResult.bucketLocation,
-      userParams,
-    );
-    this.eventsService.emitEvent(operationId, {
-      data: `Finished - amount processed: ${inputFiles.length}`,
-    });
-    return processingResult;
+      this.logger.verbose(msg);
+      const processingResult = await this.processingService.process(
+        inputFiles,
+        algorithm,
+        operationId,
+      );
+      await this.imageProcessingRepository.save(
+        operationType,
+        processingResult.bucketLocation,
+        userParams,
+      );
+      this.eventsService.emitEvent(operationId, {
+        data: `Finished - amount processed: ${inputFiles.length}`,
+      });
+      this.eventsService.completeEvent(operationId);
+      return processingResult;
+    } catch (error) {
+      this.eventsService.completeEvent(operationId);
+      throw error;
+    }
   }
 }

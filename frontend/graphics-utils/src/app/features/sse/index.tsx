@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import EventSourcePolyfill from 'eventsource';
 import { TokenInputField, OperationTypeSelect } from './components';
 import { OperationType } from './types';
@@ -17,16 +17,22 @@ export default function SSE() {
     [],
   );
   const [token, setToken] = useState<string>('');
+  const [isConnected, setIsConnected] = useState(false);
+  const [recreateConnection, setRecreateConnection] = useState(false);
   const [selectedOperation, setSelectedOperation] = useState<OperationType>(
     OperationType.resize,
   );
 
   useEffect(() => {
     if (!token) return;
-
     const url = `http://localhost:4005/events/basic-transformations/${selectedOperation}`;
     const headers = { Authorization: `Bearer ${token}` };
     const eventSource = new EventSourcePolyfill(url, { headers });
+
+    eventSource.onopen = () => {
+      console.log('connected')
+      setIsConnected(true);
+    }
 
     eventSource.onmessage = (event: MessageEvent) => {
       const { data, timestamp } = JSON.parse(event.data);
@@ -34,10 +40,17 @@ export default function SSE() {
       setEvents((prev) => [...prev, entry]);
     };
 
-    return () => {
-      eventSource.close();
+    eventSource.onerror = (event: MessageEvent) => {
+      console.error(event);
+      eventSource?.close();
+      setIsConnected(false);
     };
-  }, [token, selectedOperation]);
+
+    return () => {
+      eventSource?.close();
+      setIsConnected(false);
+    };
+  }, [token, selectedOperation, recreateConnection]);
 
   return (
     <div className="mt-20 mx-12">
@@ -52,7 +65,20 @@ export default function SSE() {
         />
       </div>
 
-      <h1 className="text-2xl font-bold mb-2">Server-sent events</h1>
+      <div className="flex flex-row  w-full justify-between">
+        <h1 className="text-2xl font-bold mb-2">Server-sent events</h1>
+        <div className="flex flex-row items-center gap-2">
+          <p className="text-gray-500">
+            {isConnected ? 'connected' : 'not connected'}
+          </p>
+          <button
+            onClick={() => setRecreateConnection(prev => !prev)}
+            className="bg-purple-700 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded"
+          >
+            Re-connect
+          </button>
+        </div>
+      </div>
 
       <ul className=" overflow-y-auto">
         {events
