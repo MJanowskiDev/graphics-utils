@@ -1,10 +1,10 @@
 import Image from 'next/image';
-import logo from '../../public/images/graphics_utils_logo.svg';
+import logo from '../../public/images/graphics_utils.png';
 
 export default function Home() {
   return (
     <section className="flex flex-grow  justify-center items-center">
-      <div className="flex  sm:gap-12 gap-10 flex-wrap px-4 items-center ">
+      <div className="flex  sm:gap-12 gap-10 flex-wrap px-4 items-center justify-center ">
         <div className="w-[320px]">
           <Image src={logo} width={320} height={47} alt="Graphics Utils Logo" />
         </div>
