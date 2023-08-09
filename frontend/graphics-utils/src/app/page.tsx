@@ -1,11 +1,10 @@
 import Image from 'next/image';
 import logo from '../../public/images/graphics_utils_logo.svg';
-import { Footer } from '@/features/ui';
 
 export default function Home() {
   return (
-    <main className="flex flex-col items-stretch justify-center min-h-screen bg-gradient-to-b from-10% from-black via-slate-900 to-purple-950 font-sans">
-      <section className="flex flex-row flex-wrap sm:gap-12 gap-10 justify-center items-center ">
+    <section className="flex flex-grow  justify-center items-center">
+      <div className="flex  sm:gap-12 gap-10 flex-wrap px-4 items-center ">
         <div className="w-[320px]">
           <Image src={logo} width={320} height={47} alt="Graphics Utils Logo" />
         </div>
@@ -23,8 +22,7 @@ export default function Home() {
             Stay tuned for our launch!
           </p>
         </div>
-      </section>
-      <Footer />
-    </main>
+      </div>
+    </section>
   );
 }

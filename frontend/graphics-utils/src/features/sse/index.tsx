@@ -55,7 +55,7 @@ export default function SSE() {
   }, [token, selectedOperation, recreateConnection]);
 
   return (
-    <div className="mt-12 mx-12">
+    <div className="mt-12 mx-12 w-full">
       <div className="flex flex-row justify-center items-center mb-20">
         <TokenInputField setToken={setToken} />
         <OperationTypeSelect

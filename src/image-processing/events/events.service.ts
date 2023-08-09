@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { Observable, ReplaySubject, Subject } from 'rxjs';
+import { Observable, ReplaySubject } from 'rxjs';
 
 import { MessageEvent } from '../types';
 
 @Injectable()
 export class EventsService {
-  private eventSubjects = new Map<string, Subject<MessageEvent>>();
+  private eventSubjects = new Map<string, ReplaySubject<MessageEvent>>();
 
   getEventStream(operationId: string): Observable<MessageEvent> {
-    const subject = this.eventSubjects.get(operationId) || new Subject();
+    const subject = this.eventSubjects.get(operationId) || new ReplaySubject();
     this.eventSubjects.set(operationId, subject);
 
     return subject.asObservable();
