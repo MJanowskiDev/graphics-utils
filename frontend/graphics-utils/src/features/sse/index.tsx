@@ -55,7 +55,7 @@ export default function SSE() {
   }, [token, selectedOperation, recreateConnection]);
 
   return (
-    <div className="mt-20 mx-12">
+    <div className="mt-12 mx-12">
       <div className="flex flex-row justify-center items-center mb-20">
         <TokenInputField setToken={setToken} />
         <OperationTypeSelect
@@ -70,7 +70,7 @@ export default function SSE() {
       <div className="flex flex-row  w-full justify-between">
         <h1 className="text-2xl font-bold mb-2">Server-sent events</h1>
         <div className="flex flex-row items-center gap-2">
-          <p className="text-gray-500">
+          <p className="text-gray-500 mr-2">
             {isConnected ? 'connected' : 'not connected'}
           </p>
           <button
