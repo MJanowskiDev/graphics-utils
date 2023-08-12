@@ -6,8 +6,13 @@ export class ExternalRoutesConfigSchema {
   @IsString()
   bgRemovalUrl: string;
 
+  @IsNotEmpty()
+  @IsString()
+  makeEmailCheckUrl: string;
+
   constructor() {
     this.bgRemovalUrl = process.env.BG_REMOVAL_URL as string;
+    this.makeEmailCheckUrl = process.env.MAKE_EMAIL_CHECK_URL as string;
   }
 }
 
