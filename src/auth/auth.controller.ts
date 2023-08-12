@@ -71,4 +71,21 @@ export class AuthController {
   delete(@BearerTokenHeader() token: string) {
     return this.authService.delete(token);
   }
+
+  @Public()
+  @Post('/init-password-reset')
+  @ApiOperation({ summary: 'Initiate password reset process' })
+  initializePasswordReset(@Body() email: string) {
+    return this.authService.initializePasswordReset(email);
+  }
+
+  @Public()
+  @Post('/execute-password-reset')
+  @ApiOperation({ summary: 'Execute password reset operation' })
+  executePasswortReset(
+    @Query('token') token: string,
+    @Body('password') password: string,
+  ) {
+    return this.authService.executePasswordReset(token, password);
+  }
 }

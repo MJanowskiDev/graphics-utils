@@ -126,6 +126,35 @@ export class AuthService {
     return { result: 'success', message: 'User deleted successfully' };
   }
 
+  async initializePasswordReset(email: string): Promise<{ email: string }> {
+    //find user by email
+    //consider checking if user has already password reset token and if so, just re-send email with token form db
+    //if its close to be expired consider sending email with new token
+    //generate password reset token
+    //create jwt with password reset token and flag: isPasswordResetToken, set expiry date to 1h
+    //store password reset token in user table
+    //Send email with password reset token
+    return { email };
+  }
+
+  async executePasswordReset(
+    passwordResetToken: string,
+    newPassword: string,
+  ): Promise<{ passwordResetToken: string; newPassword: string }> {
+    //New pasword validation will be taken place at controller decorators level
+    //decode jwt passwordResetToken
+    //If token expired throw error
+    //If token is not password reset token throw error
+    //find user with password reset token
+    //If no such token in database throw error
+    //hash new password
+    //update new hashed password in database
+    //reset password reset token in database
+    //send email to user that password has been changed - just info
+    //return success message
+    return { passwordResetToken, newPassword };
+  }
+
   private async findUserAndHandleError(userId: string): Promise<User> {
     const user = await this.usersService.findOneById(userId);
     if (!user) {
