@@ -30,6 +30,9 @@ export class User {
   @Column('uuid', { nullable: true })
   tokenId: string | null;
 
+  @Column('text', { nullable: true })
+  passwordResetToken: string | null;
+
   @Column({ default: false })
   deleted: boolean;
 

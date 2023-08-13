@@ -92,9 +92,7 @@ const getTestingModule = async (): Promise<TestingModule> => {
         useValue: {
           sendActivationEmail: jest.fn(),
           sendWelcomeEmail: jest.fn(),
-          getMjmlTemplate: jest
-            .fn()
-            .mockImplementation(() => '<p>Mock E-mail Template</p>'),
+          getMjmlTemplate: jest.fn().mockImplementation(() => '<p>Mock E-mail Template</p>'),
         },
       },
       {
@@ -193,10 +191,7 @@ describe('AuthService', () => {
       expect(tokenService.signPayload).toHaveBeenCalledWith({
         id: TEST_USER_ID,
       });
-      expect(activateService.sendActivationEmail).toHaveBeenCalledWith(
-        email,
-        JSON.stringify({ id: TEST_USER_ID }),
-      );
+      expect(activateService.sendActivationEmail).toHaveBeenCalledWith(email, JSON.stringify({ id: TEST_USER_ID }));
     });
 
     it('should send activation email with correct token', async () => {
@@ -213,10 +208,7 @@ describe('AuthService', () => {
 
       await service.signUp(signUpDto);
 
-      expect(activateService.sendActivationEmail).toHaveBeenCalledWith(
-        TEST_EMAIL,
-        JSON.stringify({ id: TEST_USER_ID }),
-      );
+      expect(activateService.sendActivationEmail).toHaveBeenCalledWith(TEST_EMAIL, JSON.stringify({ id: TEST_USER_ID }));
     });
 
     it('should hash the password before saving', async () => {
@@ -228,10 +220,7 @@ describe('AuthService', () => {
       await service.signUp(signUpDto);
 
       expect(passwordService.hashPassword).toHaveBeenCalledWith(TEST_PASSWORD);
-      expect(usersService.create).toHaveBeenCalledWith(
-        TEST_EMAIL,
-        `${HASHED_PREFIX}${TEST_PASSWORD}`,
-      );
+      expect(usersService.create).toHaveBeenCalledWith(TEST_EMAIL, `${HASHED_PREFIX}${TEST_PASSWORD}`);
     });
 
     it('should sign the JWT token with the correct payload', async () => {
@@ -266,17 +255,10 @@ describe('AuthService', () => {
         };
         (usersService.create as jest.Mock).mockResolvedValue(null);
 
-        await expect(service.signUp(signUpDto)).rejects.toThrow(
-          'User could not be created.',
-        );
+        await expect(service.signUp(signUpDto)).rejects.toThrow('User could not be created.');
 
-        expect(passwordService.hashPassword).toHaveBeenCalledWith(
-          TEST_PASSWORD,
-        );
-        expect(usersService.create).toHaveBeenCalledWith(
-          TEST_EMAIL,
-          `${HASHED_PREFIX}${TEST_PASSWORD}`,
-        );
+        expect(passwordService.hashPassword).toHaveBeenCalledWith(TEST_PASSWORD);
+        expect(usersService.create).toHaveBeenCalledWith(TEST_EMAIL, `${HASHED_PREFIX}${TEST_PASSWORD}`);
         expect(tokenService.signPayload).not.toHaveBeenCalled();
         expect(activateService.sendActivationEmail).not.toHaveBeenCalled();
       });
@@ -286,9 +268,7 @@ describe('AuthService', () => {
   describe('sign-in', () => {
     it('should sign in a user and return jwt when succeded', async () => {
       const signInDto = { email: TEST_EMAIL, password: TEST_PASSWORD };
-      const { id, role, tokenId } = (await usersService.findOneBy(
-        TEST_EMAIL,
-      )) as User;
+      const { id, role, tokenId } = (await usersService.findOneBy(TEST_EMAIL)) as User;
 
       await service.signIn(signInDto);
       jest.spyOn(tokenService, 'generateTokenId').mockReturnValue(TOKEN_ID);
@@ -315,9 +295,7 @@ describe('AuthService', () => {
           password: TEST_PASSWORD,
         };
 
-        await expect(service.signIn(signInDto)).rejects.toThrow(
-          UnauthorizedException,
-        );
+        await expect(service.signIn(signInDto)).rejects.toThrow(UnauthorizedException);
 
         expect(passwordService.comparePasswords).not.toHaveBeenCalled();
         expect(tokenService.signPayload).not.toHaveBeenCalled();
@@ -329,25 +307,22 @@ describe('AuthService', () => {
           password: TEST_PASSWORD,
         };
 
-        jest
-          .spyOn(usersService, 'findOneBy')
-          .mockImplementation(async (email) => {
-            return Promise.resolve<User | null>({
-              id: TEST_USER_ID,
-              email,
-              activated: false,
-              role: '' as any,
-              hashedPassword: HASHED_PASSWORD,
-              tokenId: TOKEN_ID,
-              deleted: false,
-              created_at: new Date(),
-              updated_at: new Date(),
-            });
+        jest.spyOn(usersService, 'findOneBy').mockImplementation(async (email) => {
+          return Promise.resolve<User | null>({
+            id: TEST_USER_ID,
+            email,
+            activated: false,
+            role: '' as any,
+            hashedPassword: HASHED_PASSWORD,
+            tokenId: TOKEN_ID,
+            passwordResetToken: null,
+            deleted: false,
+            created_at: new Date(),
+            updated_at: new Date(),
           });
+        });
 
-        await expect(service.signIn(signInDto)).rejects.toThrow(
-          new UnauthorizedException('Please activate your account first.'),
-        );
+        await expect(service.signIn(signInDto)).rejects.toThrow(new UnauthorizedException('Please activate your account first.'));
         expect(passwordService.comparePasswords).not.toHaveBeenCalled();
         expect(tokenService.signPayload).not.toHaveBeenCalled();
       });
@@ -358,14 +333,9 @@ describe('AuthService', () => {
           password: 'wrong-password',
         };
 
-        await expect(service.signIn(signInDto)).rejects.toThrow(
-          UnauthorizedException,
-        );
+        await expect(service.signIn(signInDto)).rejects.toThrow(UnauthorizedException);
 
-        expect(passwordService.comparePasswords).toHaveBeenCalledWith(
-          signInDto.password,
-          HASHED_PASSWORD,
-        );
+        expect(passwordService.comparePasswords).toHaveBeenCalledWith(signInDto.password, HASHED_PASSWORD);
         expect(tokenService.signPayload).not.toHaveBeenCalled();
       });
     });
@@ -410,20 +380,14 @@ describe('AuthService', () => {
 
     describe('errors', () => {
       it('should throw an error if token is invalid', async () => {
-        jest
-          .spyOn(tokenService, 'decodeActivateToken')
-          .mockImplementation(() => {
-            throw new Error('Invalid token');
-          });
+        jest.spyOn(tokenService, 'decodeActivateToken').mockImplementation(() => {
+          throw new Error('Invalid token');
+        });
 
         const invalidToken = 'invalid-token';
 
-        expect(service.activate(invalidToken)).rejects.toThrow(
-          new BadRequestException('Invalid token'),
-        );
-        expect(tokenService.decodeActivateToken).toHaveBeenCalledWith(
-          invalidToken,
-        );
+        expect(service.activate(invalidToken)).rejects.toThrow(new BadRequestException('Invalid token'));
+        expect(tokenService.decodeActivateToken).toHaveBeenCalledWith(invalidToken);
       });
 
       it('should throw an error if user is not found', async () => {
@@ -433,9 +397,7 @@ describe('AuthService', () => {
           wasAlreadyActivated: false,
         });
 
-        await expect(service.activate(token)).rejects.toThrow(
-          new BadRequestException('User not found'),
-        );
+        await expect(service.activate(token)).rejects.toThrow(new BadRequestException('User not found'));
       });
     });
   });
@@ -464,18 +426,13 @@ describe('AuthService', () => {
         tokenId: '',
         role: null,
       });
-      jest
-        .spyOn(usersService, 'findOneById')
-        .mockResolvedValue({ id: 'user-id', deleted: false } as User);
+      jest.spyOn(usersService, 'findOneById').mockResolvedValue({ id: 'user-id', deleted: false } as User);
 
       const response = await service.refresh('token');
 
       expect(tokenService.decodeUserToken).toHaveBeenCalledWith('token');
       expect(usersService.findOneById).toHaveBeenCalledWith('user-id');
-      expect(usersService.updateTokenId).toHaveBeenCalledWith(
-        'user-id',
-        TOKEN_ID,
-      );
+      expect(usersService.updateTokenId).toHaveBeenCalledWith('user-id', TOKEN_ID);
       expect(response).toHaveProperty('access_token');
     });
 
@@ -488,9 +445,7 @@ describe('AuthService', () => {
         });
         jest.spyOn(usersService, 'findOneById').mockResolvedValue(null);
 
-        await expect(service.refresh('token')).rejects.toThrow(
-          new UnauthorizedException(),
-        );
+        await expect(service.refresh('token')).rejects.toThrow(new UnauthorizedException());
       });
 
       it('should throw an error if user is deleted', async () => {
@@ -504,9 +459,7 @@ describe('AuthService', () => {
           deleted: true,
         } as User);
 
-        await expect(service.refresh('token')).rejects.toThrow(
-          new UnauthorizedException(),
-        );
+        await expect(service.refresh('token')).rejects.toThrow(new UnauthorizedException());
       });
     });
   });
@@ -529,10 +482,7 @@ describe('AuthService', () => {
 
       expect(tokenService.decodeUserToken).toHaveBeenCalledWith('token');
       expect(usersService.findOneById).toHaveBeenCalledWith('user-id');
-      expect(usersService.softDeleteAndUpdateEmail).toHaveBeenCalledWith(
-        'user-id',
-        `deleted_at_${dateNow}__${TEST_EMAIL}`,
-      );
+      expect(usersService.softDeleteAndUpdateEmail).toHaveBeenCalledWith('user-id', `deleted_at_${dateNow}__${TEST_EMAIL}`);
       expect(response).toHaveProperty('result', 'success');
       expect(response.message).toBe('User deleted successfully');
       expect(response.result).toBe('success');
@@ -546,9 +496,7 @@ describe('AuthService', () => {
         });
         jest.spyOn(usersService, 'findOneById').mockResolvedValue(null);
 
-        await expect(service.refresh('token')).rejects.toThrow(
-          new UnauthorizedException(),
-        );
+        await expect(service.refresh('token')).rejects.toThrow(new UnauthorizedException());
       });
 
       it('should throw an error if user is deleted', async () => {
@@ -562,9 +510,7 @@ describe('AuthService', () => {
           deleted: true,
         } as User);
 
-        await expect(service.refresh('token')).rejects.toThrow(
-          new UnauthorizedException(),
-        );
+        await expect(service.refresh('token')).rejects.toThrow(new UnauthorizedException());
       });
     });
   });

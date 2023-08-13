@@ -2,7 +2,11 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import crypto from 'crypto';
 
-import { UserTokenPayloadDto, ActivateTokenPayloadDto } from '../dto';
+import {
+  UserTokenPayloadDto,
+  ActivateTokenPayloadDto,
+  PasswordResetTokenPayloadDto,
+} from '../dto';
 
 @Injectable()
 export class TokenService {
@@ -33,6 +37,26 @@ export class TokenService {
     return payloadDto;
   }
 
+  decodePasswordResetToken(token: string): PasswordResetTokenPayloadDto {
+    let decoded: PasswordResetTokenPayloadDto;
+    try {
+      decoded = this.jwtService.verify(token);
+    } catch (e) {
+      throw new BadRequestException('Invalid token');
+    }
+
+    const { isPasswordResetToken, passwordResetToken } = decoded;
+    if (!isPasswordResetToken || !passwordResetToken) {
+      throw new BadRequestException('Invalid token payload');
+    }
+
+    const payloadDto = new PasswordResetTokenPayloadDto();
+    payloadDto.isPasswordResetToken = isPasswordResetToken;
+    payloadDto.passwordResetToken = passwordResetToken;
+
+    return payloadDto;
+  }
+
   decodeActivateToken(token: string): ActivateTokenPayloadDto {
     let decoded;
     try {
@@ -48,7 +72,7 @@ export class TokenService {
     return payloadDto;
   }
 
-  signPayload(payload: UserTokenPayloadDto | ActivateTokenPayloadDto): string {
+  signPayload(payload: object): string {
     return this.jwtService.sign(payload);
   }
 }
