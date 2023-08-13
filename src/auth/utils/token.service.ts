@@ -41,13 +41,12 @@ export class TokenService {
       throw new BadRequestException('Invalid token');
     }
 
-    const { isPasswordResetToken, passwordResetToken } = decoded;
-    if (!isPasswordResetToken || !passwordResetToken) {
+    const { passwordResetToken } = decoded;
+    if (!passwordResetToken) {
       throw new BadRequestException('Invalid token payload');
     }
 
     const payloadDto = new PasswordResetTokenPayloadDto();
-    payloadDto.isPasswordResetToken = isPasswordResetToken;
     payloadDto.passwordResetToken = passwordResetToken;
 
     return payloadDto;

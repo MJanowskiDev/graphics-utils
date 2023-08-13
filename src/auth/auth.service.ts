@@ -117,15 +117,12 @@ export class AuthService {
     }
 
     const passwordResetToken = this.tokenService.generateTokenId();
-    //how to override default config, TIME to expire?
-    const passwordResetTokenJwt = this.tokenService.signPayload({
-      passwordResetToken,
-      isPasswordResetToken: true,
-    });
+    //override default config, TIME to expire?
+    const passwordResetTokenJwt = this.tokenService.signPayload({ passwordResetToken });
     await this.usersService.updatePasswordResetToken(passwordResetToken, user.id);
     await this.authEmailService.sendInitPasswordReset(user.email, passwordResetTokenJwt);
-    //return success message
-    return { user, passwordResetTokenJwt };
+
+    return { message: 'Password reset has been initialized successfully. Please check your email for further instructions.' };
   }
 
   async executePasswordReset(passwordResetToken: string, password: string): Promise<any> {
@@ -140,8 +137,7 @@ export class AuthService {
     await this.usersService.updatePasswordResetToken(null, user.id);
     await this.authEmailService.sendConfirmPasswordReset(user.email);
 
-    //return success message
-    return { passwordResetToken, password, hashedPassword, decodedPayload };
+    return { message: 'Password has been reset successfully. You can now log in using your new password.' };
   }
 
   private async findUserAndHandleError(userId: string): Promise<User> {
