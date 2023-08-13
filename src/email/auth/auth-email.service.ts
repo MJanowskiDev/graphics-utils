@@ -58,6 +58,42 @@ export class AuthEmailService {
     }
   }
 
+  async sendInitPasswordReset(email: string, resetToken: string) {
+    const passwordResetUrl = `${this.config.passwordResetUrl}${resetToken}`;
+    try {
+      const html = mjml2html(this.getMjmlTemplate(this.config.templatePaths.initPasswordReset)).html.replace(
+        /\${passwordResetLink}/g,
+        passwordResetUrl,
+      );
+      return await this.transporter.sendMail({
+        from: this.config.smtp.user,
+        to: email,
+        subject: 'GraphicsUtils - Password Reset',
+        text:
+          'We received a request to reset your password for your account associated with this email address' +
+          `If you made this request, please follow the link below to reset your password: ${passwordResetUrl}`,
+        html,
+      });
+    } catch (error) {
+      throw new InternalServerErrorException('Error while sending email. Please try again later');
+    }
+  }
+
+  async sendConfirmPasswordReset(email: string) {
+    try {
+      const { html } = mjml2html(this.getMjmlTemplate(this.config.templatePaths.confirmPasswordReset));
+      return await this.transporter.sendMail({
+        from: this.config.smtp.user,
+        to: email,
+        subject: 'GraphicsUtils - Password Reset Success',
+        text: 'Your password has been successfully reset.',
+        html,
+      });
+    } catch (error) {
+      throw new InternalServerErrorException('Error while sending email. Please try again later');
+    }
+  }
+
   async verifyEmailService() {
     try {
       return await this.transporter.verify();

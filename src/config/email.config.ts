@@ -30,9 +30,19 @@ class TemplatePathsConfig {
   @IsString()
   welcome: string;
 
+  @IsNotEmpty()
+  @IsString()
+  initPasswordReset: string;
+
+  @IsNotEmpty()
+  @IsString()
+  confirmPasswordReset: string;
+
   constructor() {
     this.activate = './emailTemplates/activationEmail.mjml';
     this.welcome = './emailTemplates/welcomeEmail.mjml';
+    this.initPasswordReset = './emailTemplates/initPasswordReset.mjml';
+    this.confirmPasswordReset = './emailTemplates/finishPasswordReset.mjml';
   }
 }
 
@@ -51,11 +61,16 @@ export class EmailConfigSchema {
   @IsString()
   activateUrl: string;
 
+  @IsNotEmpty()
+  @IsString()
+  passwordResetUrl: string;
+
   constructor() {
     this.smtp = new SmtpConfig();
     this.service = 'gmail';
     this.templatePaths = new TemplatePathsConfig();
     this.activateUrl = `${process.env.FRONTEND_URL}/auth/activate?token=`;
+    this.passwordResetUrl = `${process.env.FRONTEND_URL}/auth/init-password-reset?token=`;
   }
 }
 

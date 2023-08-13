@@ -13,7 +13,7 @@ export class AuthService {
   constructor(
     private usersService: UsersService,
     private passwordsService: PasswordService,
-    private activateService: AuthEmailService,
+    private authEmailService: AuthEmailService,
     private tokenService: TokenService,
   ) {}
 
@@ -27,7 +27,7 @@ export class AuthService {
       id: user.id,
     });
 
-    this.activateService.sendActivationEmail(user.email, activationToken);
+    this.authEmailService.sendActivationEmail(user.email, activationToken);
     return omit(user, 'hashedPassword', 'passwordResetToken');
   }
 
@@ -49,7 +49,7 @@ export class AuthService {
       return { result: 'success', message: 'User is already activated' };
     }
 
-    this.activateService.sendWelcomeEmail(user.email);
+    this.authEmailService.sendWelcomeEmail(user.email);
     return { result: 'success', message: 'User activated successfully' };
   }
 
@@ -123,8 +123,7 @@ export class AuthService {
       isPasswordResetToken: true,
     });
     await this.usersService.updatePasswordResetToken(passwordResetToken, user.id);
-
-    //Send email with password reset token
+    await this.authEmailService.sendInitPasswordReset(user.email, passwordResetTokenJwt);
     //return success message
     return { user, passwordResetTokenJwt };
   }
@@ -139,8 +138,8 @@ export class AuthService {
     const hashedPassword = await this.passwordsService.hashPassword(password);
     await this.usersService.updateUserPassword(user.id, hashedPassword);
     await this.usersService.updatePasswordResetToken(null, user.id);
+    await this.authEmailService.sendConfirmPasswordReset(user.email);
 
-    //send email to user that password has been changed - just info
     //return success message
     return { passwordResetToken, password, hashedPassword, decodedPayload };
   }
