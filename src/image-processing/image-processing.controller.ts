@@ -1,10 +1,4 @@
-import {
-  Controller,
-  Post,
-  Query,
-  UploadedFiles,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Controller, Post, Query, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
@@ -51,11 +45,7 @@ export class ImageProcessingController {
     @UploadedFiles(new FileValidationPipe()) files: File[],
     @UserOperationEventId(OperationType.formatConversion) operationId: string,
   ): Promise<ProcessingResultDto> {
-    return this.basicTransformationsService.formatConversion(
-      files,
-      format,
-      operationId,
-    );
+    return this.basicTransformationsService.formatConversion(files, format, operationId);
   }
 
   @Post('grayscale')
@@ -75,9 +65,7 @@ export class ImageProcessingController {
     summary: 'Returns image in png format with transparent background',
   })
   @SwaggerFileBody
-  bgRemoval(
-    @UploadedFiles(new FileValidationPipe()) files: File[],
-  ): Promise<ProcessingResultDto> {
+  bgRemoval(@UploadedFiles(new FileValidationPipe()) files: File[]): Promise<ProcessingResultDto> {
     return this.advancedTransformationsService.removeBackground(files);
   }
 }

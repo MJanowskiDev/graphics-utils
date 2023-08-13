@@ -6,7 +6,7 @@ import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 import { UsersService } from '../users/users.service';
-import { ActivateService } from '../email/activate/activate.service';
+import { AuthEmailService } from '../email/auth/auth-email.service';
 import { AuthService } from './auth.service';
 import { User } from '../users/entity';
 import { PasswordService } from './utils/password.service';
@@ -88,7 +88,7 @@ const getTestingModule = async (): Promise<TestingModule> => {
         },
       },
       {
-        provide: ActivateService,
+        provide: AuthEmailService,
         useValue: {
           sendActivationEmail: jest.fn(),
           sendWelcomeEmail: jest.fn(),
@@ -150,7 +150,7 @@ const getTestingModule = async (): Promise<TestingModule> => {
 describe('AuthService', () => {
   let service: AuthService;
   let usersService: UsersService;
-  let activateService: ActivateService;
+  let activateService: AuthEmailService;
   let passwordService: PasswordService;
   let tokenService: TokenService;
 
@@ -158,7 +158,7 @@ describe('AuthService', () => {
     const module = await getTestingModule();
     service = module.get<AuthService>(AuthService);
     usersService = module.get<UsersService>(UsersService);
-    activateService = module.get<ActivateService>(ActivateService);
+    activateService = module.get<AuthEmailService>(AuthEmailService);
     passwordService = module.get<PasswordService>(PasswordService);
     tokenService = module.get<TokenService>(TokenService);
   });

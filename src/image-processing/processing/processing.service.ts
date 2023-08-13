@@ -18,20 +18,11 @@ export class ProcessingService {
   private readonly logger = new Logger(ProcessingService.name);
   private operationId: string;
 
-  constructor(
-    private imagesBucketService: ImagesBucketService,
-    private eventsService: EventsService,
-  ) {}
+  constructor(private imagesBucketService: ImagesBucketService, private eventsService: EventsService) {}
 
-  async process(
-    inputFiles: File[],
-    algorithm: Algorithm,
-    operationId: string,
-  ): Promise<ProcessingResultDto> {
+  async process(inputFiles: File[], algorithm: Algorithm, operationId: string): Promise<ProcessingResultDto> {
     this.operationId = operationId;
-    this.logger.verbose(
-      `Starting processing - amount to be processed: ${inputFiles.length}`,
-    );
+    this.logger.verbose(`Starting processing - amount to be processed: ${inputFiles.length}`);
     if (!Array.isArray(inputFiles)) {
       this.eventsService.emitEvent(this.operationId, {
         data: `ERROR: inputFiles should be an array`,
@@ -55,26 +46,18 @@ export class ProcessingService {
     }
 
     const result =
-      inputFiles.length === 1
-        ? await this.processOne(inputFiles[0], algorithm)
-        : await this.processMany(inputFiles, algorithm);
+      inputFiles.length === 1 ? await this.processOne(inputFiles[0], algorithm) : await this.processMany(inputFiles, algorithm);
     this.eventsService.emitEvent(this.operationId, {
       data: `Sending result to S3 bucket`,
     });
-    const storeResult = await this.imagesBucketService.storePublic(
-      result.output,
-      result.fileName,
-    );
+    const storeResult = await this.imagesBucketService.storePublic(result.output, result.fileName);
     this.eventsService.emitEvent(this.operationId, {
       data: `Image uploaded to s3 bucket, location: ${storeResult.Location}`,
     });
     return { ...result, bucketLocation: storeResult.Location };
   }
 
-  private async processOne(
-    inputFile: File,
-    algorithm: Algorithm,
-  ): Promise<ProcessingResultDto> {
+  private async processOne(inputFile: File, algorithm: Algorithm): Promise<ProcessingResultDto> {
     this.logger.verbose(`Processing single file: ${inputFile.originalname}`);
     this.eventsService.emitEvent(this.operationId, {
       data: `Processing file ${inputFile.originalname}`,
@@ -90,10 +73,7 @@ export class ProcessingService {
     };
   }
 
-  private async processMany(
-    inputFiles: File[],
-    operation: (buffer: Buffer) => Sharp,
-  ): Promise<ProcessingResultDto> {
+  private async processMany(inputFiles: File[], operation: (buffer: Buffer) => Sharp): Promise<ProcessingResultDto> {
     this.logger.verbose(`Processing multiple files: ${inputFiles.length}`);
     this.eventsService.emitEvent(this.operationId, {
       data: `Processing multiple files: ${inputFiles.length}`,
@@ -132,9 +112,7 @@ export class ProcessingService {
   }
 
   private createFileName(inputFile: File, format: string): string {
-    return `processed__${
-      inputFile.originalname.split('.')[0]
-    }__${moment().format('YYYY-MM-DD_HH-mm-ss')}.${format}`;
+    return `processed__${inputFile.originalname.split('.')[0]}__${moment().format('YYYY-MM-DD_HH-mm-ss')}.${format}`;
   }
 
   private createArchiveName(format = ARCHIVE_FORMAT): string {

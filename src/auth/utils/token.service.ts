@@ -2,11 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import crypto from 'crypto';
 
-import {
-  UserTokenPayloadDto,
-  ActivateTokenPayloadDto,
-  PasswordResetTokenPayloadDto,
-} from '../dto';
+import { UserTokenPayloadDto, ActivateTokenPayloadDto, PasswordResetTokenPayloadDto } from '../dto';
 
 @Injectable()
 export class TokenService {

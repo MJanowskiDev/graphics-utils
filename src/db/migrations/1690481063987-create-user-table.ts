@@ -15,9 +15,7 @@ export class CreateUserTable1690481063987 implements MigrationInterface {
       "updated_at" TIMESTAMP NOT NULL DEFAULT now(),
        CONSTRAINT "PK_cace4a159ff9f2512dd42373760" PRIMARY KEY ("id"))`,
     );
-    await queryRunner.query(
-      `CREATE UNIQUE INDEX "IDX_e12875dfb3b1d92d7d7c5377e2" ON "user" ("email") `,
-    );
+    await queryRunner.query(`CREATE UNIQUE INDEX "IDX_e12875dfb3b1d92d7d7c5377e2" ON "user" ("email") `);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {

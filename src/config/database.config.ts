@@ -1,10 +1,4 @@
-import {
-  IsString,
-  IsNotEmpty,
-  IsNumber,
-  IsArray,
-  IsBoolean,
-} from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber, IsArray, IsBoolean } from 'class-validator';
 import { registerAs } from '@nestjs/config';
 
 export class DatabaseConfigSchema {
@@ -67,7 +61,4 @@ export class DatabaseConfigSchema {
   }
 }
 
-export const databaseConfig = registerAs(
-  'database',
-  () => new DatabaseConfigSchema(),
-);
+export const databaseConfig = registerAs('database', () => new DatabaseConfigSchema());

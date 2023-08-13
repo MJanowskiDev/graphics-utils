@@ -12,9 +12,7 @@ export class UsersService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async activateById(
-    id: string,
-  ): Promise<{ user: User; wasAlreadyActivated: boolean }> {
+  async activateById(id: string): Promise<{ user: User; wasAlreadyActivated: boolean }> {
     const user = await this.userRepository.findOneBy({ id });
     if (!user) {
       throw new Error('User not found');

@@ -21,9 +21,9 @@ export class ControllerLogger implements NestMiddleware {
       const delay = Date.now() - startAt;
 
       this.logger.verbose(
-        `FINISHING Method: ${method}, URL: ${originalUrl}, Code: ${statusCode} ${getReasonPhrase(
-          statusCode,
-        )}, Processing time: ${delay / 1000}s, IP address: ${ip}`,
+        `FINISHING Method: ${method}, URL: ${originalUrl}, Code: ${statusCode} ${getReasonPhrase(statusCode)}, Processing time: ${
+          delay / 1000
+        }s, IP address: ${ip}`,
       );
     });
 

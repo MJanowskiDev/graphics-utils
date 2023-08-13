@@ -8,18 +8,8 @@ export class FileValidationPipe implements PipeTransform {
     if (!files || !files.length) {
       throw new BadRequestException('File not provided');
     }
-    const mimeTypes = [
-      'image/png',
-      'image/jpeg',
-      'image/jpg',
-      'image/gif',
-      'image/webp',
-      'image/avif',
-      'image/tiff',
-    ];
-    const unsupportedFiles = files.filter(
-      (file) => !mimeTypes.includes(file.mimetype),
-    );
+    const mimeTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp', 'image/avif', 'image/tiff'];
+    const unsupportedFiles = files.filter((file) => !mimeTypes.includes(file.mimetype));
 
     if (unsupportedFiles.length > 0) {
       throw new BadRequestException('Unsupported file type');

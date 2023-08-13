@@ -1,17 +1,11 @@
 import { Controller, Get } from '@nestjs/common';
-import {
-  HealthCheckService,
-  HttpHealthIndicator,
-  TypeOrmHealthIndicator,
-  HealthCheck,
-  MemoryHealthIndicator,
-} from '@nestjs/terminus';
+import { HealthCheckService, HttpHealthIndicator, TypeOrmHealthIndicator, HealthCheck, MemoryHealthIndicator } from '@nestjs/terminus';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import moment from 'moment';
 import { ConfigService } from '@nestjs/config';
 
 import { Public } from '../core/decorator/public.decorator';
-import { EmailsServiceIndicator } from '../email/activate/activate.health';
+import { AuthEmailsServiceIndicator } from '../email/auth/auth-email.health';
 
 @ApiTags('health')
 @Controller('health')
@@ -22,11 +16,10 @@ export class HealthController {
     private readonly db: TypeOrmHealthIndicator,
     private readonly http: HttpHealthIndicator,
     private readonly memory: MemoryHealthIndicator,
-    private readonly emailsServiceIndicator: EmailsServiceIndicator,
+    private readonly emailsServiceIndicator: AuthEmailsServiceIndicator,
     private readonly configService: ConfigService,
   ) {
-    this.makeEmailCheckUrl =
-      this.configService.get('external-routes').makeEmailCheckUrl;
+    this.makeEmailCheckUrl = this.configService.get('external-routes').makeEmailCheckUrl;
   }
 
   @Get()
@@ -38,12 +31,7 @@ export class HealthController {
     const healthCheckResult = await this.health.check([
       async () => this.db.pingCheck('database', { timeout: 300 }),
       async () => this.http.pingCheck('s3', 'https://s3.amazonaws.com'),
-      async () =>
-        this.http.responseCheck(
-          'make_test_email_send',
-          this.makeEmailCheckUrl,
-          (res) => res.status === 200,
-        ),
+      async () => this.http.responseCheck('make_test_email_send', this.makeEmailCheckUrl, (res) => res.status === 200),
       async () => this.emailsServiceIndicator.isHealthy('emails_service'),
       async () => this.memory.checkHeap('memory_heap', 200 * 1024 * 1024),
       async () => this.memory.checkRSS('memory_rss', 3000 * 1024 * 1024),

@@ -10,9 +10,7 @@ export class EventsController {
   constructor(private eventService: EventsService) {}
 
   @Sse('basic-transformations/:operationType')
-  basicTransformationsEvents(
-    @UserOperationEventId() operationId: string,
-  ): Observable<MessageEvent> {
+  basicTransformationsEvents(@UserOperationEventId() operationId: string): Observable<MessageEvent> {
     const subject = this.eventService.getEventStream(operationId);
 
     return new Observable<MessageEvent>((observer) => {

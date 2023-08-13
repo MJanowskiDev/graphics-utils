@@ -16,14 +16,7 @@ import {
 } from './';
 
 export const configModuleOptions = {
-  load: [
-    authConfig,
-    awsConfig,
-    databaseConfig,
-    emailConfig,
-    s3BucketsConfig,
-    externalRoutesConfig,
-  ],
+  load: [authConfig, awsConfig, databaseConfig, emailConfig, s3BucketsConfig, externalRoutesConfig],
   isGlobal: true,
   _validate: () => {
     const configObjects = [

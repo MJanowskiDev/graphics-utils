@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 
-import { ActivateService } from './activate/activate.service';
-import { EmailsServiceIndicator } from './activate/activate.health';
+import { AuthEmailService } from './auth/auth-email.service';
+import { AuthEmailsServiceIndicator } from './auth/auth-email.health';
 
 @Module({
-  providers: [ActivateService, EmailsServiceIndicator],
-  exports: [ActivateService, EmailsServiceIndicator],
+  providers: [AuthEmailService, AuthEmailsServiceIndicator],
+  exports: [AuthEmailService, AuthEmailsServiceIndicator],
 })
 export class EmailModule {}

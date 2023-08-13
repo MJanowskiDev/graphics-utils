@@ -64,10 +64,7 @@ describe('PasswordService', () => {
       const incorrectPassword = 'wrongPassword';
       const hashedPassword = 'hashed-Password';
 
-      const result = await service.comparePasswords(
-        incorrectPassword,
-        hashedPassword,
-      );
+      const result = await service.comparePasswords(incorrectPassword, hashedPassword);
 
       expect(result).toBe(false);
     });

@@ -2,11 +2,7 @@ import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 
 import { FileUploadDto } from '../../image-processing/dto';
 
-export const SwaggerFileBody: MethodDecorator = (
-  target: any,
-  propertyKey: string,
-  descriptor: PropertyDescriptor,
-) => {
+export const SwaggerFileBody: MethodDecorator = (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
   ApiConsumes('multipart/form-data')(target, propertyKey, descriptor);
   ApiBody({
     description: 'Images to be processed',

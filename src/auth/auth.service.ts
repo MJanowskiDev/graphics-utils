@@ -6,14 +6,14 @@ import { UsersService } from '../users/users.service';
 import { AccessTokenDto, ActivateDto, InitializePasswordResetDto, SignInDto, SignUpDto, UserDto } from './dto';
 import { PasswordService } from './utils/password.service';
 import { TokenService } from './utils/token.service';
-import { ActivateService } from '../email/activate/activate.service';
+import { AuthEmailService } from '../email/auth/auth-email.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private passwordsService: PasswordService,
-    private activateService: ActivateService,
+    private activateService: AuthEmailService,
     private tokenService: TokenService,
   ) {}
 

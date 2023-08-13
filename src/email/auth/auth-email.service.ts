@@ -6,7 +6,7 @@ import path from 'path';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
-export class ActivateService {
+export class AuthEmailService {
   private transporter;
   private config;
 
@@ -27,9 +27,7 @@ export class ActivateService {
     try {
       const activationLink = `${this.config.activateUrl}${token}`;
 
-      const html = mjml2html(
-        this.getMjmlTemplate(this.config.templatePaths.activate),
-      ).html.replace(/\${activationLink}/g, activationLink);
+      const html = mjml2html(this.getMjmlTemplate(this.config.templatePaths.activate)).html.replace(/\${activationLink}/g, activationLink);
 
       return await this.transporter.sendMail({
         from: this.config.smtp.user,
@@ -45,20 +43,18 @@ export class ActivateService {
 
   async sendWelcomeEmail(email: string) {
     try {
-      const { html } = mjml2html(
-        this.getMjmlTemplate(this.config.templatePaths.welcome),
-      );
+      const { html } = mjml2html(this.getMjmlTemplate(this.config.templatePaths.welcome));
       return await this.transporter.sendMail({
         from: this.config.smtp.user,
         to: email,
         subject: 'GraphicsUtils - Account has been activated',
-        text: `Congratulations! Your account has been successfully activated. Welcome to GraphicsUtils! You can now log in and start using our services.`,
+        text:
+          `Congratulations! Your account has been successfully activated.` +
+          `Welcome to GraphicsUtils! You can now log in and start using our services.`,
         html,
       });
     } catch (error) {
-      throw new InternalServerErrorException(
-        'Error while sending email. Please try again later',
-      );
+      throw new InternalServerErrorException('Error while sending email. Please try again later');
     }
   }
 
@@ -66,9 +62,7 @@ export class ActivateService {
     try {
       return await this.transporter.verify();
     } catch (error) {
-      throw new InternalServerErrorException(
-        'Error while sending email. Please try again later',
-      );
+      throw new InternalServerErrorException('Error while sending email. Please try again later');
     }
   }
 
