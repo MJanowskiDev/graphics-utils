@@ -70,7 +70,7 @@ export class EmailConfigSchema {
     this.service = 'gmail';
     this.templatePaths = new TemplatePathsConfig();
     this.activateUrl = `${process.env.FRONTEND_URL}/auth/activate?token=`;
-    this.passwordResetUrl = `${process.env.FRONTEND_URL}/auth/init-password-reset?token=`;
+    this.passwordResetUrl = `${process.env.FRONTEND_URL}/password-reset?token=`;
   }
 }
 
