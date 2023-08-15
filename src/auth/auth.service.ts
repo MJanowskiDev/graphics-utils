@@ -140,8 +140,39 @@ export class AuthService {
     return { message: 'Password has been reset successfully. You can now log in using your new password.' };
   }
 
-  async changePassword(token: string, changePasswordDto: ChangePasswordDto): Promise<any> {
-    return { token, changePasswordDto };
+  async changePassword(
+    token: string,
+    { currentPassword, newPassword, confirmNewPassword }: ChangePasswordDto,
+  ): Promise<{ message: string }> {
+    if (newPassword !== confirmNewPassword) {
+      throw new BadRequestException('New password and confirm password do not match');
+    }
+
+    if (newPassword === currentPassword) {
+      throw new BadRequestException('New password and current password are the same');
+    }
+
+    let decodedToken;
+    try {
+      decodedToken = this.tokenService.decodeActivateToken(token);
+    } catch (e) {
+      throw new BadRequestException('Invalid token');
+    }
+
+    if (!decodedToken.id) {
+      throw new Error('Invalid token payload');
+    }
+
+    const user = await this.findUserAndHandleError(decodedToken.id);
+    const passwordMatches = await this.passwordsService.comparePasswords(currentPassword, user.hashedPassword);
+    if (!passwordMatches) {
+      throw new BadRequestException('Current password is not correct');
+    }
+
+    const hashedPassword = await this.passwordsService.hashPassword(newPassword);
+    await this.usersService.updateUserPassword(user.id, hashedPassword);
+
+    return { message: 'Password has been changed successfully' };
   }
 
   private async findUserAndHandleError(userId: string): Promise<User> {

@@ -1,6 +1,5 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 
-import { PasswordDto } from './password.dto';
 import { IsValidPassword } from '../decorators';
 
 export class ChangePasswordDto {
@@ -9,7 +8,7 @@ export class ChangePasswordDto {
   currentPassword: string;
 
   @IsValidPassword()
-  newPassword: PasswordDto;
+  newPassword: string;
 
   @IsValidPassword()
   confirmNewPassword: string;
