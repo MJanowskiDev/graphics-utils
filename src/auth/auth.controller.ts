@@ -4,7 +4,14 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { BearerTokenHeader } from '../core/decorator/bearer-token-header.decorator';
 import { AuthService } from './auth.service';
 import { Public } from '../core/decorator/public.decorator';
-import { ExecutePasswordResetDto, ExecutePasswordResetQueryDto, InitializePasswordResetDto, SignInDto, SignUpDto } from './dto';
+import {
+  ChangePasswordDto,
+  ExecutePasswordResetDto,
+  ExecutePasswordResetQueryDto,
+  InitializePasswordResetDto,
+  SignInDto,
+  SignUpDto,
+} from './dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -63,5 +70,11 @@ export class AuthController {
   @ApiOperation({ summary: 'Execute password reset operation' })
   executePasswortReset(@Query() queryDto: ExecutePasswordResetQueryDto, @Body() passwortResetDto: ExecutePasswordResetDto) {
     return this.authService.executePasswordReset(queryDto.token, passwortResetDto.password);
+  }
+
+  @Post('/password/change')
+  @ApiOperation({ summary: 'Password change operation' })
+  changePassword(@BearerTokenHeader() token: string, @Body() changePasswordDto: ChangePasswordDto) {
+    return this.authService.changePassword(token, changePasswordDto);
   }
 }

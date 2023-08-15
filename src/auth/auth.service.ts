@@ -3,7 +3,7 @@ import { omit } from 'lodash';
 
 import { User } from '../users/entity';
 import { UsersService } from '../users/users.service';
-import { AccessTokenDto, ActivateDto, InitializePasswordResetDto, SignInDto, SignUpDto, UserDto } from './dto';
+import { AccessTokenDto, ActivateDto, ChangePasswordDto, InitializePasswordResetDto, SignInDto, SignUpDto, UserDto } from './dto';
 import { PasswordService } from './utils/password.service';
 import { TokenService } from './utils/token.service';
 import { AuthEmailService } from '../email/auth/auth-email.service';
@@ -138,6 +138,10 @@ export class AuthService {
     await this.authEmailService.sendConfirmPasswordReset(user.email);
 
     return { message: 'Password has been reset successfully. You can now log in using your new password.' };
+  }
+
+  async changePassword(token: string, changePasswordDto: ChangePasswordDto): Promise<any> {
+    return { token, changePasswordDto };
   }
 
   private async findUserAndHandleError(userId: string): Promise<User> {

@@ -2,7 +2,7 @@ import { BadRequestException, createParamDecorator, ExecutionContext } from '@ne
 
 export const BearerTokenHeader = createParamDecorator((data: unknown, ctx: ExecutionContext): string => {
   const request = ctx.switchToHttp().getRequest();
-  const authHeader = request.headers['Authorization'];
+  const authHeader = request.headers['Authorization'.toLowerCase()];
   if (typeof authHeader === 'string' && authHeader.startsWith('Bearer ')) {
     return authHeader.replace('Bearer ', '');
   }

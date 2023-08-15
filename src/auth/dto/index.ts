@@ -10,3 +10,4 @@ export { InitializePasswordResetDto } from './initialize-password-reset.dto';
 export { ExecutePasswordResetQueryDto } from './execute-password-reset-query.dto';
 export { ExecutePasswordResetDto } from './execute-password-reset.dto';
 export { PasswordResetTokenPayloadDto } from './password-reset-token-payload.dto';
+export { ChangePasswordDto } from './change-password.dto';
