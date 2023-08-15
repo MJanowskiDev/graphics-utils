@@ -18,44 +18,18 @@ export class BasicTransformationsService {
     private eventsService: EventsService,
   ) {}
 
-  async formatConversion(
-    inputFiles: File[],
-    format: keyof FormatEnum,
-    operationId: string,
-  ): Promise<ProcessingResultDto> {
-    return await this.processFiles(
-      inputFiles,
-      (b: Buffer) => sharp(b).toFormat(format),
-      OperationType.formatConversion,
-      operationId,
-      { format },
-    );
+  async formatConversion(inputFiles: File[], format: keyof FormatEnum, operationId: string): Promise<ProcessingResultDto> {
+    return await this.processFiles(inputFiles, (b: Buffer) => sharp(b).toFormat(format), OperationType.formatConversion, operationId, {
+      format,
+    });
   }
 
-  async resize(
-    inputFiles: File[],
-    width: number,
-    operationId: string,
-  ): Promise<ProcessingResultDto> {
-    return await this.processFiles(
-      inputFiles,
-      (b: Buffer) => sharp(b).resize({ width }),
-      OperationType.resize,
-      operationId,
-      { width },
-    );
+  async resize(inputFiles: File[], width: number, operationId: string): Promise<ProcessingResultDto> {
+    return await this.processFiles(inputFiles, (b: Buffer) => sharp(b).resize({ width }), OperationType.resize, operationId, { width });
   }
 
-  async toGrayscale(
-    inputFiles: File[],
-    operationId: string,
-  ): Promise<ProcessingResultDto> {
-    return await this.processFiles(
-      inputFiles,
-      (b: Buffer) => sharp(b).grayscale(true),
-      OperationType.toGrayscale,
-      operationId,
-    );
+  async toGrayscale(inputFiles: File[], operationId: string): Promise<ProcessingResultDto> {
+    return await this.processFiles(inputFiles, (b: Buffer) => sharp(b).grayscale(true), OperationType.toGrayscale, operationId);
   }
 
   private async processFiles(
@@ -68,25 +42,15 @@ export class BasicTransformationsService {
     try {
       const msg = `Starting basic transformation - amount to be processed: ${
         inputFiles.length
-      }, operation: ${operationType}, userParams: ${JSON.stringify(
-        userParams,
-      )}`;
+      }, operation: ${operationType}, userParams: ${JSON.stringify(userParams)}`;
 
       this.eventsService.emitEvent(operationId, {
         data: `Starting operation: ${operationType}, images to be processed: ${inputFiles.length}`,
       });
 
       this.logger.verbose(msg);
-      const processingResult = await this.processingService.process(
-        inputFiles,
-        algorithm,
-        operationId,
-      );
-      await this.imageProcessingRepository.save(
-        operationType,
-        processingResult.bucketLocation,
-        userParams,
-      );
+      const processingResult = await this.processingService.process(inputFiles, algorithm, operationId);
+      await this.imageProcessingRepository.save(operationType, processingResult.bucketLocation, userParams);
       this.eventsService.emitEvent(operationId, {
         data: `Finished - amount processed: ${inputFiles.length}`,
       });

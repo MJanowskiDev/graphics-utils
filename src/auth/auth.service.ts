@@ -1,30 +1,19 @@
-import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { omit } from 'lodash';
 
 import { User } from '../users/entity';
 import { UsersService } from '../users/users.service';
-import {
-  AccessTokenDto,
-  ActivateDto,
-  SignInDto,
-  SignUpDto,
-  UserDto,
-} from './dto';
+import { AccessTokenDto, ActivateDto, InitializePasswordResetDto, SignInDto, SignUpDto, UserDto } from './dto';
 import { PasswordService } from './utils/password.service';
 import { TokenService } from './utils/token.service';
-import { ActivateService } from '../email/activate/activate.service';
+import { AuthEmailService } from '../email/auth/auth-email.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private passwordsService: PasswordService,
-    private activateService: ActivateService,
+    private authEmailService: AuthEmailService,
     private tokenService: TokenService,
   ) {}
 
@@ -38,8 +27,8 @@ export class AuthService {
       id: user.id,
     });
 
-    this.activateService.sendActivationEmail(user.email, activationToken);
-    return omit(user, 'hashedPassword');
+    this.authEmailService.sendActivationEmail(user.email, activationToken);
+    return omit(user, 'hashedPassword', 'passwordResetToken');
   }
 
   async activate(token: string): Promise<ActivateDto> {
@@ -50,9 +39,7 @@ export class AuthService {
       throw new BadRequestException('Invalid token');
     }
 
-    const { user, wasAlreadyActivated } = await this.usersService.activateById(
-      decoded.id,
-    );
+    const { user, wasAlreadyActivated } = await this.usersService.activateById(decoded.id);
 
     if (!user) {
       throw new BadRequestException('User not found');
@@ -62,7 +49,7 @@ export class AuthService {
       return { result: 'success', message: 'User is already activated' };
     }
 
-    this.activateService.sendWelcomeEmail(user.email);
+    this.authEmailService.sendWelcomeEmail(user.email);
     return { result: 'success', message: 'User activated successfully' };
   }
 
@@ -77,10 +64,7 @@ export class AuthService {
       throw new UnauthorizedException('Please activate your account first.');
     }
 
-    const passwordMatches = await this.passwordsService.comparePasswords(
-      password,
-      user.hashedPassword,
-    );
+    const passwordMatches = await this.passwordsService.comparePasswords(password, user.hashedPassword);
     if (!passwordMatches) {
       throw new UnauthorizedException();
     }
@@ -124,6 +108,36 @@ export class AuthService {
     const deletedEmail = `deleted_at_${Date.now()}__${user.email}`;
     await this.usersService.softDeleteAndUpdateEmail(user.id, deletedEmail);
     return { result: 'success', message: 'User deleted successfully' };
+  }
+
+  async initializePasswordReset(initializeDto: InitializePasswordResetDto): Promise<any> {
+    const user = await this.usersService.findOneBy(initializeDto.email);
+    if (!user) {
+      throw new NotFoundException('User with specified email address is not existing');
+    }
+
+    const passwordResetToken = this.tokenService.generateTokenId();
+    //override default config, TIME to expire?
+    const passwordResetTokenJwt = this.tokenService.signPayload({ passwordResetToken });
+    await this.usersService.updatePasswordResetToken(passwordResetToken, user.id);
+    await this.authEmailService.sendInitPasswordReset(user.email, passwordResetTokenJwt);
+
+    return { message: 'Password reset has been initialized successfully. Please check your email for further instructions.' };
+  }
+
+  async executePasswordReset(passwordResetToken: string, password: string): Promise<any> {
+    const decodedPayload = this.tokenService.decodePasswordResetToken(passwordResetToken);
+    const user = await this.usersService.findOneByPasswordResetToken(decodedPayload.passwordResetToken);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const hashedPassword = await this.passwordsService.hashPassword(password);
+    await this.usersService.updateUserPassword(user.id, hashedPassword);
+    await this.usersService.updatePasswordResetToken(null, user.id);
+    await this.authEmailService.sendConfirmPasswordReset(user.email);
+
+    return { message: 'Password has been reset successfully. You can now log in using your new password.' };
   }
 
   private async findUserAndHandleError(userId: string): Promise<User> {

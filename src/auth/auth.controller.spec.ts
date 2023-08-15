@@ -10,13 +10,7 @@ import {
 
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import {
-  AccessTokenDto,
-  ActivateDto,
-  SignInDto,
-  SignUpDto,
-  UserDto,
-} from './dto';
+import { AccessTokenDto, ActivateDto, SignInDto, SignUpDto, UserDto } from './dto';
 
 describe('AuthController', () => {
   let authController: AuthController;
@@ -80,9 +74,7 @@ describe('AuthController', () => {
     describe('handle errors', () => {
       it('should throw CONFLICT error when user already exists', async () => {
         const signUpDto = { email: 'dummy@example.com', password: 'password' };
-        mockAuthService.signUp.mockRejectedValue(
-          new ConflictException('This email already exists.'),
-        );
+        mockAuthService.signUp.mockRejectedValue(new ConflictException('This email already exists.'));
 
         try {
           await authController.register(signUpDto);
@@ -130,9 +122,7 @@ describe('AuthController', () => {
 
         expect(error).toBeDefined();
         expect(error.getResponse().statusCode).toBe(HttpStatus.BAD_REQUEST);
-        expect(error.getResponse().message).toEqual([
-          'Please provide a valid email address',
-        ]);
+        expect(error.getResponse().message).toEqual(['Please provide a valid email address']);
       });
     });
   });
@@ -169,9 +159,7 @@ describe('AuthController', () => {
         const signInDto = { email: '', password: '' };
         mockAuthService.signIn.mockRejectedValue(new UnauthorizedException());
 
-        await expect(authController.signIn(signInDto)).rejects.toThrow(
-          UnauthorizedException,
-        );
+        await expect(authController.signIn(signInDto)).rejects.toThrow(UnauthorizedException);
       });
 
       it('should throw BAD_REQUEST error if the invalid email provided', async () => {
@@ -190,9 +178,7 @@ describe('AuthController', () => {
 
         expect(error).toBeDefined();
         expect(error.getResponse().statusCode).toBe(HttpStatus.BAD_REQUEST);
-        expect(error.getResponse().message).toEqual([
-          'Please provide a valid email address',
-        ]);
+        expect(error.getResponse().message).toEqual(['Please provide a valid email address']);
       });
 
       it('should throw Unauthorized error when wrong password is passed', async () => {
@@ -204,9 +190,7 @@ describe('AuthController', () => {
         const error = new UnauthorizedException();
         mockAuthService.signIn.mockRejectedValue(error);
 
-        await expect(authController.signIn(signInDto)).rejects.toThrowError(
-          error,
-        );
+        await expect(authController.signIn(signInDto)).rejects.toThrowError(error);
         expect(mockAuthService.signIn).toHaveBeenCalledWith(signInDto);
       });
 
@@ -214,9 +198,7 @@ describe('AuthController', () => {
         const signInDto = { email: 'wrong@example.com', password: 'password' };
         mockAuthService.signIn.mockRejectedValue(new UnauthorizedException());
 
-        await expect(authController.signIn(signInDto)).rejects.toThrow(
-          UnauthorizedException,
-        );
+        await expect(authController.signIn(signInDto)).rejects.toThrow(UnauthorizedException);
       });
     });
   });
@@ -256,9 +238,7 @@ describe('AuthController', () => {
 
     describe('handle errors', () => {
       it('should throw BAD_REQUEST error when invalid token passed', async () => {
-        mockAuthService.activate.mockRejectedValue(
-          new BadRequestException('Invalid token'),
-        );
+        mockAuthService.activate.mockRejectedValue(new BadRequestException('Invalid token'));
 
         try {
           await authController.activate('');
@@ -270,9 +250,7 @@ describe('AuthController', () => {
       });
 
       it('should throw BAD_REQUEST error when user to activate not found', async () => {
-        mockAuthService.activate.mockRejectedValue(
-          new BadRequestException('User not found'),
-        );
+        mockAuthService.activate.mockRejectedValue(new BadRequestException('User not found'));
 
         try {
           await authController.activate('');
@@ -313,9 +291,7 @@ describe('AuthController', () => {
     });
 
     it('should refresh a token and return a new token', async () => {
-      jest
-        .spyOn(authService, 'refresh')
-        .mockResolvedValue({ access_token: 'new-token' });
+      jest.spyOn(authService, 'refresh').mockResolvedValue({ access_token: 'new-token' });
 
       const result = await authController.refresh('token');
 

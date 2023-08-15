@@ -6,7 +6,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { UsersModule } from '../users/users.module';
 import { UtilsService } from './utils/utils.service';
-import { ActivateService } from '../email/activate/activate.service';
+import { AuthEmailService } from '../email/auth/auth-email.service';
 import { PasswordService } from './utils/password.service';
 import { TokenService } from './utils/token.service';
 
@@ -25,12 +25,6 @@ import { TokenService } from './utils/token.service';
   ],
   exports: [JwtModule],
   controllers: [AuthController],
-  providers: [
-    AuthService,
-    UtilsService,
-    ActivateService,
-    PasswordService,
-    TokenService,
-  ],
+  providers: [AuthService, UtilsService, AuthEmailService, PasswordService, TokenService],
 })
 export class AuthModule {}

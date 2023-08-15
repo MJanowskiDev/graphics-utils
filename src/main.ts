@@ -20,15 +20,9 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('GraphicsUtils API')
-    .setDescription(
-      'API for a graphics utils application that provides image processing functionality.',
-    )
+    .setDescription('API for a graphics utils application that provides image processing functionality.')
     .setVersion('1.0')
-    .setContact(
-      'Mateusz Janowski MJanowskiDev',
-      'https://mjanowski.dev',
-      'contact@mjanowski.dev',
-    )
+    .setContact('Mateusz Janowski MJanowskiDev', 'https://mjanowski.dev', 'contact@mjanowski.dev')
     .addBearerAuth()
     .build();
 

@@ -11,15 +11,10 @@ export class AdvancedTransformationsService {
   private config;
 
   constructor(private emailConfigService: ConfigService) {
-    this.config =
-      this.emailConfigService.get<ExternalRoutesConfigSchema>(
-        'external-routes',
-      );
+    this.config = this.emailConfigService.get<ExternalRoutesConfigSchema>('external-routes');
   }
 
-  async removeBackground(
-    files: Express.Multer.File[],
-  ): Promise<ProcessingResultDto> {
+  async removeBackground(files: Express.Multer.File[]): Promise<ProcessingResultDto> {
     const url = this.config?.bgRemovalUrl;
     if (!url) {
       throw new Error('BG_REMOVAL_URL is not defined');

@@ -6,3 +6,7 @@ export { AccessTokenDto } from './access-token.dto';
 export { ActivateDto } from './activate.dto';
 export { ActivateTokenPayloadDto } from './activate-token-payload.dto';
 export { UserTokenPayloadDto } from './user-token-payload.dto';
+export { InitializePasswordResetDto } from './initialize-password-reset.dto';
+export { ExecutePasswordResetQueryDto } from './execute-password-reset-query.dto';
+export { ExecutePasswordResetDto } from './execute-password-reset.dto';
+export { PasswordResetTokenPayloadDto } from './password-reset-token-payload.dto';

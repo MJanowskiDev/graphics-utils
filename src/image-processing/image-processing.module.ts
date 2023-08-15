@@ -5,11 +5,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 
 import { ImagesBucketService } from './images-bucket/images-bucket.service';
 import { Asset, OperationData, ImageProcessing } from './entity';
-import {
-  AssetRepository,
-  OperationDataRepository,
-  ImageProcessingRepository,
-} from './repository';
+import { AssetRepository, OperationDataRepository, ImageProcessingRepository } from './repository';
 import { ImageProcessingController } from './image-processing.controller';
 import { ProcessingService } from './processing/processing.service';
 import { BasicTransformationsService } from './basic-transformations/basic-transformations.service';
@@ -44,8 +40,6 @@ import { UserMiddleware } from '../core/middleware/user-jwt.middleware';
 })
 export class ImageProcessingModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(UserMiddleware)
-      .forRoutes(EventsController, ImageProcessingController);
+    consumer.apply(UserMiddleware).forRoutes(EventsController, ImageProcessingController);
   }
 }

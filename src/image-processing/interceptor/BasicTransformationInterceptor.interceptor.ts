@@ -1,11 +1,4 @@
-import {
-  Injectable,
-  NestInterceptor,
-  ExecutionContext,
-  CallHandler,
-  HttpStatus,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, NestInterceptor, ExecutionContext, CallHandler, HttpStatus, BadRequestException } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
@@ -13,10 +6,7 @@ import { ProcessingResultDto } from '../dto';
 
 @Injectable()
 export class BasicTransformationInterceptor implements NestInterceptor {
-  intercept(
-    context: ExecutionContext,
-    next: CallHandler,
-  ): Observable<ProcessingResultDto | void> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<ProcessingResultDto | void> {
     return next.handle().pipe(
       map((data) => {
         const ctx = context.switchToHttp();

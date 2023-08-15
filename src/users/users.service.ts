@@ -12,9 +12,7 @@ export class UsersService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async activateById(
-    id: string,
-  ): Promise<{ user: User; wasAlreadyActivated: boolean }> {
+  async activateById(id: string): Promise<{ user: User; wasAlreadyActivated: boolean }> {
     const user = await this.userRepository.findOneBy({ id });
     if (!user) {
       throw new Error('User not found');
@@ -31,8 +29,16 @@ export class UsersService {
     return this.userRepository.findOneBy({ email });
   }
 
-  async findOneById(id: string): Promise<User | null> {
+  findOneById(id: string): Promise<User | null> {
     return this.userRepository.findOneBy({ id });
+  }
+
+  findOneByPasswordResetToken(token: string): Promise<User | null> {
+    return this.userRepository.findOneBy({ passwordResetToken: token });
+  }
+
+  updateUserPassword(userId: string, hashedPassword: string) {
+    return this.userRepository.update(userId, { hashedPassword });
   }
 
   updateTokenId(userId: string, tokenId: string | null): Promise<UpdateResult> {
@@ -41,6 +47,10 @@ export class UsersService {
 
   async softDeleteAndUpdateEmail(userId: string, email: string) {
     return this.userRepository.update(userId, { email, deleted: true });
+  }
+
+  async updatePasswordResetToken(token: string | null, userId: string) {
+    return this.userRepository.update(userId, { passwordResetToken: token });
   }
 
   async create(email: string, hashedPassword: string): Promise<User | null> {

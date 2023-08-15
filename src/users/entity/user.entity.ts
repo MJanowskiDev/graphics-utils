@@ -1,11 +1,4 @@
-import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
-  Index,
-} from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, Index } from 'typeorm';
 
 import { Role } from '../../core/enums/role.enum';
 
@@ -29,6 +22,9 @@ export class User {
 
   @Column('uuid', { nullable: true })
   tokenId: string | null;
+
+  @Column('text', { nullable: true })
+  passwordResetToken: string | null;
 
   @Column({ default: false })
   deleted: boolean;

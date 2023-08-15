@@ -43,8 +43,7 @@ describe('TokenService', () => {
 
   describe('generateTokenId', () => {
     it('should return a token in uuid format', async () => {
-      const uuidRegex =
-        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 
       const token = await service.generateTokenId();
 

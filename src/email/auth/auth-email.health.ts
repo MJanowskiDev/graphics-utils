@@ -1,15 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import {
-  HealthIndicatorResult,
-  HealthIndicator,
-  HealthCheckError,
-} from '@nestjs/terminus';
+import { HealthIndicatorResult, HealthIndicator, HealthCheckError } from '@nestjs/terminus';
 
-import { ActivateService } from './activate.service';
+import { AuthEmailService } from './auth-email.service';
 
 @Injectable()
-export class EmailsServiceIndicator extends HealthIndicator {
-  constructor(private readonly activateService: ActivateService) {
+export class AuthEmailsServiceIndicator extends HealthIndicator {
+  constructor(private readonly activateService: AuthEmailService) {
     super();
   }
 

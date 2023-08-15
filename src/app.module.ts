@@ -27,9 +27,7 @@ import { EmailModule } from './email/email.module';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: async (
-        configService: ConfigService,
-      ): Promise<DataSourceOptions> => {
+      useFactory: async (configService: ConfigService): Promise<DataSourceOptions> => {
         return configService.get('database') as DataSourceOptions;
       },
     }),

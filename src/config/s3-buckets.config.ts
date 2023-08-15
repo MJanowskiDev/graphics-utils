@@ -21,7 +21,4 @@ export class S3BucketsConfigSchema {
   }
 }
 
-export const s3BucketsConfig = registerAs(
-  's3-buckets',
-  () => new S3BucketsConfigSchema(),
-);
+export const s3BucketsConfig = registerAs('s3-buckets', () => new S3BucketsConfigSchema());

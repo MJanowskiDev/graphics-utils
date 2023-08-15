@@ -16,7 +16,4 @@ export class ExternalRoutesConfigSchema {
   }
 }
 
-export const externalRoutesConfig = registerAs(
-  'external-routes',
-  () => new ExternalRoutesConfigSchema(),
-);
+export const externalRoutesConfig = registerAs('external-routes', () => new ExternalRoutesConfigSchema());
