@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useLoginUser } from '../../hooks/useLoginUser';
 import { LoginForm } from './LoginFrom';
@@ -12,6 +13,7 @@ export const LoginView = () => {
     <>
       <FeedbackToUser isLoading={isLoading} isError={isError} isSuccess={isSuccess} error={error} />
       <LoginForm submitAction={mutate} />
+      <Link href="/init-password-reset">Forgot password?</Link>
     </>
   );
 };

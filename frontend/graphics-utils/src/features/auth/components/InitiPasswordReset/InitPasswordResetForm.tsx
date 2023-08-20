@@ -1,45 +1,46 @@
 'use client';
 
+import { useForm } from 'react-hook-form';
+import { InitPasswordResetData, initPasswordResetSchema } from '../../schema';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { Input, SubmitButton } from '@/features/ui/forms/components';
+import { InitPasswordResetPayload } from '../../types';
+
 interface PasswordResetFormProps {
-  email: string;
-  setEmail: (password: string) => void;
-  onSubmit: () => void;
+  submitAction: ({ email }: InitPasswordResetPayload) => void;
 }
 
-export const InitPasswordResetForm = ({ email, setEmail, onSubmit }: PasswordResetFormProps) => {
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    onSubmit();
-  };
+export const InitPasswordResetForm = ({ submitAction }: PasswordResetFormProps) => {
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isValid },
+  } = useForm<InitPasswordResetData>({
+    resolver: yupResolver(initPasswordResetSchema),
+  });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-  };
+  const onSubmit = handleSubmit(async (data) => {
+    if (isValid) {
+      await submitAction({ ...data });
+      reset();
+    }
+  });
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <label>
-        <span className="text-gray-400">Email</span>
-        <input
-          type="email"
-          autoComplete="new-password"
-          value={email}
-          onChange={handleChange}
-          className="
-                mt-1
-                block
-                w-full
-                rounded-md
-                bg-transparent
-                border-gray-300
-                shadow-sm
-                focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50
-                "
-        />
-      </label>
-      <button className="bg-purple-700 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-md" type="submit">
-        Submit
-      </button>
+    <form onSubmit={onSubmit} className="grid grid-cols-6 gap-4">
+      <Input<InitPasswordResetData>
+        wrappingElementStyle="col-span-6"
+        register={register}
+        id={'email'}
+        label="E-Mail"
+        registerOptions={{ required: true }}
+        type="email"
+        errors={errors}
+      />
+      <div className="col-span-6">
+        <SubmitButton>Submit</SubmitButton>
+      </div>
     </form>
   );
 };

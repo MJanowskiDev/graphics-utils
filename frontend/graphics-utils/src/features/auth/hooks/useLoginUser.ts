@@ -17,7 +17,7 @@ export const useLoginUser = () => {
   };
 
   const { mutate, isLoading, isError, isSuccess, error } = useMutation<
-    any,
+    ApiResponse,
     AxiosError<AuthError>,
     RegisterUserMutationParams
   >(mutationFn);
