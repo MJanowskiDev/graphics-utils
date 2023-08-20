@@ -11,9 +11,12 @@ export const LoginView = () => {
   const { mutate, isError, isLoading, isSuccess, error } = useLoginUser();
   return (
     <>
-      <FeedbackToUser isLoading={isLoading} isError={isError} isSuccess={isSuccess} error={error} />
-      <LoginForm submitAction={mutate} />
-      <Link href="/init-password-reset">Forgot password?</Link>
+      <FeedbackToUser isLoading={isLoading} isError={isError} isSuccess={isSuccess} error={error}>
+        <div className='flex flex-col gap-4'>
+          <LoginForm submitAction={mutate} />
+          <Link className='text-xs' href="/init-password-reset">Forgot password?</Link>
+        </div>
+      </FeedbackToUser>
     </>
   );
 };

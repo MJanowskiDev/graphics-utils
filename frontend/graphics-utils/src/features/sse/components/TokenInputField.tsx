@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 
 interface TokenInputFieldProps {
   setToken: (token: string) => void;

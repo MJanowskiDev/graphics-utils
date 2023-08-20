@@ -1,8 +1,9 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import EventSourcePolyfill from 'eventsource';
-import { TokenInputField, OperationTypeSelect } from './components';
+import { OperationTypeSelect } from './components';
 import { OperationType } from './types';
+import { useAuth } from '../auth/contexts/auth.context';
 
 function formatTime(timestamp: number) {
   const date = new Date(timestamp);
@@ -13,18 +14,15 @@ function formatTime(timestamp: number) {
 }
 
 export default function SSE() {
-  const [events, setEvents] = useState<{ value: string; timestamp: number }[]>(
-    [],
-  );
-  const [token, setToken] = useState<string>('');
+  const [events, setEvents] = useState<{ value: string; timestamp: number }[]>([]);
+  const { token } = useAuth();
   const [isConnected, setIsConnected] = useState(false);
   const [recreateConnection, setRecreateConnection] = useState(false);
-  const [selectedOperation, setSelectedOperation] = useState<OperationType>(
-    OperationType.resize,
-  );
+  const [selectedOperation, setSelectedOperation] = useState<OperationType>(OperationType.resize);
 
   useEffect(() => {
     if (!token) return;
+    console.log(token);
     const baseURL = process.env.NEXT_PUBLIC_BACKEND_URL;
     console.log(baseURL);
     const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/events/basic-transformations/${selectedOperation}`;
@@ -32,9 +30,9 @@ export default function SSE() {
     const eventSource = new EventSourcePolyfill(url, { headers });
 
     eventSource.onopen = () => {
-      console.log('connected')
+      console.log('connected');
       setIsConnected(true);
-    }
+    };
 
     eventSource.onmessage = (event: MessageEvent) => {
       const { data, timestamp } = JSON.parse(event.data);
@@ -57,7 +55,6 @@ export default function SSE() {
   return (
     <div className="mt-12 mx-12 w-full">
       <div className="flex flex-row justify-center items-center mb-20">
-        <TokenInputField setToken={setToken} />
         <OperationTypeSelect
           setSelectedOperation={(operation) => {
             setSelectedOperation(operation);
@@ -70,11 +67,9 @@ export default function SSE() {
       <div className="flex flex-row  w-full justify-between">
         <h1 className="text-2xl font-bold mb-2">Server-sent events</h1>
         <div className="flex flex-row items-center gap-2">
-          <p className="text-gray-500 mr-2">
-            {isConnected ? 'connected' : 'not connected'}
-          </p>
+          <p className="text-gray-500 mr-2">{isConnected ? 'connected' : 'not connected'}</p>
           <button
-            onClick={() => setRecreateConnection(prev => !prev)}
+            onClick={() => setRecreateConnection((prev) => !prev)}
             className="bg-purple-700 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded"
           >
             Re-connect
@@ -87,14 +82,9 @@ export default function SSE() {
           .sort((a, b) => b.timestamp - a.timestamp)
           .map((event, index) => {
             return (
-              <li
-                key={`sse-li-${index}`}
-                className={`py-2 text-sm text-purple-400`}
-              >
+              <li key={`sse-li-${index}`} className={`py-2 text-sm text-purple-400`}>
                 <div className="text-lg font-mono bg-transparent p-2 rounded border border-gray-400 ">
-                  <span className="text-purple-600 mr-2">
-                    [{formatTime(event.timestamp)}]
-                  </span>
+                  <span className="text-purple-600 mr-2">[{formatTime(event.timestamp)}]</span>
                   <span className="text-gray-100">{event.value}</span>
                 </div>
               </li>

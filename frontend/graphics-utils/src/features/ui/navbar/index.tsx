@@ -18,6 +18,7 @@ export const Navbar = () => {
         <div className="flex gap-6">
           <Link href="/logout">Log out</Link>
           <Link href="/sse">SSE</Link>
+          <Link href="/grayscale">To grayscale</Link>
         </div>
       ) : (
         <div className="flex gap-6">

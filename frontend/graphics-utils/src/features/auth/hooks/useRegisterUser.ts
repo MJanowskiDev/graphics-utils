@@ -1,13 +1,20 @@
 import { useMutation } from '@tanstack/react-query';
-import axios from 'axios';
-import { RegisterUserMutationParams } from '../types';
+import axios, { AxiosError } from 'axios';
+import { AuthError, RegisterUserMutationParams } from '../types';
+
+interface ApiResponse {
+  activated: string;
+}
 
 export const useRegisterUser = () => {
-  const mutationFn = ({ email, password }: RegisterUserMutationParams) => {
+  const mutationFn = async ({ email, password }: RegisterUserMutationParams) => {
     const url = 'auth/sign-up';
-    return axios.post(url, { email, password });
+    const response = await axios.post<ApiResponse>(url, { email, password });
+    return response.data;
   };
 
-  const { mutate, isLoading, isError, isSuccess, error } = useMutation(mutationFn);
+  const { mutate, isLoading, isError, isSuccess, error } = useMutation<ApiResponse, AxiosError<AuthError>, RegisterUserMutationParams>(
+    mutationFn,
+  );
   return { mutate, isLoading, isError, isSuccess, error };
 };
