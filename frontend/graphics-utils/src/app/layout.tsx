@@ -15,13 +15,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body className={inter.className}>
-        <div className="flex flex-col min-h-screen bg-gradient-to-b from-10% from-black via-slate-900 to-purple-950 font-sans">
-          <Navbar />
-          <main className="flex-grow flex mx-4">
-            <Provider>{children}</Provider>
-          </main>
-          <Footer />
-        </div>
+        <Provider>
+          <div className="flex flex-col min-h-screen bg-gradient-to-b from-10% from-black via-slate-900 to-purple-950 font-sans">
+            <Navbar />
+            <main className="flex-grow flex mx-4">{children}</main>
+            <Footer />
+          </div>
+        </Provider>
       </body>
     </html>
   );

@@ -9,7 +9,6 @@ export const TokenInputField = ({ setToken }: TokenInputFieldProps) => {
 
   const handleOnSetTokenClick = () => {
     setToken(tokenInputRef.current?.value || '');
-    console.log(tokenInputRef.current?.value);
   };
 
   return (

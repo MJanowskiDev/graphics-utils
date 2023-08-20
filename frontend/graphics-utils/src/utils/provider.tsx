@@ -4,6 +4,7 @@ import { PropsWithChildren, useState } from 'react';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import axios from 'axios';
+import { AuthProvider } from '@/features/auth/contexts';
 
 function Providers({ children }: PropsWithChildren) {
   axios.defaults.baseURL = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -26,7 +27,7 @@ function Providers({ children }: PropsWithChildren) {
 
   return (
     <QueryClientProvider client={client}>
-      {children}
+      <AuthProvider>{children}</AuthProvider>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );

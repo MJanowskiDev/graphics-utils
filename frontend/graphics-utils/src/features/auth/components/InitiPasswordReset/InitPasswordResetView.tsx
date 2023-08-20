@@ -1,8 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { useInitPasswordReset, usePasswordReset } from '../../hooks';
+import { useInitPasswordReset } from '../../hooks';
 import { AxiosError } from 'axios';
 import { AuthError } from '../../types';
 import { InitPasswordResetForm } from './InitPasswordResetForm';

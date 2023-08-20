@@ -1,7 +1,5 @@
 'use client';
 
-import React from 'react';
-
 interface PasswordResetFormProps {
   password: string;
   setPassword: (password: string) => void;
