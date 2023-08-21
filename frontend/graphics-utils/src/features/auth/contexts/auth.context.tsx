@@ -1,5 +1,7 @@
 'use client';
+
 import { createContext, useContext, ReactNode, useState } from 'react';
+import { useLocalStorage } from 'usehooks-ts';
 
 interface AuthContextProps {
   token: string | null;
@@ -23,7 +25,7 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [token, setTokenState] = useState<string | null>(null);
+  const [token, setTokenState] = useLocalStorage<string | null>('token', null);
 
   const setToken = (newToken: string | null) => {
     setTokenState(newToken);

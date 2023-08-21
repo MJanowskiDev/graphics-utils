@@ -1,6 +1,6 @@
 interface AlertProps {
   title: string;
-  message: string;
+  message?: string;
   type: 'error' | 'success';
 }
 export const Alert = ({ title, message, type }: AlertProps) => {

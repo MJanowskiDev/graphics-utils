@@ -12,7 +12,7 @@ export const LoginView = () => {
   return (
     <>
       <FeedbackToUser isLoading={isLoading} isError={isError} isSuccess={isSuccess} error={error}>
-        <div className='flex flex-col gap-4'>
+        <div className='flex flex-col gap-4 w-[300px]'>
           <LoginForm submitAction={mutate} />
           <Link className='text-xs' href="/init-password-reset">Forgot password?</Link>
         </div>

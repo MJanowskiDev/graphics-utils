@@ -6,10 +6,9 @@ import { useAuth } from '@/features/auth/contexts/auth.context';
 
 function GraysaclePage() {
   return (
-    <section>
+    <section className="flex flex-col gap-6 w-full items-center justify-center">
       <div className="flex flex-col gap-6">
-        <h1 className="text-2xl">To grayscale</h1>
-        <h1>Upload Files</h1>
+        <h1 className="text-2xl">Convert image to grayscale</h1>
         <FileUpload />
       </div>
     </section>
@@ -45,7 +44,7 @@ const FileUpload: React.FC = () => {
 
       const blob = new Blob([response.data], { type: response.headers['content-type'] });
 
-      let filename = 'output_grayscale.png'; 
+      let filename = 'output_grayscale.png';
 
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -61,9 +60,15 @@ const FileUpload: React.FC = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input type="file" multiple onChange={handleFileChange} />
-      <button type="submit">Upload</button>
-    </form>
+    <section className="flex flex-col gap-6 w-full items-center justify-center">
+      <div>
+        <form onSubmit={handleSubmit} className='flex-col flex gap-4'>
+          <input type="file" multiple onChange={handleFileChange} />
+          <button className=" rounded-lg bg-purple-600 text-white text-md p-2.5" type="submit">
+            Upload
+          </button>
+        </form>
+      </div>
+    </section>
   );
 };

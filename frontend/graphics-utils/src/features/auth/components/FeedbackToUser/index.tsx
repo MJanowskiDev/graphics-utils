@@ -29,7 +29,7 @@ export const FeedbackToUser = ({ isLoading, isError, isSuccess, error, children 
   }
 
   if (isSuccess) {
-    return <Alert title="Success" message={'You are now logged in'} type="success" />;
+    return <Alert title="Success" type="success" />;
   }
 
   return <>{children}</>;
