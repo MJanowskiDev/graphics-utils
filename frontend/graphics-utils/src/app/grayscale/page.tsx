@@ -1,5 +1,6 @@
 'use client';
-import React, { useState } from 'react';
+
+import { useState } from 'react';
 import axios from 'axios';
 import { withAuth } from '@/features/auth/hoc';
 import { useAuth } from '@/features/auth/contexts/auth.context';
@@ -62,7 +63,7 @@ const FileUpload: React.FC = () => {
   return (
     <section className="flex flex-col gap-6 w-full items-center justify-center">
       <div>
-        <form onSubmit={handleSubmit} className='flex-col flex gap-4'>
+        <form onSubmit={handleSubmit} className="flex-col flex gap-4">
           <input type="file" multiple onChange={handleFileChange} />
           <button className=" rounded-lg bg-purple-600 text-white text-md p-2.5" type="submit">
             Upload

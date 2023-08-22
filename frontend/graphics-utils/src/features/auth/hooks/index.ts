@@ -3,3 +3,4 @@ export * from './useInitPasswordReset';
 export * from './useRegisterUser';
 export * from './useLoginUser';
 export * from './useLogoutUser';
+export * from './usePasswordChange';
