@@ -2,7 +2,7 @@
 
 import { FeedbackToUser } from '../FeedbackToUser';
 import { useEffect } from 'react';
-import { useLogoutUser } from '../../hooks/useLogoutUser';
+import { useLogoutUser } from '../../hooks/use-logout-user';
 import { useAuth } from '../../contexts/auth.context';
 
 export const LogoutView = () => {

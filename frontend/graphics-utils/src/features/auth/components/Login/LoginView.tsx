@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { useLoginUser } from '../../hooks/useLoginUser';
+import { useLoginUser } from '../../hooks/use-login-user';
 import { LoginForm } from './LoginFrom';
 import { FeedbackToUser } from '../FeedbackToUser';
 
