@@ -23,19 +23,20 @@ export class AuthController {
   @Public()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Login endpoint. Returns JWT token.' })
-  async signIn(@Body() signInDto: SignInDto, @Res() response: Response) {
+  async signIn(@Body() signInDto: SignInDto, @Res() response?: Response) {
     const token = await this.authService.signIn(signInDto);
     const prod = process.env.NODE_ENV === 'production';
 
     if (prod) {
-      response.cookie('auth_token', token.access_token, {
+      response?.cookie('auth_token', token.access_token, {
         httpOnly: true,
         secure: true,
         sameSite: 'strict',
       });
-      response.send({ success: true });
+      response?.send({ success: true });
     } else {
-      response.send(token);
+      response?.send(token);
+      return token;
     }
   }
 
