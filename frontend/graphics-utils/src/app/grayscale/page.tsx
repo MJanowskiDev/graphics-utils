@@ -1,9 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import axios from 'axios';
 import { withAuth } from '@/features/auth/hoc';
-import { useAuth } from '@/features/auth/contexts/auth.context';
+import { httpProvider } from '@/utils/provider';
 
 function GraysaclePage() {
   return (
@@ -20,7 +19,6 @@ export default withAuth(GraysaclePage);
 
 const FileUpload: React.FC = () => {
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
-  const { token } = useAuth();
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedFiles(e.target.files);
   };
@@ -35,10 +33,10 @@ const FileUpload: React.FC = () => {
     }
 
     try {
-      const response = await axios.post('/image/grayscale', formData, {
+      const response = await httpProvider.post('/image/grayscale', formData, {
+        withCredentials: true,
         headers: {
           'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${token}`,
         },
         responseType: 'blob',
       });

@@ -1,7 +1,8 @@
 import { useMutation } from '@tanstack/react-query';
-import axios, { AxiosError } from 'axios';
+import { AxiosError } from 'axios';
 import { AuthError } from '../types';
 import { PasswordChangePayload } from '../types/password-change';
+import { httpProvider } from '@/utils/provider';
 
 interface ApiResponse {
   message: string;
@@ -10,13 +11,11 @@ interface ApiResponse {
 export const usePasswordChange = (token: string | null) => {
   const mutationFn = async ({ currentPassword, newPassword, confirmNewPassword }: PasswordChangePayload) => {
     const url = 'auth/password/change';
-    const response = await axios.post<ApiResponse>(
+    const response = await httpProvider.post<ApiResponse>(
       url,
       { currentPassword, newPassword, confirmNewPassword },
       {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        withCredentials: true,
       },
     );
     return response.data;

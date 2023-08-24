@@ -26,7 +26,8 @@ export class AuthGuard implements CanActivate {
     const requiredRole = this.reflector.getAllAndOverride<Role>(rolesKey, [context.getHandler(), context.getClass()]);
 
     const request = context.switchToHttp().getRequest();
-    const token = this.extractTokenFromHeader(request);
+
+    const token = process.env.NODE_ENV === 'production' ? this.extractTokenFromCookie(request) : this.extractTokenFromHeader(request);
     if (!token) {
       throw new UnauthorizedException();
     }
@@ -45,6 +46,10 @@ export class AuthGuard implements CanActivate {
     } catch {
       throw new UnauthorizedException();
     }
+  }
+
+  private extractTokenFromCookie(request: Request): string | undefined {
+    return request.cookies['auth_token'];
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {

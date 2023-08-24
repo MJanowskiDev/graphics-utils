@@ -2,9 +2,21 @@ import { BadRequestException, createParamDecorator, ExecutionContext } from '@ne
 
 export const BearerTokenHeader = createParamDecorator((data: unknown, ctx: ExecutionContext): string => {
   const request = ctx.switchToHttp().getRequest();
-  const authHeader = request.headers['Authorization'.toLowerCase()];
-  if (typeof authHeader === 'string' && authHeader.startsWith('Bearer ')) {
-    return authHeader.replace('Bearer ', '');
+  const prod = process.env.NODE_ENV === 'production';
+
+  if (prod) {
+    const authToken = request.cookies['auth_token'];
+    if (authToken) {
+      return authToken;
+    }
+  } else {
+    const authHeader = request.headers['authorization'];
+    if (typeof authHeader === 'string' && authHeader.startsWith('Bearer ')) {
+      return authHeader.replace('Bearer ', '');
+    }
   }
-  throw new BadRequestException('Invalid Authorization header format. Format is Authorization: Bearer [token]');
+
+  throw new BadRequestException(
+    prod ? 'Token not found in cookies.' : 'Invalid Authorization header format. Format is Authorization: Bearer [token]',
+  );
 });

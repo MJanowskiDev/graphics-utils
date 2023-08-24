@@ -1,4 +1,4 @@
-import { Body, Controller, Post, HttpCode, HttpStatus, Get, Query, Delete } from '@nestjs/common';
+import { Body, Controller, Post, HttpCode, HttpStatus, Get, Query, Delete, Res } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { BearerTokenHeader } from '../core/decorator/bearer-token-header.decorator';
@@ -12,6 +12,7 @@ import {
   SignInDto,
   SignUpDto,
 } from './dto';
+import { Response } from 'express';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -22,8 +23,20 @@ export class AuthController {
   @Public()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Login endpoint. Returns JWT token.' })
-  signIn(@Body() signInDto: SignInDto) {
-    return this.authService.signIn(signInDto);
+  async signIn(@Body() signInDto: SignInDto, @Res() response: Response) {
+    const token = await this.authService.signIn(signInDto);
+    const prod = process.env.NODE_ENV === 'production';
+
+    if (prod) {
+      response.cookie('auth_token', token.access_token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+      });
+      response.send({ success: true });
+    } else {
+      response.send(token);
+    }
   }
 
   @Post('sign-up')
@@ -50,6 +63,13 @@ export class AuthController {
   @ApiOperation({ summary: 'Refresh token endpoint' })
   refresh(@BearerTokenHeader() token: string) {
     return this.authService.refresh(token);
+  }
+
+  @Get('check-auth')
+  @ApiOperation({ summary: 'Check user authentication status.' })
+  checkAuthentication() {
+    //Auth guard will throw exception if user is not authenticated
+    return { isAuthenticated: true };
   }
 
   @Delete('/user')
