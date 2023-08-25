@@ -33,8 +33,11 @@ export class AuthController {
         sameSite: 'lax',  
         expires: new Date(Date.now() + 1000 * 3600),
       });
-  
-      response?.send({ success: true });
+      if(!prod){
+        response?.send(token)
+      }else{
+        response?.send({ success: true });
+      }
   }
 
   @Post('sign-up')

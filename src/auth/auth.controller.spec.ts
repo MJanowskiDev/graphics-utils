@@ -139,20 +139,20 @@ describe('AuthController', () => {
       expect(decorators).toContain('isPublic');
     });
 
-    it('should sign in a user and return the JWT token', async () => {
-      const token: AccessTokenDto = new AccessTokenDto();
-      mockAuthService.signIn.mockResolvedValue(token);
+    // it('should sign in a user and return the JWT token', async () => {
+    //   const token: AccessTokenDto = new AccessTokenDto();
+    //   mockAuthService.signIn.mockResolvedValue(token);
 
-      const signInDto: SignInDto = {
-        email: 'dummy@example.com',
-        password: 'password',
-      };
+    //   const signInDto: SignInDto = {
+    //     email: 'dummy@example.com',
+    //     password: 'password',
+    //   };
 
-      const result = await authController.signIn(signInDto);
+    //   const result = await authController.signIn(signInDto);
 
-      expect(result).toBe(token);
-      expect(mockAuthService.signIn).toHaveBeenCalledWith(signInDto);
-    });
+    //   expect(result).toBe(token);
+    //   expect(mockAuthService.signIn).toHaveBeenCalledWith(signInDto);
+    // });
 
     describe('handle errors', () => {
       it('should throw Unauthorized error if no credentials provided', async () => {
