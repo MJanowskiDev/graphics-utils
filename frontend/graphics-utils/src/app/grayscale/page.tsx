@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { withAuth } from '@/features/auth/hoc';
 import { httpProvider } from '@/utils/provider';
+import ReactCompareImage from 'react-compare-image';
 
 function GraysaclePage() {
   return (
@@ -19,8 +20,16 @@ export default withAuth(GraysaclePage);
 
 const FileUpload: React.FC = () => {
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
+  const [convertedImageUrl, setConvertedImageUrl] = useState<string | null>(null);
+  const [originalImageUrl, setOriginalImageUrl] = useState<string | null>(null);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedFiles(e.target.files);
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      const fileURL = URL.createObjectURL(files[0]);
+      setOriginalImageUrl(fileURL);
+    }
+    setSelectedFiles(files);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -42,18 +51,21 @@ const FileUpload: React.FC = () => {
 
       const blob = new Blob([response.data], { type: response.headers['content-type'] });
 
-      let filename = 'output_grayscale.png';
-
       const url = window.URL.createObjectURL(blob);
+      setConvertedImageUrl(url);
+    } catch (error) {
+      console.error('Error uploading files:', error);
+    }
+  };
+
+  const handleDownload = () => {
+    if (convertedImageUrl) {
       const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', filename);
+      link.href = convertedImageUrl;
+      link.setAttribute('download', 'output_grayscale.png');
       document.body.appendChild(link);
       link.click();
       link.remove();
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('Error uploading files:', error);
     }
   };
 
@@ -62,11 +74,21 @@ const FileUpload: React.FC = () => {
       <div>
         <form onSubmit={handleSubmit} className="flex-col flex gap-4">
           <input type="file" multiple onChange={handleFileChange} />
-          <button className=" rounded-lg bg-purple-600 text-white text-md p-2.5" type="submit">
+          <button className="rounded-lg bg-purple-600 text-white text-md p-2.5" type="submit">
             Upload
           </button>
         </form>
       </div>
+      {originalImageUrl && convertedImageUrl && (
+        <div style={{ width: '300px', marginTop: '20px' }}>
+          <ReactCompareImage leftImage={originalImageUrl} rightImage={convertedImageUrl} />
+        </div>
+      )}
+      {convertedImageUrl && (
+        <button className="mt-4 rounded-lg bg-purple-600 text-white text-md p-2.5" onClick={handleDownload}>
+          Download Grayscale Image
+        </button>
+      )}
     </section>
   );
 };
