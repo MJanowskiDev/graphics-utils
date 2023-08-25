@@ -27,18 +27,14 @@ export class AuthController {
     const token = await this.authService.signIn(signInDto);
     const prod = process.env.NODE_ENV === 'production';
 
-    if (prod) {
       response?.cookie('auth_token', token.access_token, {
         httpOnly: true,
-        secure: true,
+        secure: prod,
         sameSite: 'lax',  
         expires: new Date(Date.now() + 1000 * 3600),
       });
+  
       response?.send({ success: true });
-    } else {
-      response?.send(token);
-      return token;
-    }
   }
 
   @Post('sign-up')

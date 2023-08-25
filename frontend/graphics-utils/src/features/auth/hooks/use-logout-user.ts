@@ -14,9 +14,7 @@ export const useLogoutUser = () => {
   const mutationFn = async () => {
     if (isLoggedIn) {
       const url = 'auth/sign-out';
-      const result = await httpProvider.post<ApiResponse>(url, null, {
-        withCredentials: true,
-      });
+      const result = await httpProvider.post<ApiResponse>(url, null);
       logOut();
       return result.data;
     }

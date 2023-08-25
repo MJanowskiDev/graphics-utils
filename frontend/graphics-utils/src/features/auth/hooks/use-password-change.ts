@@ -11,13 +11,7 @@ interface ApiResponse {
 export const usePasswordChange = (token: string | null) => {
   const mutationFn = async ({ currentPassword, newPassword, confirmNewPassword }: PasswordChangePayload) => {
     const url = 'auth/password/change';
-    const response = await httpProvider.post<ApiResponse>(
-      url,
-      { currentPassword, newPassword, confirmNewPassword },
-      {
-        withCredentials: true,
-      },
-    );
+    const response = await httpProvider.post<ApiResponse>(url, { currentPassword, newPassword, confirmNewPassword });
     return response.data;
   };
 

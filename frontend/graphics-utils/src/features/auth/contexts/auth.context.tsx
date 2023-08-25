@@ -1,12 +1,12 @@
 'use client';
 
-import { createContext, useContext, ReactNode } from 'react';
-import { useLocalStorage } from 'usehooks-ts';
+import { createContext, useContext, ReactNode, useState, useCallback } from 'react';
+import { useCheckAuth } from '../hooks';
 
 interface AuthContextProps {
-  token: string | null;
   isLoggedIn: boolean;
-  setToken: (token: string | null) => void;
+  isLoading: boolean;
+  logIn: () => void;
   logOut: () => void;
 }
 
@@ -25,21 +25,26 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [token, setTokenState] = useLocalStorage<string | null>('auth_token', null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const handleSuccess = useCallback((isAuthenticated: boolean) => {
+    setIsLoggedIn(isAuthenticated);
+  }, []);
 
-  const setToken = (newToken: string | null) => {
-    setTokenState(newToken);
-  };
+  const { isLoading } = useCheckAuth(handleSuccess);
 
   const logOut = () => {
-    setTokenState(null);
+    setIsLoggedIn(false);
+  };
+
+  const logIn = () => {
+    setIsLoggedIn(true);
   };
 
   const value = {
-    token,
-    isLoggedIn: Boolean(token),
-    setToken,
+    isLoggedIn,
+    logIn,
     logOut,
+    isLoading,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

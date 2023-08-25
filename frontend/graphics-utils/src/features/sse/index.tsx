@@ -15,16 +15,13 @@ function formatTime(timestamp: number) {
 
 export default function SSE() {
   const [events, setEvents] = useState<{ value: string; timestamp: number }[]>([]);
-  const { token } = useAuth();
   const [isConnected, setIsConnected] = useState(false);
   const [recreateConnection, setRecreateConnection] = useState(false);
   const [selectedOperation, setSelectedOperation] = useState<OperationType>(OperationType.resize);
 
   useEffect(() => {
-    if (!token) return;
     const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/events/basic-transformations/${selectedOperation}`;
-    const headers = { Authorization: `Bearer ${token}` };
-    const eventSource = new EventSourcePolyfill(url, { headers });
+    const eventSource = new EventSourcePolyfill(url, { withCredentials: true });
 
     eventSource.onopen = () => {
       console.log('connected');
@@ -47,7 +44,7 @@ export default function SSE() {
       eventSource?.close();
       setIsConnected(false);
     };
-  }, [token, selectedOperation, recreateConnection]);
+  }, [selectedOperation, recreateConnection]);
 
   return (
     <div className="mt-12 mx-12 w-full">

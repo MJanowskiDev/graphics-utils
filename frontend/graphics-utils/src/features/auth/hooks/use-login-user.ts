@@ -9,11 +9,11 @@ interface ApiResponse{
 }
 
 export const useLoginUser = () => {
-  const {setToken} = useAuth();
+  const {logIn} = useAuth();
   const mutationFn = async ({ email, password }: RegisterUserMutationParams) => {
     const url = 'auth/sign-in';
-    const response = await httpProvider.post<ApiResponse>(url, { email, password }, { withCredentials: true });
-    setToken(response.data.access_token || 'Looking for super secret token ^^?');
+    const response = await httpProvider.post<ApiResponse>(url, { email, password });
+    logIn();
     return response.data;
   };
 

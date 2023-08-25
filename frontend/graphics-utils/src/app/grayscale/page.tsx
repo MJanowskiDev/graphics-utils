@@ -34,7 +34,6 @@ const FileUpload: React.FC = () => {
 
     try {
       const response = await httpProvider.post('/image/grayscale', formData, {
-        withCredentials: true,
         headers: {
           'Content-Type': 'multipart/form-data',
         },
