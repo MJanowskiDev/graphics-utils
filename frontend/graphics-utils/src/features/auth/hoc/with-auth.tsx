@@ -8,12 +8,7 @@ export function withAuth<P>(WrappedComponent: ComponentType<P>): ComponentType<P
     const router = useRouter();
 
     if (!isLoggedIn) {
-      if (typeof window !== 'undefined') {
-        router.push('/login');
-        return null;
-      } else {
-        return <p>Unauthorized</p>;
-      }
+      return <p>Unauthorized, please log-in</p>;
     }
 
     return <WrappedComponent {...props} />;
