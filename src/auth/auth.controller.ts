@@ -31,7 +31,8 @@ export class AuthController {
       response?.cookie('auth_token', token.access_token, {
         httpOnly: true,
         secure: true,
-        sameSite: 'strict',
+        sameSite: 'lax',  
+        expires: new Date(Date.now() + 1000 * 3600),
       });
       response?.send({ success: true });
     } else {

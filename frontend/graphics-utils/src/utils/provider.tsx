@@ -9,6 +9,7 @@ import { IN_PRODUCTION_MODE } from '@/constants';
 
 const httpProvider = axios.create({
   baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
+  withCredentials: true,
 });
 
 function Providers({ children }: PropsWithChildren) {

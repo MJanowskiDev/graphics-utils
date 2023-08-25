@@ -12,7 +12,6 @@ export class AuthEmailService {
 
   constructor(private emailConfigService: ConfigService) {
     this.config = this.emailConfigService.get('email');
-    console.log(this.config.activateUrl);
     this.transporter = nodemailer.createTransport({
       service: this.config.service,
       port: this.config.smtp.port,
