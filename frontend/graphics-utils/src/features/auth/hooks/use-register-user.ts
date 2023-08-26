@@ -3,7 +3,7 @@ import { AxiosError } from 'axios';
 
 import { RegisterUserMutationParams } from '../types';
 
-import { ApiError } from '@/types';
+import { ApiError } from '@/api/types';
 import { httpProvider } from '@/contexts/providers';
 
 interface ApiResponse {

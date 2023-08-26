@@ -1,7 +1,7 @@
 'use client';
 
 import { PasswordChangeView } from '@/features/auth/components';
-import { withAuth } from '@/features/auth/hoc';
+import { withAuth } from '@/shared/hoc';
 
 function UserProfilePage() {
   return (

@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 
-import { ApiError } from '@/types';
+import { ApiError } from '@/api/types';
 import { httpProvider } from '@/contexts/providers';
 
 interface MutationResponse {

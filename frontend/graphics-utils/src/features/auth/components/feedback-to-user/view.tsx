@@ -5,7 +5,7 @@ import { enqueueSnackbar } from 'notistack';
 
 import { Alert } from './alert';
 
-import { ApiError } from '@/types';
+import { ApiError } from '@/api/types';
 
 interface FeedbackToUserProps {
   isLoading?: boolean;

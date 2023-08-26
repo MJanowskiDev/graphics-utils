@@ -1,7 +1,7 @@
 'use client';
 import SSE from '../../features/sse';
 
-import { withAuth } from '@/features/auth/hoc';
+import { withAuth } from '@/shared/hoc';
 
 function SSEPage() {
   return <SSE />;

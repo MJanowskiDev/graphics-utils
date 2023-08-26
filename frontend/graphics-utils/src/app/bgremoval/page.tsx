@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import ReactCompareImage from 'react-compare-image';
 
-import { withAuth } from '@/features/auth/hoc';
+import { withAuth } from '@/shared/hoc';
 import { useBgRemoval } from '@/features/image-processing/hooks';
 import { FeedbackToUser } from '@/features/auth/components';
 

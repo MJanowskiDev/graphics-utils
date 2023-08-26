@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import ReactCompareImage from 'react-compare-image';
 
-import { withAuth } from '@/features/auth/hoc';
+import { withAuth } from '@/shared/hoc';
 import { SSEListener } from '@/features/sse/components/SSEListener';
 import { OperationType } from '@/features/sse/types';
 import { useToGrayscale } from '@/features/image-processing/hooks';

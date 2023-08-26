@@ -16,7 +16,7 @@ export const Navbar = () => {
   return (
     <div
       className="sticky bottom-[100vh] flex flex-col md:flex-row gap-y-4 
-    md:gap-y-0 md:gap-x-6 p-4 justify-between items-center text-[#6c757dff] tracking-wide text-sm"
+md:gap-y-0 md:gap-x-6 p-4 justify-between items-center text-[#6c757dff] tracking-wide text-sm"
     >
       <Link href="/">
         <Image src={logo} width={95} height={6} alt="Graphics utils logo" />
