@@ -27,7 +27,7 @@ const FileUpload: React.FC = () => {
   const [originalImageUrl, setOriginalImageUrl] = useState<string | null>(null);
   const [showSSEResults, setShowSSEResults] = useState(false);
 
-  const { mutate, isLoading, isError, error } = useToGrayscale();
+  const { mutate, isLoading, isError } = useToGrayscale();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
