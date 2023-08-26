@@ -1,0 +1,90 @@
+{
+  "title": "Graphics Utils - AI-Driven Image Processing Tools",
+  "description": "Offering a variety of operations, from basic adjustments to advanced, AI-driven transformations.",
+
+  "favicon": "/favicon.ico",
+  "viewport": "width=device-width, initial-scale=1",
+  "charSet": "utf-8",
+
+  "author": "MJanowskiDev",
+  "copyright": "MJanowskiDev",
+
+  "robots": "follow",
+  "keywords": "Graphics Utils, AI-Driven Image Processing, Image Adjustments, Advanced Image Transformations, Remove Background, Increase Resolution, Image Format Conversion, Grayscale Conversion, Image Filters, Common Graphics Operations, Image Enhancement, AI Graphics Tools, Image Optimization, High-Resolution Imaging, Automated Graphics Editing, Image Processing Suite, Comprehensive Graphics Tools, AI Imaging Solutions, Photo Adjustments, Advanced Graphics Editing",
+  "ogData": {
+    "title": "Graphics Utils - AI-Driven Image Processing Tools",
+    "description": "Offering a variety of operations, from basic adjustments to advanced, AI-driven transformations.",
+    "url": "/",
+    "image": "/images/graphics_utils_banner.png",
+    "type": "website",
+    "locale": "en_us"
+  },
+  "twitterData": {
+    "card": "summary_large_image",
+    "url": "/",
+    "title": "Graphics Utils - AI-Driven Image Processing Tools",
+    "description": "Offering a variety of operations, from basic adjustments to advanced, AI-driven transformations.",
+    "image": "/images/graphics_utils_banner.png"
+  },
+  "msapplicationTileColor": "#ffffff",
+  "themeColor": "#ffffff",
+
+  "appleTouchIcons": [
+    {
+      "size": "57x57",
+      "href": "/images/favicon/apple-icon-57x57.png"
+    },
+    {
+      "size": "60x60",
+      "href": "/images/favicon/apple-icon-60x60.png"
+    },
+    {
+      "size": "72x72",
+      "href": "/images/favicon/apple-icon-72x72.png"
+    },
+    {
+      "size": "76x76",
+      "href": "/images/favicon/apple-icon-76x76.png"
+    },
+    {
+      "size": "114x114",
+      "href": "/images/favicon/apple-icon-114x114.png"
+    },
+    {
+      "size": "120x120",
+      "href": "/images/favicon/apple-icon-120x120.png"
+    },
+    {
+      "size": "144x144",
+      "href": "/images/favicon/apple-icon-144x144.png"
+    },
+    {
+      "size": "152x152",
+      "href": "/images/favicon/apple-icon-152x152.png"
+    },
+    {
+      "size": "180x180",
+      "href": "/images/favicon/apple-icon-180x180.png"
+    }
+  ],
+  "androidIcons": [
+    {
+      "size": "192x192",
+      "href": "/images/favicon/android-icon-192x192.png"
+    },
+    {
+      "size": "32x32",
+      "href": "/images/favicon/favicon-32x32.png"
+    },
+    {
+      "size": "96x96",
+      "href": "/images/favicon/favicon-96x96.png"
+    },
+    {
+      "size": "16x16",
+      "href": "/images/favicon/favicon-16x16.png"
+    }
+  ],
+  "manifest": "/images/favicon/manifest.json",
+  "msApplicationTileImage": "/images/favicon/ms-icon-144x144.png"
+}
