@@ -4,8 +4,9 @@ import { PropsWithChildren, useState } from 'react';
 import axios from 'axios';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { AuthProvider } from '@/features/auth/contexts';
 import { SnackbarKey, SnackbarProvider, enqueueSnackbar } from 'notistack';
+
+import { AuthProvider } from '@/features/auth/contexts';
 import CloseSnackbar from '@/features/ui/notifications/CloseSnackbar';
 
 const httpProvider = axios.create({
@@ -31,22 +32,20 @@ function Providers({ children }: PropsWithChildren) {
   return (
     <QueryClientProvider client={client}>
       <div>
-
-      <SnackbarProvider
-        maxSnack={3}
-        preventDuplicate
-        autoHideDuration={null}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'center',
-        }}
-        hideIconVariant
-        action={(key: SnackbarKey) => <CloseSnackbar snackKey={key} />}
-
+        <SnackbarProvider
+          maxSnack={3}
+          preventDuplicate
+          autoHideDuration={null}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'center',
+          }}
+          hideIconVariant
+          action={(key: SnackbarKey) => <CloseSnackbar snackKey={key} />}
         >
-        <AuthProvider>{children}</AuthProvider>
-      </SnackbarProvider>
-        </div>
+          <AuthProvider>{children}</AuthProvider>
+        </SnackbarProvider>
+      </div>
       {process.env.NODE_ENV !== 'production' && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>
   );

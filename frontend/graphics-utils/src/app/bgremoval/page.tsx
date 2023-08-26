@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { withAuth } from '@/features/auth/hoc';
 import ReactCompareImage from 'react-compare-image';
+
+import { withAuth } from '@/features/auth/hoc';
 import { useBgRemoval } from '@/features/image-processing/hooks';
 import { FeedbackToUser } from '@/features/auth/components';
 
@@ -23,7 +24,6 @@ const FileUpload: React.FC = () => {
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [convertedImageUrl, setConvertedImageUrl] = useState<string | null>(null);
   const [originalImageUrl, setOriginalImageUrl] = useState<string | null>(null);
-  const [showSSEResults, setShowSSEResults] = useState(false);
 
   const { mutate, isLoading, isError } = useBgRemoval();
 
@@ -35,13 +35,11 @@ const FileUpload: React.FC = () => {
     }
     setConvertedImageUrl(null);
     setSelectedFiles(files);
-    setShowSSEResults(false);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!selectedFiles) return;
-    setShowSSEResults(true);
     const formData = new FormData();
     for (let i = 0; i < selectedFiles.length; i++) {
       formData.append('files', selectedFiles[i]);
@@ -75,7 +73,8 @@ const FileUpload: React.FC = () => {
         <form onSubmit={handleSubmit} className="flex-col flex gap-4">
           <input
             onChange={handleFileChange}
-            className="block w-full text-lg text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+            className="block w-full text-lg text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50
+             dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
             id="multiple_files"
             type="file"
             multiple

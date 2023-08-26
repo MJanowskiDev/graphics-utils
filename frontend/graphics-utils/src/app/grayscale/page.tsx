@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { withAuth } from '@/features/auth/hoc';
 import ReactCompareImage from 'react-compare-image';
+
+import { withAuth } from '@/features/auth/hoc';
 import { SSEListener } from '@/features/sse/components/SSEListener';
 import { OperationType } from '@/features/sse/types';
 import { useToGrayscale } from '@/features/image-processing/hooks';
@@ -77,7 +78,8 @@ const FileUpload: React.FC = () => {
         <form onSubmit={handleSubmit} className="flex-col flex gap-4">
           <input
             onChange={handleFileChange}
-            className="block w-full text-lg text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+            className="block w-full text-lg text-gray-900 border border-gray-300 rounded-lg cursor-pointer 
+            bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
             id="multiple_files"
             type="file"
             multiple

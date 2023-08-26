@@ -1,9 +1,11 @@
 'use client';
 
 import { AxiosError } from 'axios';
-import { ApiError } from '@/types';
-import { Alert } from './alert';
 import { enqueueSnackbar } from 'notistack';
+
+import { Alert } from './alert';
+
+import { ApiError } from '@/types';
 
 interface FeedbackToUserProps {
   isLoading?: boolean;

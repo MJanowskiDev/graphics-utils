@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, ReactNode, useState, useCallback } from 'react';
+
 import { useCheckAuth } from '../hooks';
 
 interface AuthContextProps {

@@ -12,4 +12,3 @@ export type FormInputProps<TFormData extends FieldValues> = {
   attributes?: SelectHTMLAttributes<HTMLInputElement>;
   wrappingElementStyle?: string;
 };
-

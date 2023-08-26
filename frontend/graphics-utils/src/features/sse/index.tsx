@@ -1,9 +1,9 @@
 'use client';
 import { useEffect, useState } from 'react';
 import EventSourcePolyfill from 'eventsource';
+
 import { OperationTypeSelect } from './components';
 import { OperationType } from './types';
-import { useAuth } from '../auth/contexts/auth.context';
 
 function formatTime(timestamp: number) {
   const date = new Date(timestamp);

@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import EventSourcePolyfill from 'eventsource';
+
 import { OperationType } from '../types';
 
 function formatTime(timestamp: number) {
@@ -17,15 +18,10 @@ interface SSEListenerProps {
 
 export const SSEListener = ({ selectedOperation }: SSEListenerProps) => {
   const [events, setEvents] = useState<{ value: string; timestamp: number }[]>([]);
-  const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
     const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/events/basic-transformations/${selectedOperation}`;
     const eventSource = new EventSourcePolyfill(url, { withCredentials: true });
-
-    eventSource.onopen = () => {
-      setIsConnected(true);
-    };
 
     eventSource.onmessage = (event: MessageEvent) => {
       const { data, timestamp } = JSON.parse(event.data);
@@ -36,12 +32,10 @@ export const SSEListener = ({ selectedOperation }: SSEListenerProps) => {
     eventSource.onerror = (event: MessageEvent) => {
       console.error(event);
       eventSource?.close();
-      setIsConnected(false);
     };
 
     return () => {
       eventSource?.close();
-      setIsConnected(false);
     };
   }, [selectedOperation]);
 

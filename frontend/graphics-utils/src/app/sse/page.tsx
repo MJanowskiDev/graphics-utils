@@ -1,6 +1,7 @@
 'use client';
-import { withAuth } from '@/features/auth/hoc';
 import SSE from '../../features/sse';
+
+import { withAuth } from '@/features/auth/hoc';
 
 function SSEPage() {
   return <SSE />;

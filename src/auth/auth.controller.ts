@@ -1,5 +1,6 @@
 import { Body, Controller, Post, HttpCode, HttpStatus, Get, Query, Delete, Res } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Response } from 'express';
 
 import { BearerTokenHeader } from '../core/decorator/bearer-token-header.decorator';
 import { AuthService } from './auth.service';
@@ -12,7 +13,6 @@ import {
   SignInDto,
   SignUpDto,
 } from './dto';
-import { Response } from 'express';
 
 @ApiTags('auth')
 @Controller('auth')

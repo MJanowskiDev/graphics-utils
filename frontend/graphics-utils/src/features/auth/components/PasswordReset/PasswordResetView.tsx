@@ -1,7 +1,8 @@
 'use client';
 
-import { PasswordResetForm } from './PasswordResetForm';
 import { useSearchParams } from 'next/navigation';
+
+import { PasswordResetForm } from './PasswordResetForm';
 import { usePasswordReset } from '../../hooks';
 import { FeedbackToUser } from '../FeedbackToUser';
 

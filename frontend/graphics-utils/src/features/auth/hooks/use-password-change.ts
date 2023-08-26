@@ -1,7 +1,9 @@
 import { useMutation } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
-import { ApiError } from '@/types';
+
 import { PasswordChangePayload } from '../types/password-change';
+
+import { ApiError } from '@/types';
 import { httpProvider } from '@/utils/provider';
 
 interface ApiResponse {

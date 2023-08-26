@@ -1,10 +1,12 @@
 'use client';
 
 import Image from 'next/image';
-import logo from '../../../../public/images/graphics_utils.png';
 import Link from 'next/link';
-import { useAuth } from '@/features/auth/contexts/auth.context';
+
+import logo from '../../../../public/images/graphics_utils.png';
 import { NavbarLink } from './NavbarLink';
+
+import { useAuth } from '@/features/auth/contexts/auth.context';
 import { useLogoutUser } from '@/features/auth/hooks';
 
 export const Navbar = () => {
@@ -12,7 +14,10 @@ export const Navbar = () => {
   const { mutate: logout } = useLogoutUser();
 
   return (
-    <div className="sticky bottom-[100vh] flex flex-col md:flex-row gap-y-4 md:gap-y-0 md:gap-x-6 p-4 justify-between items-center text-[#6c757dff] tracking-wide text-sm">
+    <div
+      className="sticky bottom-[100vh] flex flex-col md:flex-row gap-y-4 
+    md:gap-y-0 md:gap-x-6 p-4 justify-between items-center text-[#6c757dff] tracking-wide text-sm"
+    >
       <Link href="/">
         <Image src={logo} width={95} height={6} alt="Graphics utils logo" />
       </Link>

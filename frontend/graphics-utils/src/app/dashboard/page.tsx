@@ -1,4 +1,3 @@
-import { InitPasswordResetView } from '@/features/auth/components';
 import Link from 'next/link';
 
 export default function InitPasswordResetPage() {

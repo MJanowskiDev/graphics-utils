@@ -1,10 +1,12 @@
 'use client';
 
 import { useForm } from 'react-hook-form';
-import { InitPasswordResetData, initPasswordResetSchema } from '../../schema';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Input, SubmitButton } from '@/features/ui/forms/components';
+
+import { InitPasswordResetData, initPasswordResetSchema } from '../../schema';
 import { InitPasswordResetPayload } from '../../types';
+
+import { Input, SubmitButton } from '@/features/ui/forms/components';
 
 interface PasswordResetFormProps {
   submitAction: ({ email }: InitPasswordResetPayload) => void;

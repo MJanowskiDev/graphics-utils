@@ -3,8 +3,10 @@ import * as yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useRef } from 'react';
-import { Input, SubmitButton } from '@/features/ui/forms/components';
+
 import { RegisterUserMutationParams } from '../../types';
+
+import { Input, SubmitButton } from '@/features/ui/forms/components';
 
 interface RegisterFormProps {
   submitAction: ({ email, password }: RegisterUserMutationParams) => void;
@@ -23,7 +25,7 @@ export const RegisterForm = ({ submitAction }: RegisterFormProps) => {
     register,
     handleSubmit,
     reset,
-    formState: { errors, isValid, isDirty },
+    formState: { errors, isValid },
   } = useForm<CheckoutFormData>({
     resolver: yupResolver(registerFormSchema),
   });

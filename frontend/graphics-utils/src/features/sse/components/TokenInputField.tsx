@@ -13,10 +13,7 @@ export const TokenInputField = ({ setToken }: TokenInputFieldProps) => {
 
   return (
     <div className="w-120 px-10">
-      <label
-        className="block uppercase tracking-wide text-xs font-bold mb-2"
-        htmlFor="token"
-      >
+      <label className="block uppercase tracking-wide text-xs font-bold mb-2" htmlFor="token">
         Auth token
       </label>
       <div className="relative flex flex-row">
@@ -26,10 +23,7 @@ export const TokenInputField = ({ setToken }: TokenInputFieldProps) => {
           type="text"
           placeholder="Enter token"
         />
-        <button
-          onClick={handleOnSetTokenClick}
-          className="bg-purple-700 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded"
-        >
+        <button onClick={handleOnSetTokenClick} className="bg-purple-700 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded">
           Set
         </button>
       </div>

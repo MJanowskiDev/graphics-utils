@@ -1,10 +1,11 @@
 'use client';
 
-import { FeedbackToUser } from '../FeedbackToUser';
 import { useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { useActivateUser } from '../../hooks';
 import Link from 'next/link';
+
+import { useActivateUser } from '../../hooks';
+import { FeedbackToUser } from '../FeedbackToUser';
 
 export const ActivateView = () => {
   const token = useSearchParams().get('token');
@@ -12,7 +13,7 @@ export const ActivateView = () => {
 
   useEffect(() => {
     mutate(token);
-  }, []);
+  }, [mutate, token]);
 
   return (
     <>
