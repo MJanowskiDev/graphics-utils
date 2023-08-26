@@ -49,7 +49,6 @@ export const SSEListener = ({ selectedOperation }: SSEListenerProps) => {
     <div className="mt-2 flex flex-col items-center max-w-[80%]">
       <div className="flex flex-row justify-between items-center w-full">
         <h1 className="text-xl font-bold mb-2">Operation details</h1>
-          <p className="text-gray-500 mr-2">{isConnected ? 'connected' : 'not connected'}</p>
       </div>
 
       <ul className="overflow-auto p-2 ">

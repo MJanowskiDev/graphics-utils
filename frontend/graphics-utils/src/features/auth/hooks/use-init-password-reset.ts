@@ -15,8 +15,8 @@ export const useInitPasswordReset = () => {
     return response.data;
   };
 
-  const { mutate, isLoading, isError, isSuccess, error } = useMutation<ApiResponse, AxiosError<ApiError>, InitPasswordResetPayload>(
+  const { mutate, isLoading, isError, isSuccess, error, data } = useMutation<ApiResponse, AxiosError<ApiError>, InitPasswordResetPayload>(
     mutationFn,
   );
-  return { mutate, isLoading, isError, isSuccess, error };
+  return { mutate, isLoading, isError, isSuccess, error, data };
 };

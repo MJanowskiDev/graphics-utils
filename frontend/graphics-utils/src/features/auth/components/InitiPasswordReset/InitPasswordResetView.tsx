@@ -5,11 +5,11 @@ import { InitPasswordResetForm } from './InitPasswordResetForm';
 import { FeedbackToUser } from '../FeedbackToUser';
 
 export const InitPasswordResetView = () => {
-  const { mutate, isError, isLoading, isSuccess, error } = useInitPasswordReset();
+  const { mutate, isError, isLoading, isSuccess, error, data } = useInitPasswordReset();
 
   return (
     <>
-      <FeedbackToUser isLoading={isLoading} isError={isError} isSuccess={isSuccess} error={error} />
+      <FeedbackToUser isLoading={isLoading} isError={isError} isSuccess={isSuccess} error={error} successMessage={data?.message} />
       <InitPasswordResetForm submitAction={mutate} />
     </>
   );
