@@ -2,13 +2,16 @@
 
 import { useState } from 'react';
 import { withAuth } from '@/features/auth/hoc';
-import { httpProvider } from '@/utils/provider';
 import ReactCompareImage from 'react-compare-image';
+import { SSEListener } from '@/features/sse/components/SSEListener';
+import { OperationType } from '@/features/sse/types';
+import { useToGrayscale } from '@/features/image-processing/hooks';
+import { FeedbackToUser } from '@/features/auth/components';
 
 function GraysaclePage() {
   return (
-    <section className="flex flex-col gap-6 w-full items-center justify-center">
-      <div className="flex flex-col gap-6">
+    <section className="flex flex-col w-full gap-6 items-center justify-center">
+      <div className="flex flex-col gap-10">
         <h1 className="text-2xl">Convert image to grayscale</h1>
         <FileUpload />
       </div>
@@ -22,6 +25,9 @@ const FileUpload: React.FC = () => {
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [convertedImageUrl, setConvertedImageUrl] = useState<string | null>(null);
   const [originalImageUrl, setOriginalImageUrl] = useState<string | null>(null);
+  const [showSSEResults, setShowSSEResults] = useState(false);
+
+  const { mutate, isLoading, isError, error } = useToGrayscale();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -29,33 +35,29 @@ const FileUpload: React.FC = () => {
       const fileURL = URL.createObjectURL(files[0]);
       setOriginalImageUrl(fileURL);
     }
+    setConvertedImageUrl(null);
     setSelectedFiles(files);
+    setShowSSEResults(false);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!selectedFiles) return;
-
+    setShowSSEResults(true);
     const formData = new FormData();
     for (let i = 0; i < selectedFiles.length; i++) {
       formData.append('files', selectedFiles[i]);
     }
 
-    try {
-      const response = await httpProvider.post('/image/grayscale', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        responseType: 'blob',
-      });
-
-      const blob = new Blob([response.data], { type: response.headers['content-type'] });
-
-      const url = window.URL.createObjectURL(blob);
-      setConvertedImageUrl(url);
-    } catch (error) {
-      console.error('Error uploading files:', error);
-    }
+    mutate(formData, {
+      onSuccess: (data) => {
+        const url = window.URL.createObjectURL(data.blob);
+        setConvertedImageUrl(url);
+      },
+      onError: (err) => {
+        console.error('Error uploading files:', err);
+      },
+    });
   };
 
   const handleDownload = () => {
@@ -73,12 +75,20 @@ const FileUpload: React.FC = () => {
     <section className="flex flex-col gap-6 w-full items-center justify-center">
       <div>
         <form onSubmit={handleSubmit} className="flex-col flex gap-4">
-          <input type="file" multiple onChange={handleFileChange} />
+          <input
+            onChange={handleFileChange}
+            className="block w-full text-lg text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+            id="multiple_files"
+            type="file"
+            multiple
+          />
+
           <button className="rounded-lg bg-purple-600 text-white text-md p-2.5" type="submit">
             Upload
           </button>
         </form>
       </div>
+      <FeedbackToUser isLoading={isLoading} isError={isError} />
       {originalImageUrl && convertedImageUrl && (
         <div style={{ width: '300px', marginTop: '20px' }}>
           <ReactCompareImage leftImage={originalImageUrl} rightImage={convertedImageUrl} />
@@ -89,6 +99,7 @@ const FileUpload: React.FC = () => {
           Download Grayscale Image
         </button>
       )}
+      {showSSEResults && <SSEListener selectedOperation={OperationType.toGrayscale} />}
     </section>
   );
 };

@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
-import { AuthError, RegisterUserMutationParams } from '../types';
+import { RegisterUserMutationParams } from '../types';
+import { ApiError } from '@/types';
 import { useAuth } from '@/features/auth/contexts/auth.context';
 import { httpProvider } from '@/utils/provider';
 
@@ -19,7 +20,7 @@ export const useLoginUser = () => {
 
   const { mutate, isLoading, isError, isSuccess, error } = useMutation<
     ApiResponse,
-    AxiosError<AuthError>,
+    AxiosError<ApiError>,
     RegisterUserMutationParams
   >(mutationFn);
 

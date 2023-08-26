@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
-import { AuthError } from '../types';
+import { ApiError } from '@/types';
 import { httpProvider } from '@/utils/provider';
 
 interface ApiResponse {
@@ -18,7 +18,7 @@ export const useActivateUser = () => {
     return response.data;
   };
 
-  const { mutate, isLoading, isError, isSuccess, error, data } = useMutation<ApiResponse, AxiosError<AuthError>, string | null>(mutationFn);
+  const { mutate, isLoading, isError, isSuccess, error, data } = useMutation<ApiResponse, AxiosError<ApiError>, string | null>(mutationFn);
 
   return { mutate, isLoading, isError, isSuccess, error, data };
 };

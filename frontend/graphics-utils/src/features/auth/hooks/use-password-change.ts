@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
-import { AuthError } from '../types';
+import { ApiError } from '@/types';
 import { PasswordChangePayload } from '../types/password-change';
 import { httpProvider } from '@/utils/provider';
 
@@ -15,7 +15,7 @@ export const usePasswordChange = () => {
     return response.data;
   };
 
-  const { mutate, isLoading, isError, isSuccess, error } = useMutation<ApiResponse, AxiosError<AuthError>, PasswordChangePayload>(
+  const { mutate, isLoading, isError, isSuccess, error } = useMutation<ApiResponse, AxiosError<ApiError>, PasswordChangePayload>(
     mutationFn,
   );
 

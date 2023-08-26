@@ -1,20 +1,20 @@
 'use client';
 
 import { AxiosError } from 'axios';
-import { AuthError } from '../../types';
+import { ApiError } from '@/types';
 import { Alert } from './alert';
 
 interface FeedbackToUserProps {
   isLoading?: boolean;
   isError?: boolean;
   isSuccess?: boolean;
-  error?: AxiosError<AuthError> | null;
+  error?: AxiosError<ApiError> | null;
   successMessage?: string;
   children?: React.ReactNode;
 }
 
 export const FeedbackToUser = ({ isLoading, isError, isSuccess, error, successMessage, children }: FeedbackToUserProps) => {
-  const errorMessage = isError && error ? (error as AxiosError<AuthError>).response?.data.exception.message : '';
+  const errorMessage = isError && error ? (error as AxiosError<ApiError>).response?.data.exception.message : '';
 
   if (isError) {
     return (
@@ -26,7 +26,7 @@ export const FeedbackToUser = ({ isLoading, isError, isSuccess, error, successMe
   }
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div className='animation-pulse'>Loading...</div>;
   }
 
   if (isSuccess) {

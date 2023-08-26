@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import axios, { AxiosError } from 'axios';
-import { AuthError } from '../types';
+import { ApiError } from '@/types';
 import { useAuth } from '@/features/auth/contexts/auth.context';
 import { httpProvider } from '@/utils/provider';
 
@@ -21,6 +21,6 @@ export const useLogoutUser = () => {
     return null;
   };
 
-  const { mutate, isLoading, isError, isSuccess, error, data } = useMutation<any, AxiosError<AuthError>>(mutationFn);
+  const { mutate, isLoading, isError, isSuccess, error, data } = useMutation<any, AxiosError<ApiError>>(mutationFn);
   return { mutate, isLoading, isError, isSuccess, error, data };
 };
