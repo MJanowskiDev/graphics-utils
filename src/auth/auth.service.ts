@@ -57,7 +57,7 @@ export class AuthService {
     const user = await this.usersService.findOneBy(email);
 
     if (!user) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('User does not exist');
     }
 
     if (!user.activated) {
@@ -66,7 +66,7 @@ export class AuthService {
 
     const passwordMatches = await this.passwordsService.comparePasswords(password, user.hashedPassword);
     if (!passwordMatches) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Wrong password');
     }
 
     const tokenId = this.tokenService.generateTokenId();

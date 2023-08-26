@@ -9,10 +9,11 @@ interface FeedbackToUserProps {
   isError?: boolean;
   isSuccess?: boolean;
   error?: AxiosError<AuthError> | null;
+  successMessage?: string;
   children?: React.ReactNode;
 }
 
-export const FeedbackToUser = ({ isLoading, isError, isSuccess, error, children }: FeedbackToUserProps) => {
+export const FeedbackToUser = ({ isLoading, isError, isSuccess, error, successMessage, children }: FeedbackToUserProps) => {
   const errorMessage = isError && error ? (error as AxiosError<AuthError>).response?.data.exception.message : '';
 
   if (isError) {
@@ -29,7 +30,7 @@ export const FeedbackToUser = ({ isLoading, isError, isSuccess, error, children 
   }
 
   if (isSuccess) {
-    return <Alert title="Success" type="success" />;
+    return <Alert title="Success" message={successMessage} type="success" />;
   }
 
   return <>{children}</>;

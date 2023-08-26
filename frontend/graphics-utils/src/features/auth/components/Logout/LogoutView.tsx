@@ -14,7 +14,7 @@ export const LogoutView = () => {
   }, []);
   return (
     <>
-      <FeedbackToUser isLoading={isLoading} isError={isError} isSuccess={isSuccess} error={error} />
+      <FeedbackToUser isLoading={isLoading} isError={isError} isSuccess={isSuccess} error={error} successMessage='Logged out' />
     </>
   );
 };

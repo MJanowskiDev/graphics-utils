@@ -5,3 +5,4 @@ export { LoginView } from './Login/LoginView';
 export { FeedbackToUser } from './FeedbackToUser';
 export { LogoutView } from './Logout/LogoutView';
 export { PasswordChangeView } from './PasswordChange/PasswordChangeView';
+export { ActivateView } from './Activate/ActivateView';

@@ -27,17 +27,17 @@ export class AuthController {
     const token = await this.authService.signIn(signInDto);
     const prod = process.env.NODE_ENV === 'production';
 
-      response?.cookie('auth_token', token.access_token, {
-        httpOnly: true,
-        secure: prod,
-        sameSite: 'lax',  
-        expires: new Date(Date.now() + 1000 * 3600),
-      });
-      if(!prod){
-        response?.send(token)
-      }else{
-        response?.send({ success: true });
-      }
+    response?.cookie('auth_token', token.access_token, {
+      httpOnly: true,
+      secure: prod,
+      sameSite: 'lax',
+      expires: new Date(Date.now() + 1000 * 3600),
+    });
+    if (!prod) {
+      response?.send(token);
+    } else {
+      response?.send({ success: true });
+    }
   }
 
   @Post('sign-up')
@@ -47,7 +47,7 @@ export class AuthController {
     return this.authService.signUp(signUpDto);
   }
 
-  @Get('activate')
+  @Post('activate')
   @Public()
   @ApiOperation({ summary: 'Account activation endpoint.' })
   activate(@Query('token') token: string) {

@@ -20,10 +20,10 @@ export const Navbar = () => {
           <p className="animate-pulse">Loading... </p>
         ) : isLoggedIn ? (
           <div className="flex gap-2 md:gap-6 flex-wrap">
-            <NavbarLink href="/logout">Log out</NavbarLink>
             <NavbarLink href="/sse">SSE</NavbarLink>
             <NavbarLink href="/grayscale">To grayscale</NavbarLink>
-            <NavbarLink href="/user">User profile</NavbarLink>
+            <NavbarLink href="/user">Settings</NavbarLink>
+            <NavbarLink href="/logout">Log out</NavbarLink>
           </div>
         ) : (
           <div className="flex gap-2 md:gap-6">
