@@ -9,6 +9,7 @@ const flowerHighRes = '/flower_upscaled.png';
 const colorfulImage = '/parrot.jpeg';
 const grayscaleImage = '/parrot_grayscale.jpeg';
 
+// eslint-disable-next-line import/no-anonymous-default-export
 export default {
   title: 'Example/CompareImages',
   component: ReactCompareImage,

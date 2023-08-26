@@ -35,7 +35,6 @@
     "yup": "^1.2.0"
   },
   "devDependencies": {
-    "@tailwindcss/forms": "^0.5.4",
     "@storybook/addon-essentials": "^7.2.1",
     "@storybook/addon-interactions": "^7.2.1",
     "@storybook/addon-links": "^7.2.1",
@@ -45,6 +44,7 @@
     "@storybook/nextjs": "^7.2.1",
     "@storybook/react": "^7.2.1",
     "@storybook/testing-library": "^0.2.0",
+    "@tailwindcss/forms": "^0.5.4",
     "@types/eventsource": "^1.1.11",
     "eslint-plugin-storybook": "^0.6.13",
     "storybook": "^7.2.1",

@@ -4,18 +4,8 @@ export type ButtonProps = {
   variant?: 'primary' | 'secondary';
   outline?: boolean;
 };
-export const Button: React.FC<ButtonProps> = ({
-  label = 'Set',
-  size = 'medium',
-  variant = 'primary',
-  outline = false,
-}) => {
-  const sizeClasses =
-    size === 'large'
-      ? 'py-3 px-6 text-lg'
-      : size === 'small'
-      ? 'py-1 px-3 text-sm'
-      : 'py-2 px-4';
+export const Button: React.FC<ButtonProps> = ({ label = 'Set', size = 'medium', variant = 'primary', outline = false }) => {
+  const sizeClasses = size === 'large' ? 'py-3 px-6 text-lg' : size === 'small' ? 'py-1 px-3 text-sm' : 'py-2 px-4';
 
   const variantClasses =
     variant === 'secondary'
@@ -24,16 +14,12 @@ export const Button: React.FC<ButtonProps> = ({
 
   const outlineClasses = outline
     ? `border-2 ${
-        variant === 'secondary'
-          ? 'border-blue-500 dark:border-blue-800'
-          : 'border-purple-700 dark:border-purple-900'
+        variant === 'secondary' ? 'border-blue-500 dark:border-blue-800' : 'border-purple-700 dark:border-purple-900'
       } bg-transparent`
     : '';
 
   return (
-    <button
-      className={`${sizeClasses} ${variantClasses} ${outlineClasses} text-white dark:text-gray-300 font-bold rounded`}
-    >
+    <button className={`${sizeClasses} ${variantClasses} ${outlineClasses} text-white dark:text-gray-300 font-bold rounded`}>
       {label}
     </button>
   );
