@@ -2,8 +2,8 @@ import { useMutation } from '@tanstack/react-query';
 import { enqueueSnackbar } from 'notistack';
 import { useRouter } from 'next/navigation';
 
-import { useAuth } from '@/features/auth/contexts/auth.context';
-import { httpProvider } from '@/utils/provider';
+import { useAuth } from '@/contexts/auth/auth.context';
+import { httpProvider } from '@/contexts/providers';
 
 export const useLogoutUser = () => {
   const { logOut, isLoggedIn } = useAuth();

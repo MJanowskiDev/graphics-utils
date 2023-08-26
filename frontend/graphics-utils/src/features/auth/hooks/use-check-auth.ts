@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-import { httpProvider } from '@/utils/provider';
+import { httpProvider } from '@/contexts/providers';
 
 interface ApiResponse {
   isAuthenticated: boolean;

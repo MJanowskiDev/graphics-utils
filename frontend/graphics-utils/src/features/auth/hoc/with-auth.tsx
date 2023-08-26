@@ -1,6 +1,6 @@
 import { ComponentType, FunctionComponent } from 'react';
 
-import { useAuth } from '@/features/auth/contexts/auth.context';
+import { useAuth } from '@/contexts/auth/auth.context';
 
 export function withAuth<P>(WrappedComponent: ComponentType<P>): ComponentType<P> {
   const WithAuthComponent: FunctionComponent<P & JSX.IntrinsicAttributes> = (props) => {

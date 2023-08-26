@@ -4,7 +4,7 @@ import { AxiosError } from 'axios';
 import { PasswordResetPayload } from '../types';
 
 import { ApiError } from '@/types';
-import { httpProvider } from '@/utils/provider';
+import { httpProvider } from '@/contexts/providers';
 
 interface ApiResponse {
   message: string;

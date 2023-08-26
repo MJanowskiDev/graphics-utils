@@ -1,1 +1,0 @@
-export { DefaultMetatags } from './DefaultMetatags';
