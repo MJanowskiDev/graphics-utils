@@ -3,8 +3,6 @@
 import { AxiosError } from 'axios';
 import { enqueueSnackbar } from 'notistack';
 
-import { Alert } from './alert';
-
 import { ApiError } from '@/api/types';
 
 interface FeedbackToUserProps {
@@ -28,15 +26,6 @@ export const FeedbackToUser = ({ isLoading, isError, isSuccess, error, successMe
 
   if (isSuccess && successMessage) {
     enqueueSnackbar(successMessage, { variant: 'success' });
-  }
-
-  if (isError) {
-    return (
-      <div>
-        <Alert title="Error" message={errorMessage?.toString() || ''} type="error" />
-        {children}
-      </div>
-    );
   }
 
   if (isLoading) {

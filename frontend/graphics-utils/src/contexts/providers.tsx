@@ -19,8 +19,8 @@ httpProvider.interceptors.response.use(
     return response;
   },
   (error) => {
-    if (error?.response?.status === 401 && error?.response?.data?.path !== '/auth/check-auth') {
-      enqueueSnackbar('Authentication error! Please login again.', { variant: 'error' });
+    if (error?.response?.status === 403 && error?.response?.data?.path !== '/auth/check-auth') {
+      enqueueSnackbar('Session expired, please login again.', { variant: 'error' });
     }
     return Promise.reject(error);
   },
@@ -36,10 +36,6 @@ function Providers({ children }: PropsWithChildren) {
           maxSnack={3}
           preventDuplicate
           autoHideDuration={null}
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'center',
-          }}
           hideIconVariant
           action={(key: SnackbarKey) => <CloseSnackbar snackKey={key} />}
         >

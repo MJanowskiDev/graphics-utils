@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
+import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
@@ -29,7 +29,7 @@ export class AuthGuard implements CanActivate {
 
     const token = process.env.NODE_ENV === 'production' ? this.extractTokenFromCookie(request) : this.extractTokenFromHeader(request);
     if (!token) {
-      throw new UnauthorizedException();
+      throw new ForbiddenException();
     }
     try {
       const payload = await this.jwtService.verifyAsync(token, {
@@ -39,12 +39,12 @@ export class AuthGuard implements CanActivate {
       const user = await this.usersService.findOneById(payload.id);
 
       if (!user || user.tokenId !== payload.tokenId || !user.tokenId) {
-        throw new UnauthorizedException();
+        throw new ForbiddenException();
       }
 
       return payload?.role ? payload.role === requiredRole : true;
     } catch {
-      throw new UnauthorizedException();
+      throw new ForbiddenException();
     }
   }
 
