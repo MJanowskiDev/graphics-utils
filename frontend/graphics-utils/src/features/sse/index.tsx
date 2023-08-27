@@ -5,6 +5,8 @@ import EventSourcePolyfill from 'eventsource';
 import { OperationTypeSelect } from './components';
 import { OperationType } from './types';
 
+import { Button } from '@/shared/ui';
+
 function formatTime(timestamp: number) {
   const date = new Date(timestamp);
   const hours = String(date.getHours()).padStart(2, '0');
@@ -62,12 +64,7 @@ export default function SSE() {
         <h1 className="text-2xl font-bold mb-2">Server-sent events</h1>
         <div className="flex flex-row items-center gap-2">
           <p className="text-gray-500 mr-2">{isConnected ? 'connected' : 'not connected'}</p>
-          <button
-            onClick={() => setRecreateConnection((prev) => !prev)}
-            className="bg-purple-700 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded"
-          >
-            Re-connect
-          </button>
+          <Button onClick={() => setRecreateConnection((prev) => !prev)}>Re-connect</Button>
         </div>
       </div>
 

@@ -2,55 +2,75 @@ import { ButtonProps, Size, Variant } from './types';
 import { Spinner } from '../spinner';
 
 export const Button: React.FC<ButtonProps> = ({
-  label = 'Set',
-  size = Size.medium,
-  variant = Variant.primary,
+  children,
+  startIcon,
+  onClick,
+  classes,
+  label,
+  size = 'medium',
+  variant = 'primary',
   outlined = false,
   disabled = false,
   loading = false,
+  ...rest
 }) => {
   return (
-    <button disabled={disabled || loading} className={getButtonClassNames(size, variant, outlined, disabled, loading)}>
-      <div className="flex gap-3">
-        {label} {loading && <Spinner />}
-      </div>
+    <button
+      {...rest}
+      onClick={onClick}
+      disabled={disabled || loading}
+      className={getButtonClassNames(size, variant, outlined, disabled, loading, classes)}
+    >
+      {startIcon} {label} {children} {loading && <Spinner />}
     </button>
   );
 };
 
-const getButtonClassNames = (size: Size, variant: Variant, outlined: boolean, disabled: boolean, loading: boolean): string => {
+const getButtonClassNames = (
+  size: Size,
+  variant: Variant,
+  outlined: boolean,
+  disabled: boolean,
+  loading: boolean,
+  classes?: string,
+): string => {
   return `
     ${getSizeClasses(size)}
     ${getVariantClasses(variant, disabled || loading)}
     ${getOutlinedClasses(outlined, variant, disabled || loading)}
+    ${!disabled && !loading ? 'transform active:scale-95 transition-transform duration-100' : ''}
     text-white font-bold rounded
     transition duration-300 ease-in-out
-    disabled:opacity-50
+    disabled:opacity-20
     rounded-lg
     select-none
+    flex gap-3 justify-center items-center
+    ${classes ? classes : ''} 
   `.trim();
 };
 
 const getSizeClasses = (size: Size) => {
   switch (size) {
-    case Size.small:
+    case 'small':
       return 'py-1 px-3 text-sm';
-    case Size.medium:
+    case 'medium':
       return 'py-2 px-4';
-    case Size.large:
+    case 'large':
       return 'py-3 px-6 text-lg';
   }
 };
 
 const getVariantClasses = (variant: Variant, disabled: boolean) => {
   const baseClasses = {
-    [Variant.primary]: 'bg-primary',
-    [Variant.secondary]: 'bg-secondary',
+    primary: 'bg-primary',
+    secondary: 'bg-secondary',
+    tertiary: 'bg-transparent text-current',
   };
 
   const hoverClasses = {
-    [Variant.primary]: 'hover:bg-primaryShade',
-    [Variant.secondary]: 'hover:bg-neutralMedium',
+    primary: 'hover:bg-primaryShade',
+    secondary: 'hover:bg-neutralMedium',
+    tertiary: 'hover:underline hover:underline-offset-4 hover:decoration-1',
   };
 
   return disabled ? baseClasses[variant] : `${baseClasses[variant]} ${hoverClasses[variant]}`;
@@ -60,13 +80,15 @@ const getOutlinedClasses = (outlined: boolean, variant: Variant, disabled: boole
   if (!outlined) return '';
 
   const baseClasses = {
-    [Variant.primary]: 'border-2 border-primary bg-transparent',
-    [Variant.secondary]: 'border-2 border-secondary bg-transparent',
+    primary: 'border-2 border-primary bg-transparent',
+    secondary: 'border-2 border-secondary bg-transparent',
+    tertiary: '',
   };
 
   const hoverClasses = {
-    [Variant.primary]: 'hover:bg-primaryShade hover:border-primaryShade',
-    [Variant.secondary]: 'hover:bg-neutralMedium hover:border-neutralMedium',
+    primary: 'hover:bg-primaryShade hover:border-primaryShade',
+    secondary: 'hover:bg-neutralMedium hover:border-neutralMedium',
+    tertiary: '',
   };
 
   return disabled ? baseClasses[variant] : `${baseClasses[variant]} ${hoverClasses[variant]}`;

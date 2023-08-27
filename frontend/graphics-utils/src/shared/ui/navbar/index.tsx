@@ -5,6 +5,7 @@ import Link from 'next/link';
 
 import logo from '../../../../public/images/graphics_utils.png';
 import { NavbarLink } from './navbar-link';
+import { Button } from '../button';
 
 import { useAuth } from '@/contexts/auth/auth.context';
 import { useLogoutUser } from '@/features/auth/hooks';
@@ -29,7 +30,9 @@ md:gap-y-0 md:gap-x-6 p-4 justify-between items-center text-[#6c757dff] tracking
           <div className="flex gap-2 md:gap-6 flex-wrap">
             <NavbarLink href="/dashboard">Dashboard</NavbarLink>
             <NavbarLink href="/user">Settings</NavbarLink>
-            <button onClick={() => logout()}>Log out</button>
+            <Button variant="tertiary" size="small" onClick={() => logout()}>
+              Log out
+            </Button>
           </div>
         ) : (
           <div className="flex gap-2 md:gap-6">

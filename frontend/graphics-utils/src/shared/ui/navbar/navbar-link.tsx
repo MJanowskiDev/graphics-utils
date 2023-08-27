@@ -4,6 +4,8 @@ import { ReactNode } from 'react';
 import Link, { LinkProps } from 'next/link';
 import { usePathname } from 'next/navigation';
 
+import { Button } from '../button';
+
 interface ActiveLinkProps extends LinkProps {
   children: ReactNode;
   classActive?: string;
@@ -29,7 +31,7 @@ export const NavbarLink = ({
   const pathMatches = checkMatching(pathname, props.href.toString());
   return (
     <Link {...props} className={pathMatches ? `${classActive}` : `${className}`}>
-      {children}
+      <Button variant="tertiary">{children}</Button>
     </Link>
   );
 };

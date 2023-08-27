@@ -1,5 +1,7 @@
 import { useRef } from 'react';
 
+import { Button } from '@/shared/ui';
+
 interface TokenInputFieldProps {
   setToken: (token: string) => void;
 }
@@ -23,9 +25,7 @@ export const TokenInputField = ({ setToken }: TokenInputFieldProps) => {
           type="text"
           placeholder="Enter token"
         />
-        <button onClick={handleOnSetTokenClick} className="bg-purple-700 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded">
-          Set
-        </button>
+        <Button onClick={handleOnSetTokenClick}>Set</Button>
       </div>
     </div>
   );

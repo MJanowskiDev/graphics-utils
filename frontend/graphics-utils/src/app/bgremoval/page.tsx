@@ -6,6 +6,7 @@ import ReactCompareImage from 'react-compare-image';
 import { withAuth } from '@/shared/hoc';
 import { useBgRemoval } from '@/features/image-processing/hooks';
 import { FeedbackToUser } from '@/features/auth/components';
+import { Button } from '@/shared/ui';
 
 function BgRemovalPage() {
   return (
@@ -80,9 +81,7 @@ const FileUpload: React.FC = () => {
             multiple
           />
 
-          <button className="rounded-lg bg-purple-600 text-white text-md p-2.5" type="submit">
-            Upload
-          </button>
+          <Button type="submit">Upload</Button>
         </form>
       </div>
       <FeedbackToUser isLoading={isLoading} isError={isError} />
@@ -91,11 +90,7 @@ const FileUpload: React.FC = () => {
           <ReactCompareImage leftImage={originalImageUrl} rightImage={convertedImageUrl} />
         </div>
       )}
-      {convertedImageUrl && (
-        <button className="mt-4 rounded-lg bg-purple-600 text-white text-md p-2.5" onClick={handleDownload}>
-          Download Image
-        </button>
-      )}
+      {convertedImageUrl && <Button onClick={handleDownload}>Download Image</Button>}
     </section>
   );
 };

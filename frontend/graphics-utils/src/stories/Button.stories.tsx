@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
+import { AiOutlineDownload } from 'react-icons/ai';
 
-import { Button, ButtonProps, Variant, Size } from '../shared/ui/button';
+import { Button, ButtonProps, VARIANT_OPTIONS, SIZE_OPTIONS } from '../shared/ui/button';
 
 const meta: Meta<ButtonProps> = {
   title: 'UI/Button',
@@ -9,8 +10,8 @@ const meta: Meta<ButtonProps> = {
     layout: 'centered',
   },
   argTypes: {
-    size: { control: { type: 'radio', options: Object.values(Size) } },
-    variant: { control: { type: 'radio', options: Object.values(Variant) } },
+    size: { control: { type: 'radio', options: SIZE_OPTIONS } },
+    variant: { control: { type: 'radio', options: VARIANT_OPTIONS } },
     outlined: { control: 'boolean' },
     disabled: { control: 'boolean' },
     loading: { control: 'boolean' },
@@ -30,21 +31,21 @@ export const Primary: Story = {
 export const Secondary: Story = {
   args: {
     label: 'Secondary',
-    variant: Variant.secondary,
+    variant: 'secondary',
   },
 };
 
 export const Large: Story = {
   args: {
     label: 'Large',
-    size: Size.large,
+    size: 'large',
   },
 };
 
 export const Small: Story = {
   args: {
     label: 'Small',
-    size: Size.small,
+    size: 'small',
   },
 };
 
@@ -52,5 +53,27 @@ export const Outline: Story = {
   args: {
     label: 'Outline',
     outlined: true,
+  },
+};
+
+export const Loading: Story = {
+  args: {
+    label: 'Loading',
+    loading: true,
+  },
+};
+
+export const StartIcon: Story = {
+  args: {
+    label: 'Download',
+    startIcon: <AiOutlineDownload />,
+  },
+};
+
+export const Tertiary: Story = {
+  args: {
+    label: 'Download',
+    variant: 'tertiary',
+    startIcon: <AiOutlineDownload />,
   },
 };

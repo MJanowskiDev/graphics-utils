@@ -1,5 +1,7 @@
 import { ReactNode } from 'react';
 
+import { Button } from '@/shared/ui/button';
+
 interface SubmitButtonProps {
   children: ReactNode;
   className?: string;
@@ -7,12 +9,8 @@ interface SubmitButtonProps {
 }
 export const SubmitButton = ({ children, className, disabled }: SubmitButtonProps) => {
   return (
-    <button
-      className={`${className ? className : 'block w-full rounded-lg bg-purple-600 text-white text-md p-2.5'}`}
-      type="submit"
-      disabled={disabled}
-    >
+    <Button type="submit" disabled={disabled} classes={className}>
       {children}
-    </button>
+    </Button>
   );
 };

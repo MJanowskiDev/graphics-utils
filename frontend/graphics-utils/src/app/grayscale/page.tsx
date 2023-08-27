@@ -2,12 +2,14 @@
 
 import { useState } from 'react';
 import ReactCompareImage from 'react-compare-image';
+import { AiOutlineDownload } from 'react-icons/ai';
 
 import { withAuth } from '@/shared/hoc';
 import { SSEListener } from '@/features/sse/components/SSEListener';
 import { OperationType } from '@/features/sse/types';
 import { useToGrayscale } from '@/features/image-processing/hooks';
 import { FeedbackToUser } from '@/features/auth/components';
+import { Button } from '@/shared/ui';
 
 function GraysaclePage() {
   return (
@@ -84,22 +86,25 @@ const FileUpload: React.FC = () => {
             type="file"
             multiple
           />
-
-          <button className="rounded-lg bg-purple-600 text-white text-md p-2.5" type="submit">
-            Upload
-          </button>
+          <Button label="Convert" size="medium" variant="primary" disabled={!selectedFiles} loading={isLoading} outlined />
         </form>
       </div>
-      <FeedbackToUser isLoading={isLoading} isError={isError} />
+      <FeedbackToUser isError={isError} />
       {originalImageUrl && convertedImageUrl && (
         <div style={{ width: '300px', marginTop: '20px' }}>
           <ReactCompareImage leftImage={originalImageUrl} rightImage={convertedImageUrl} />
         </div>
       )}
       {convertedImageUrl && (
-        <button className="mt-4 rounded-lg bg-purple-600 text-white text-md p-2.5" onClick={handleDownload}>
-          Download Grayscale Image
-        </button>
+        <Button
+          startIcon={<AiOutlineDownload />}
+          classes="w-[350px] mt-2"
+          label="Download"
+          size="medium"
+          variant="primary"
+          onClick={handleDownload}
+          outlined
+        />
       )}
       {showSSEResults && <SSEListener selectedOperation={OperationType.toGrayscale} />}
     </section>

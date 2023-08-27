@@ -1,19 +1,19 @@
-export type ButtonProps = {
+type BaseButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement>;
+
+export type ButtonProps = BaseButtonProps & {
+  children?: React.ReactNode;
+  startIcon?: React.ReactNode;
+  onClick?: () => void;
+  classes?: string;
   label?: string;
   size?: Size;
   variant?: Variant;
   outlined?: boolean;
-  disabled?: boolean;
   loading?: boolean;
 };
 
-export enum Size {
-  small = 'small',
-  medium = 'medium',
-  large = 'large',
-}
+export type Variant = 'primary' | 'secondary' | 'tertiary';
+export type Size = 'small' | 'medium' | 'large';
 
-export enum Variant {
-  primary = 'primary',
-  secondary = 'secondary',
-}
+export const VARIANT_OPTIONS: Variant[] = ['primary', 'secondary', 'tertiary'];
+export const SIZE_OPTIONS: Size[] = ['small', 'medium', 'large'];
