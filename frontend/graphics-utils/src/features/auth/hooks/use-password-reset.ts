@@ -1,24 +1,18 @@
 import { useMutation } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 
-import { PasswordResetPayload } from '../types';
-
-import { ApiError } from '@/api/types';
-import { httpProvider } from '@/contexts/providers';
-
-interface ApiResponse {
-  message: string;
-}
+import { ApiError, PasswordResetPayload, PasswordResetResponse } from '@/api/types';
+import { passwordReset } from '@/api/auth.api';
 
 export const usePasswordReset = (token: string | null) => {
   const mutationFn = async ({ password }: PasswordResetPayload) => {
-    const url = `auth/execute-password-reset?token=${token}`;
-    const response = await httpProvider.post<ApiResponse>(url, { password });
-    return response.data;
+    return await passwordReset(token, { password });
   };
 
-  const { mutate, isLoading, isError, isSuccess, error, data } = useMutation<ApiResponse, AxiosError<ApiError>, PasswordResetPayload>(
-    mutationFn,
-  );
+  const { mutate, isLoading, isError, isSuccess, error, data } = useMutation<
+    PasswordResetResponse,
+    AxiosError<ApiError>,
+    PasswordResetPayload
+  >(mutationFn);
   return { mutate, isLoading, isError, isSuccess, error, data };
 };

@@ -3,7 +3,8 @@ import { enqueueSnackbar } from 'notistack';
 import { useRouter } from 'next/navigation';
 
 import { useAuth } from '@/contexts/auth/auth.context';
-import { httpProvider } from '@/contexts/providers';
+import { logoutUser } from '@/api/auth.api';
+import { ApiErrorResponse } from '@/api/types';
 
 export const useLogoutUser = () => {
   const { logOut, isLoggedIn } = useAuth();
@@ -15,12 +16,10 @@ export const useLogoutUser = () => {
     enqueueSnackbar('Logged out successfully', { variant: 'success' });
 
     if (isLoggedIn) {
-      const url = 'auth/sign-out';
-      const result = await httpProvider.post(url, null);
-      return result.data;
+      logoutUser();
     }
   };
 
-  const { mutate } = useMutation(mutationFn);
+  const { mutate } = useMutation<void, ApiErrorResponse, void>(mutationFn);
   return { mutate };
 };

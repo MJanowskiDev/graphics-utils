@@ -1,40 +1,24 @@
-import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
-import { httpProvider } from '@/contexts/providers';
+import { checkAuth } from '@/api/auth.api';
 
 interface ApiResponse {
   isAuthenticated: boolean;
 }
 
-interface UseCheckAuth {
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  error: any;
-}
-
-export const useCheckAuth = (onSuccess?: (isAuthenticated: boolean) => void): UseCheckAuth => {
-  const [data, setData] = useState<ApiResponse | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    httpProvider
-      .get<ApiResponse>('/auth/check-auth')
-      .then((response) => {
-        setData(response.data);
-        onSuccess && onSuccess(response.data.isAuthenticated);
-      })
-      .catch((err) => {
-        setError(err);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, [onSuccess]);
+export const useCheckAuth = (onSuccess?: (isAuthenticated: boolean) => void) => {
+  const queryInfo = useQuery<ApiResponse, Error>(['check-auth'], checkAuth, {
+    retry: false,
+    onSuccess: (data) => {
+      if (onSuccess) {
+        onSuccess(data.isAuthenticated);
+      }
+    },
+  });
 
   return {
-    isAuthenticated: data?.isAuthenticated || false,
-    isLoading,
-    error,
+    isAuthenticated: queryInfo.data?.isAuthenticated || false,
+    isLoading: queryInfo.isLoading,
+    error: queryInfo.error,
   };
 };
