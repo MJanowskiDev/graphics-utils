@@ -1,17 +1,19 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
-import { Button, ButtonProps } from '../app/components/Button';
+import { Button, ButtonProps, Variant, Size } from '../shared/ui/button';
 
 const meta: Meta<ButtonProps> = {
-  title: 'Example/Button',
+  title: 'UI/Button',
   component: Button,
   parameters: {
     layout: 'centered',
   },
   argTypes: {
-    size: { control: { type: 'radio', options: ['small', 'medium', 'large'] } },
-    variant: { control: { type: 'radio', options: ['primary', 'secondary'] } },
-    outline: { control: 'boolean' },
+    size: { control: { type: 'radio', options: Object.values(Size) } },
+    variant: { control: { type: 'radio', options: Object.values(Variant) } },
+    outlined: { control: 'boolean' },
+    disabled: { control: 'boolean' },
+    loading: { control: 'boolean' },
   },
 };
 
@@ -28,27 +30,27 @@ export const Primary: Story = {
 export const Secondary: Story = {
   args: {
     label: 'Secondary',
-    variant: 'secondary',
+    variant: Variant.secondary,
   },
 };
 
 export const Large: Story = {
   args: {
     label: 'Large',
-    size: 'large',
+    size: Size.large,
   },
 };
 
 export const Small: Story = {
   args: {
     label: 'Small',
-    size: 'small',
+    size: Size.small,
   },
 };
 
 export const Outline: Story = {
   args: {
     label: 'Outline',
-    outline: true,
+    outlined: true,
   },
 };
