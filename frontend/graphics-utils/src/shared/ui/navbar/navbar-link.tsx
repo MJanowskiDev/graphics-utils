@@ -14,7 +14,7 @@ interface ActiveLinkProps extends LinkProps {
 
 const checkMatching = (path: string, href: string) => {
   if (href !== '/') {
-    return path.includes(href);
+    return path?.includes(href);
   } else {
     return href.match(path);
   }
