@@ -4,9 +4,9 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
 import { PasswordResetData, passwordResetSchema } from '../../schema';
-import { PasswordResetPayload } from '../../types';
 
 import { Input, SubmitButton } from '@/shared/ui/forms/components';
+import { PasswordResetPayload } from '@/api/types';
 
 interface PasswordResetFormProps {
   submitAction: ({ password }: PasswordResetPayload) => void;

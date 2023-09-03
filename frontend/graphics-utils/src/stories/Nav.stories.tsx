@@ -25,7 +25,6 @@ export const Authenticated: Story = {
   },
 };
 
-
 export const Loading: Story = {
   args: {
     isLoading: true,

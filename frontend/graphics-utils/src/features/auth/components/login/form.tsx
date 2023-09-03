@@ -3,13 +3,13 @@
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
-import { RegisterUserMutationParams } from '../../types';
 import { LoginFormData, loginFormSchema } from '../../schema';
 
 import { Input, SubmitButton } from '@/shared/ui/forms/components';
+import { RegisterPayload } from '@/api/types';
 
 interface LoginFormProps {
-  submitAction: ({ email, password }: RegisterUserMutationParams) => void;
+  submitAction: ({ email, password }: RegisterPayload) => void;
 }
 
 export const LoginForm = ({ submitAction }: LoginFormProps) => {

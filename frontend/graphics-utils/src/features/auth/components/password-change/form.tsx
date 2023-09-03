@@ -4,9 +4,9 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 
 import { PasswordChangeData, passwordChangeSchema } from '../../schema';
-import { PasswordChangePayload } from '../../types/password-change';
 
 import { Input, SubmitButton } from '@/shared/ui/forms/components';
+import { PasswordChangePayload } from '@/api/types';
 
 interface PasswordChangeFormProps {
   submitAction: ({ currentPassword, newPassword, confirmNewPassword }: PasswordChangePayload) => void;

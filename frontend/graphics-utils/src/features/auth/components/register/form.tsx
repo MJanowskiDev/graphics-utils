@@ -4,12 +4,11 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useRef } from 'react';
 
-import { RegisterUserMutationParams } from '../../types';
-
 import { Input, SubmitButton } from '@/shared/ui/forms/components';
+import { RegisterPayload } from '@/api/types';
 
 interface RegisterFormProps {
-  submitAction: ({ email, password }: RegisterUserMutationParams) => void;
+  submitAction: ({ email, password }: RegisterPayload) => void;
 }
 
 const registerFormSchema = yup.object({
