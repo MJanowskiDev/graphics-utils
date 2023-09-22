@@ -17,7 +17,7 @@ interface FeedbackToUserProps {
 export const FeedbackToUser = ({ isLoading, isError, isSuccess, error, successMessage, children }: FeedbackToUserProps) => {
   const errorMessage = isError && error ? (error as AxiosError<ApiError>).response?.data.exception.message : '';
   if (isError && errorMessage) {
-    enqueueSnackbar(errorMessage, { variant: 'error' });
+    enqueueSnackbar(`${errorMessage}`, { variant: 'error' });
   }
 
   if (isError && !errorMessage) {
