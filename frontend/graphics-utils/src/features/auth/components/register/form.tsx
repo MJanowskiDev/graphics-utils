@@ -1,21 +1,15 @@
 'use client';
-import * as yup from 'yup';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { useRef } from 'react';
 
 import { Input, SubmitButton } from '@/shared/ui/forms/components';
 import { RegisterPayload } from '@/api/types';
+import { registerSchema, RegisterSchemData } from '@/features/auth/schema';
 
 interface RegisterFormProps {
   submitAction: ({ email, password }: RegisterPayload) => void;
 }
-
-const registerFormSchema = yup.object({
-  email: yup.string().required().email(),
-  password: yup.string().required().min(8),
-});
-export type CheckoutFormData = yup.InferType<typeof registerFormSchema>;
 
 export const RegisterForm = ({ submitAction }: RegisterFormProps) => {
   const formRef = useRef<HTMLFormElement>(null);
@@ -25,21 +19,21 @@ export const RegisterForm = ({ submitAction }: RegisterFormProps) => {
     handleSubmit,
     reset,
     formState: { errors, isValid },
-  } = useForm<CheckoutFormData>({
-    resolver: yupResolver(registerFormSchema),
+  } = useForm<RegisterSchemData>({
+    resolver: yupResolver(registerSchema),
   });
 
-  const onSubmit = handleSubmit(async (data) => {
+  const onSubmit = handleSubmit((data) => {
     if (isValid) {
       const { email, password } = data;
-      await submitAction({ email, password });
+      submitAction({ email, password });
       reset();
     }
   });
 
   return (
     <form ref={formRef} onSubmit={onSubmit} className="grid grid-cols-6 gap-4">
-      <Input<CheckoutFormData>
+      <Input<RegisterSchemData>
         wrappingElementStyle="col-span-6"
         register={register}
         id={'email'}
@@ -49,7 +43,7 @@ export const RegisterForm = ({ submitAction }: RegisterFormProps) => {
         errors={errors}
       />
 
-      <Input<CheckoutFormData>
+      <Input<RegisterSchemData>
         wrappingElementStyle="col-span-6"
         register={register}
         id={'password'}

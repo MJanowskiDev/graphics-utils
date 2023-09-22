@@ -21,7 +21,7 @@ export const FeedbackToUser = ({ isLoading, isError, isSuccess, error, successMe
   }
 
   if (isError && !errorMessage) {
-    enqueueSnackbar('Unknown error occured.', { variant: 'error' });
+    enqueueSnackbar('Unknown error occurred.', { variant: 'error' });
   }
 
   if (isSuccess && successMessage) {
