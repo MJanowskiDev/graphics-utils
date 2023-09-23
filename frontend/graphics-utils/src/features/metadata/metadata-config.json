@@ -2,7 +2,7 @@
   "title": "Graphics Utils - AI-Driven Image Processing Tools",
   "description": "Offering a variety of operations, from basic adjustments to advanced, AI-driven transformations.",
 
-  "favicon": "/favicon.ico",
+  "favicon": "/images/favicon/favicon.ico",
   "viewport": "width=device-width, initial-scale=1",
   "charSet": "utf-8",
 
@@ -83,6 +83,10 @@
     {
       "size": "16x16",
       "href": "/images/favicon/favicon-16x16.png"
+    },
+    {
+      "size": "144x144",
+      "href": "/images/favicon/apple-icon-144x144.png"
     }
   ],
   "manifest": "/images/favicon/manifest.json",
