@@ -1,9 +1,11 @@
 import * as yup from 'yup';
 
+import { passwordValidationRule } from '@/features/auth/shared/validations';
+
 export const passwordChangeSchema = yup.object({
   currentPassword: yup.string().required(),
-  newPassword: yup.string().required().min(8),
-  confirmNewPassword: yup.string().required().min(8),
+  newPassword: passwordValidationRule,
+  confirmNewPassword: passwordValidationRule,
 });
 
 export type PasswordChangeData = yup.InferType<typeof passwordChangeSchema>;
