@@ -16,7 +16,7 @@ export const OperationButton = ({ href, name, image }: OperationButtonProps) => 
           justify-start items-start inline-flex hover:shadow-lg hover:border-opacity-60 transition-all ease-in-out duration-300"
       >
         <Image src={image} alt={name} layout="fill" objectFit="cover" />
-        <div className="absolute flex items-center justify-center mt-2 ml-2">
+        <div className="absolute flex mt-2 ml-2 w-[100px]">
           <p className="text-lg">{name}</p>
         </div>
       </div>

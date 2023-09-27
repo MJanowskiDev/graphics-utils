@@ -20,7 +20,7 @@ export const Nav = ({ isLoading, isLoggedIn, logout }: NavbarProps) => {
       md:gap-y-0 md:gap-x-6 p-4 justify-between items-center text-[#6c757dff] tracking-wide text-sm"
     >
       <Link href="/">
-        <Image src={logo} width={95} height={6} alt="Graphics utils logo" />
+        <Image src={logo} width={154} height={23} alt="Graphics utils logo" />
       </Link>
 
       <div>

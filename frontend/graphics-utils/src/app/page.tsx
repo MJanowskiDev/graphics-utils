@@ -1,13 +1,13 @@
 import Image from 'next/image';
 
-import logo from '../../public/images/graphics_utils.png';
+import logo from '../../public/images/graphics-utils-demo.gif';
 
 export default function Home() {
   return (
     <section className="flex flex-grow  justify-center items-center">
       <div className="flex  sm:gap-12 gap-10 flex-wrap px-4 items-center justify-center ">
-        <div className="w-[320px]">
-          <Image src={logo} width={320} height={47} alt="Graphics Utils Logo" />
+        <div className="overflow-hidden rounded-2xl border border-white border-opacity-30">
+          <Image src={logo} width={200} alt="Graphics Utils demo" />
         </div>
         <div className="sm:text-left text-center">
           <h1 className="text-2xl max-w-lg font-bold sm:mb-6 mb-10 text-white tracking-tight">Image processing tools</h1>
