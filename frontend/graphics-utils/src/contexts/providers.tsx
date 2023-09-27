@@ -35,7 +35,7 @@ function Providers({ children }: PropsWithChildren) {
         <SnackbarProvider
           maxSnack={3}
           preventDuplicate
-          autoHideDuration={null}
+          autoHideDuration={3000}
           hideIconVariant
           action={(key: SnackbarKey) => <CloseSnackbar snackKey={key} />}
         >
